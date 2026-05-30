@@ -14,10 +14,10 @@ export const Colors = {
   },
 
   brand: {
-    default: "#0EE5A1",
-    hover: "#0CA574",
+    default: "#16D296",
+    hover: "#13B07F",
     light: "#90FFDC",
-    subtle: "#009364",
+    subtle: "#00BB80",
   },
 
   status: {
