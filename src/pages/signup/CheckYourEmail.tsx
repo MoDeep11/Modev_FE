@@ -1,9 +1,9 @@
-import Header from "../layouts/Header";
+import Header from "../../layouts/Header";
 import styled from "styled-components";
-import { Colors } from "../styles/color";
-import VerifyBtn from "../assets/VerifyBtn.svg";
+import { Colors } from "../../styles/color";
+import VerifyBtn from "../../assets/VerifyBtn.svg";
 
-export default function Signup() {
+export default function CheckYourEmail() {
   return (
     <>
       <WrapperAll>
@@ -11,20 +11,25 @@ export default function Signup() {
         <WrapperContainer>
           <Wrapper>
             <Title>회원가입</Title>
-
-            <InputContainer>
-              <InputText>이메일</InputText>
-              <Input placeholder="이메일을 입력해주세요."></Input>
-            </InputContainer>
+            <MessageContainer>
+              <SentMessage>
+                <UserEmail>example@email.com</UserEmail> 으로 가입 링크를
+                보냈습니다.
+              </SentMessage>
+              <SentMessageSecond>
+                메일함의 링크를 눌러 가입을 완료해 주세요
+              </SentMessageSecond>
+              <If>혹시 메일이 오지 않았다면 스팸 메일함을 확인해 주세요.</If>
+            </MessageContainer>
 
             <BottomWrapper>
               <VerifyButton>
-                이메일 인증 <Img src={VerifyBtn} alt="" />
+                메일함으로 이동하기 <Img src={VerifyBtn} alt="" />
               </VerifyButton>
 
               <LoginContainer>
-                <SignInQuestion>계정이 있으신가요?</SignInQuestion>
-                <LoginBtn>로그인</LoginBtn>
+                <SentQuestion>이메일을 못 받으셨나요?</SentQuestion>
+                <ReSendBtn>코드 재발송</ReSendBtn>
               </LoginContainer>
             </BottomWrapper>
           </Wrapper>
@@ -33,6 +38,25 @@ export default function Signup() {
     </>
   );
 }
+
+const If = styled.p`
+  color: ${Colors.text.secondary};
+  font-size: 14px;
+  font-weight: 400;
+`;
+
+const SentMessage = styled.p`
+  color: white;
+  display: flex;
+`;
+
+const SentMessageSecond = styled.p`
+  color: white;
+`;
+
+const UserEmail = styled.p`
+  color: ${Colors.brand.subtle};
+`;
 
 const WrapperAll = styled.div`
   background-color: ${Colors.background.base};
@@ -66,21 +90,11 @@ const LoginContainer = styled.div`
   justify-content: center;
 `;
 
-const SignInQuestion = styled.p`
-  color: ${Colors.text.secondary};
-`;
-
 const BottomWrapper = styled.div`
   display: flex;
   align-items: center;
   flex-direction: column;
   gap: 6px;
-`;
-
-const LoginBtn = styled.p`
-  color: ${Colors.brand.default};
-  cursor: pointer;
-  margin-left: 5px;
 `;
 
 const Img = styled.img`
@@ -99,36 +113,26 @@ const VerifyButton = styled.button`
   font-size: 16px;
 `;
 
-const InputContainer = styled.div`
-  width: 436px;
-  height: 70px;
+const MessageContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 6px;
-`;
-
-const InputText = styled.p`
-  color: white;
-  font-size: 16px;
-`;
-
-const Input = styled.input`
-  width: 436px;
-  height: 40px;
-  font-size: 16px;
-  border-radius: 6px;
-  padding: 8px 16px;
-  background-color: ${Colors.background.base};
-  border: 1px solid ${Colors.background.base};
-  color: white;
-
-  &:focus{
-    outline: none;
-  }
+  align-items: center;
+  gap: 12px;
+  text-align: center;
 `;
 
 const Title = styled.p`
   color: white;
   font-size: 24px;
   font-weight: 600;
+`;
+
+const SentQuestion = styled.p`
+  color: ${Colors.text.secondary};
+`;
+
+const ReSendBtn = styled.p`
+  color: ${Colors.brand.default};
+  cursor: pointer;
+  margin-left: 5px;
 `;
