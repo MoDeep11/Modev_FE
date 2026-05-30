@@ -11,14 +11,12 @@ interface DevBlockProps {
 export default function DevBlock({ title, text }: DevBlockProps) {
   const [isSelect, setIsSelect] = useState(false);
 
-  console.log(isSelect);
-
   return (
     <Wrapper
       $isSelect={isSelect}
       onClick={() => {
         console.log("click", isSelect);
-        setIsSelect((prev) => !prev);
+        setIsSelect(!isSelect);
       }}
     >
       <TopContainer>
@@ -38,6 +36,7 @@ const Wrapper = styled.div<{ $isSelect: boolean }>`
   display: flex;
   gap: 12px;
   flex-direction: column;
+  cursor: pointer;
 
   border: 1px solid
     ${({ $isSelect }) =>
@@ -48,6 +47,8 @@ const Wrapper = styled.div<{ $isSelect: boolean }>`
 
   background-color: ${({ $isSelect }) =>
     $isSelect ? `${Colors.brand.default}1A` : Colors.background.surface};
+
+  transition: 0.2s;
 `;
 
 const TopContainer = styled.div`
