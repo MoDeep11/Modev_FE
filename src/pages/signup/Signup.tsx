@@ -1,7 +1,6 @@
 import Header from "../../layouts/Header";
 import styled from "styled-components";
 import { Colors } from "../../styles/color";
-import VerifyBtn from "../../assets/VerifyBtn.svg";
 
 export default function Signup() {
   return (
@@ -12,15 +11,20 @@ export default function Signup() {
           <Wrapper>
             <Title>회원가입</Title>
 
-            <InputContainer>
-              <InputText>이메일</InputText>
-              <Input placeholder="이메일을 입력해주세요."></Input>
-            </InputContainer>
+            <InputAllContainer>
+              <InputContainer>
+                <InputText>비밀번호</InputText>
+                <Input placeholder="비밀번호를 입력해주세요."></Input>
+              </InputContainer>
+
+              <InputContainer>
+                <InputText>비밀번호 확인</InputText>
+                <Input placeholder="비밀번호를 다시 입력해주세요."></Input>
+              </InputContainer>
+            </InputAllContainer>
 
             <BottomWrapper>
-              <VerifyButton>
-                이메일 인증 <Img src={VerifyBtn} alt="" />
-              </VerifyButton>
+              <VerifyButton>회원가입</VerifyButton>
 
               <LoginContainer>
                 <SignInQuestion>계정이 있으신가요?</SignInQuestion>
@@ -39,6 +43,12 @@ const WrapperAll = styled.div`
   min-height: 100vh;
 `;
 
+const InputAllContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+`;
+
 const WrapperContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -48,7 +58,7 @@ const WrapperContainer = styled.div`
 
 const Wrapper = styled.div`
   width: 600px;
-  height: 409px;
+  height: 503px;
   background-color: ${Colors.background.surface};
   border: 1px solid ${Colors.background.overlay};
   border-radius: 12px;
@@ -83,13 +93,6 @@ const LoginBtn = styled.p`
   margin-left: 5px;
 `;
 
-const Img = styled.img`
-  width: 4px;
-  height: 8px;
-  margin-left: 5px;
-  margin-bottom: 2px;
-`;
-
 const VerifyButton = styled.button`
   background-color: ${Colors.brand.default};
   width: 436px;
@@ -120,7 +123,11 @@ const Input = styled.input`
   padding: 8px 16px;
   background-color: ${Colors.background.base};
   border: 1px solid ${Colors.background.base};
-  color: white;
+  color: ${Colors.text.disabled};
+
+  &::placeholder {
+    color: ${Colors.text.disabled};
+  }
 
   &:focus {
     outline: none;
