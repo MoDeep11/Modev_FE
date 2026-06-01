@@ -26,7 +26,7 @@ export default function ProgressBar({ current }: ProgressBarProps) {
 const ProgressContainer = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   width: 100%;
 `;
 
@@ -50,7 +50,7 @@ const BarTrack = styled.div`
 
 const BarFill = styled.div<StyledBarProps>`
   height: 14px;
-  width: ${(props) => props.$width};
+  width: ${(props) => props.$width}%;
   border-radius: 50px;
   transition: width 0.4s ease-out;
   background: linear-gradient(90deg, #00855b 0%, #38ffc0 100%);
