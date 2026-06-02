@@ -15,7 +15,7 @@ export default function ProgressBar({ current }: ProgressBarProps) {
 
   return (
     <ProgressContainer>
-      <PercentText>{percentText}</PercentText>
+      <PercentText>{percentText}%</PercentText>
       <BarTrack>
         <BarFill $width={percentText} />
       </BarTrack>
