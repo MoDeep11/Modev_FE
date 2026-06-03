@@ -1,15 +1,13 @@
 import styled from "styled-components";
 import Header from "../layouts/Header";
 import { Colors } from "../styles/color";
-import ProgressBar from "../components/Build/progressBar";
-import under from "../assets/under.svg";
 import Folders from "../components/Build/Folders";
 
 export default function ProjectDatailCheck() {
   return (
     <>
       <WrapperAll>
-        <Header />
+        <Header text="로그아웃" />
 
         <WrapperContainer>
           <Wrapper>
