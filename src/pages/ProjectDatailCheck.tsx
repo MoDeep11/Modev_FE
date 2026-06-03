@@ -1,15 +1,13 @@
 import styled from "styled-components";
-import HeaderV2 from "../layouts/HeaderV2";
 import { Colors } from "../styles/color";
-import ProgressBar from "../components/Build/progressBar";
-import under from "../assets/under.svg";
 import Folders from "../components/Build/Folders";
+import HeaderV2 from "../layouts/HeaderV2";
 
-export default function BuildProgress() {
+export default function ProjectDatailCheck() {
   return (
     <>
       <WrapperAll>
-        <HeaderV2 text="로그아웃" page="프로젝트 빌더"/>
+        <HeaderV2 text="로그아웃" page="내 프로젝트" />
 
         <WrapperContainer>
           <Wrapper>
@@ -36,25 +34,6 @@ export default function BuildProgress() {
               </TopRightContainer>
             </TopContainer>
 
-            <Progress>
-              <ProgressBar current={64} />
-
-              <ProgressBarBottom>
-                <StatusDescription>
-                  🚀 [SYSTEM] Starting project bootstrapping engine...
-                </StatusDescription>
-
-                <Detail>
-                  과정 보기{" "}
-                  <img
-                    style={{ marginLeft: "7px", marginTop: "1px" }}
-                    src={under}
-                    alt=""
-                  />
-                </Detail>
-              </ProgressBarBottom>
-            </Progress>
-
             <BottomWrapper>
               <FolderWrapper>
                 <Folders file="topFolder" text="/ my-dsm-project" depth={0} />
@@ -74,8 +53,12 @@ export default function BuildProgress() {
             </BottomWrapper>
 
             <Bottom>
-              <ResetButton>처음으로</ResetButton>
-              <DownloadFile>.zip 파일 다운로드</DownloadFile>
+              <Delete>삭제</Delete>
+              <BottomRight>
+                <DownloadFile>.zip 파일 다운로드</DownloadFile>
+                <ModifySkillStack>기술 스택 수정</ModifySkillStack>
+                <Check>확인</Check>
+              </BottomRight>
             </Bottom>
           </Wrapper>
         </WrapperContainer>
@@ -83,6 +66,63 @@ export default function BuildProgress() {
     </>
   );
 }
+
+const BottomRight = styled.div`
+  display: flex;
+  gap: 12px;
+`;
+
+const ModifySkillStack = styled.div`
+  padding: 10px 32px;
+  border: 1px solid ${Colors.border.strong};
+  color: white;
+  background-color: ${Colors.background.base};
+  border-radius: 10px;
+  width: 160px;
+  display: flex;
+  align-items: center;
+  height: 39px;
+  cursor: pointer;
+`;
+
+const DownloadFile = styled.button`
+  padding: 10px 32px;
+  border: 1px solid ${Colors.border.strong};
+  color: White;
+  background-color: ${Colors.background.base};
+  border-radius: 10px;
+  width: 181ppx;
+  height: 39px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+`;
+
+const Check = styled.div`
+  cursor: pointer;
+  padding: 10px 32px;
+  background-color: ${Colors.brand.default};
+  width: 92px;
+  height: 39px;
+  border-radius: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+`;
+
+const Delete = styled.div`
+  padding: 10px 32px;
+  border: 1px solid ${Colors.status.error};
+  color: ${Colors.status.error};
+  background-color: ${Colors.background.base};
+  border-radius: 10px;
+  width: 92ppx;
+  height: 39px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+`;
 
 const Wrapper = styled.div`
   position: absolute;
@@ -93,43 +133,11 @@ const Wrapper = styled.div`
 
 const Project = styled.div``;
 
-const ProgressBarBottom = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
-
-const Detail = styled.div`
-  font-size: 14px;
-  cursor: pointer;
-  color: ${Colors.text.disabled};
-`;
-
 const Bottom = styled.div`
   width: 900px;
   height: 39px;
   display: flex;
   justify-content: space-between;
-`;
-
-const ResetButton = styled.button`
-  padding: 10px 32px;
-  border: 1px solid ${Colors.border.strong};
-  color: white;
-  background-color: ${Colors.background.base};
-  border-radius: 10px;
-  width: 120px;
-  height: 39px;
-  cursor: pointer;
-`;
-
-const DownloadFile = styled.button`
-  cursor: pointer;
-  padding: 10px 32px;
-  background-color: ${Colors.brand.default};
-  width: 181px;
-  height: 39px;
-  border-radius: 12px;
-  font-weight: 600;
 `;
 
 const CodeTextsWrapper = styled.div`
@@ -174,13 +182,6 @@ const FolderWrapper = styled.div`
   padding: 10px;
 `;
 
-const Progress = styled.div`
-  display: flex;
-  gap: 7px;
-  flex-direction: column;
-  margin-bottom: 24px;
-`;
-
 const SkillItem = styled.div`
   background-color: ${Colors.background.overlay};
   width: 76px;
@@ -192,11 +193,6 @@ const SkillItem = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-`;
-
-const StatusDescription = styled.div`
-  font-size: 14px;
-  color: ${Colors.text.primary};
 `;
 
 const TopRightContainer = styled.div`
@@ -220,6 +216,7 @@ const TopContainer = styled.div`
   display: flex;
   justify-content: space-between;
   width: 100%;
+  margin-bottom: 42px;
 `;
 
 const WrapperAll = styled.div`
