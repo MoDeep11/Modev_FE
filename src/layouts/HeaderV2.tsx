@@ -7,7 +7,6 @@ import LogoutButton from "../components/header/LogoutButton";
 interface HeaderProps {
   text: "로그아웃" | "로그인";
   page: "프로젝트 빌더" | "내 프로젝트";
-  onClick?: () => void;
 }
 
 export default function HeaderV2({ text, page }: HeaderProps) {
