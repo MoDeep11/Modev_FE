@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import Header from "../layouts/Header";
+import HeaderV2 from "../layouts/HeaderV2";
 import { Colors } from "../styles/color";
 import ProgressBar from "../components/Build/progressBar";
 import under from "../assets/under.svg";
@@ -9,7 +9,7 @@ export default function BuildProgress() {
   return (
     <>
       <WrapperAll>
-        <Header text='로그아웃'/>
+        <HeaderV2 text="로그아웃" page="프로젝트 빌더"/>
 
         <WrapperContainer>
           <Wrapper>

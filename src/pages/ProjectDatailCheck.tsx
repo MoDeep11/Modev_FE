@@ -1,13 +1,13 @@
 import styled from "styled-components";
-import Header from "../layouts/Header";
 import { Colors } from "../styles/color";
 import Folders from "../components/Build/Folders";
+import HeaderV2 from "../layouts/HeaderV2";
 
 export default function ProjectDatailCheck() {
   return (
     <>
       <WrapperAll>
-        <Header text="로그아웃" />
+        <HeaderV2 text="로그아웃" page="내 프로젝트" />
 
         <WrapperContainer>
           <Wrapper>
