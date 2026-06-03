@@ -9,7 +9,7 @@ export default function BuildProgress() {
   return (
     <>
       <WrapperAll>
-        <Header />
+        <Header text='로그아웃'/>
 
         <WrapperContainer>
           <Wrapper>
