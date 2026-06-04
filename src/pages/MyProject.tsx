@@ -2,7 +2,7 @@ import styled from "styled-components";
 import HeaderV2 from "../layouts/HeaderV2";
 import { Colors } from "../styles/color";
 import ProjectBox from "../components/myprojects/ProjectBox";
-import serch from "../assets/serch.svg";
+import search from "../assets/search.svg";
 
 export default function MyProject() {
   return (
@@ -19,7 +19,7 @@ export default function MyProject() {
               </Text>
               <InputContainer>
                 <Input placeholder="프로젝트를 찾아보세요!"></Input>
-                <SearchIcon src={serch} alt=""></SearchIcon>
+                <SearchIcon src={search} alt=""></SearchIcon>
               </InputContainer>
             </TopContainer>
 
