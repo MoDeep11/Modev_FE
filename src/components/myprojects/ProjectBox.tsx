@@ -24,15 +24,15 @@ export default function ProjectBox({
       <Border></Border>
 
       <DateWrapper>
-        <DateTitle style={{ marginBottom: "6px" }}>{createdAt}</DateTitle>
+        <DateTitle style={{ marginBottom: "6px" }}>생성일</DateTitle>
         <ShortBorder></ShortBorder>
-        <DetailDate>2026-09-03</DetailDate>
+        <DetailDate>{createdAt}</DetailDate>
       </DateWrapper>
 
       <DateWrapper>
-        <DateTitle style={{ marginBottom: "16px" }}>{lastModifiedAt}</DateTitle>
+        <DateTitle style={{ marginBottom: "16px" }}>최종 수정일</DateTitle>
         <ShortBorder></ShortBorder>
-        <DetailDate>2026-09-08</DetailDate>
+        <DetailDate>{lastModifiedAt}</DetailDate>
       </DateWrapper>
 
       <SkillContainer>
@@ -119,7 +119,8 @@ const DetailDate = styled.div`
 `;
 
 const Wrapper = styled.div`
-  width: 360px;
+  width: 100%;
+  max-width: 360px;
   height: 187px;
   border: 1px solid ${Colors.background.overlay};
   background-color: ${Colors.background.base};
