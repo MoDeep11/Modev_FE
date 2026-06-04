@@ -69,6 +69,7 @@ const CancelButton = styled.button`
   background-color: ${Colors.background.surface};
   color: white;
   font-size: 16px;
+  cursor: pointer;
 `;
 
 const DeleteButton = styled.button`
@@ -83,4 +84,5 @@ const DeleteButton = styled.button`
   color: ${Colors.status.error};
   background-color: ${Colors.status.error}1A;
   font-size: 16px;
+  cursor: pointer;
 `;
