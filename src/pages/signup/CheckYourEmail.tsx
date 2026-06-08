@@ -7,7 +7,7 @@ export default function CheckYourEmail() {
   return (
     <>
       <WrapperAll>
-        <Header />
+        <Header text="로그인" />
         <WrapperContainer>
           <Wrapper>
             <Title>회원가입</Title>
@@ -23,14 +23,7 @@ export default function CheckYourEmail() {
             </MessageContainer>
 
             <BottomWrapper>
-              <VerifyButton>
-                메일함으로 이동하기 <Img src={VerifyBtn} alt="" />
-              </VerifyButton>
-
-              <LoginContainer>
-                <SentQuestion>이메일을 못 받으셨나요?</SentQuestion>
-                <ReSendBtn>코드 재발송</ReSendBtn>
-              </LoginContainer>
+              <VerifyButton>코드 재발송</VerifyButton>
             </BottomWrapper>
           </Wrapper>
         </WrapperContainer>
@@ -83,25 +76,11 @@ const Wrapper = styled.div`
   flex-direction: column;
 `;
 
-const LoginContainer = styled.div`
-  font-size: 14px;
-  width: 436px;
-  display: flex;
-  justify-content: center;
-`;
-
 const BottomWrapper = styled.div`
   display: flex;
   align-items: center;
   flex-direction: column;
   gap: 6px;
-`;
-
-const Img = styled.img`
-  width: 4px;
-  height: 8px;
-  margin-left: 5px;
-  margin-bottom: 2px;
 `;
 
 const VerifyButton = styled.button`
@@ -111,6 +90,7 @@ const VerifyButton = styled.button`
   padding: 10px 32px;
   border-radius: 12px;
   font-size: 16px;
+  margin-bottom: 20px;
 `;
 
 const MessageContainer = styled.div`
@@ -125,14 +105,4 @@ const Title = styled.p`
   color: white;
   font-size: 24px;
   font-weight: 600;
-`;
-
-const SentQuestion = styled.p`
-  color: ${Colors.text.secondary};
-`;
-
-const ReSendBtn = styled.p`
-  color: ${Colors.brand.default};
-  cursor: pointer;
-  margin-left: 5px;
 `;
