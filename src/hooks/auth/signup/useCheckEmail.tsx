@@ -1,12 +1,15 @@
 import { useMutation } from "@tanstack/react-query";
 import { EmailCheck } from "../../../apis/auth";
+import { useNavigate } from "react-router-dom";
 
 export const useCheckEmail = () => {
+  const navigate = useNavigate();
   return useMutation({
     mutationFn: EmailCheck,
 
     onSuccess: (data) => {
       alert("이메일이 인증되었습니다");
+      navigate("/login");
     },
 
     onError: (error: any) => {
