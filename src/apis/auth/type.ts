@@ -13,6 +13,6 @@ export interface EmailCheckProps {
   token: String;
 }
 
-export interface EmailReSendProps {
+export interface EmailSendProps {
   email: String;
 }

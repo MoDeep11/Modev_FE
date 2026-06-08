@@ -1,5 +1,5 @@
 import { api } from "..";
-import type { SignupProps, EmailCheckProps, EmailReSendProps } from "./type";
+import type { SignupProps, EmailCheckProps, EmailSendProps } from "./type";
 
 export const CreateUser = async ({
   email,
@@ -21,7 +21,7 @@ export const EmailCheck = async ({ token }: EmailCheckProps) => {
   return response.data;
 };
 
-export const EmailReSend = async ({ email }: EmailReSendProps) => {
+export const EmailSend = async ({ email }: EmailSendProps) => {
   const response = await api.post(`/auth/email/resend`, {
     email,
   });

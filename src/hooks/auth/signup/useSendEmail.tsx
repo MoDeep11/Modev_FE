@@ -1,9 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
-import { EmailReSend } from "../../../apis/auth";
+import { EmailSend } from "../../../apis/auth";
 
-export const useReSendEmail = () => {
+export const useSendEmail = () => {
   return useMutation({
-    mutationFn: EmailReSend,
+    mutationFn: EmailSend,
 
     onSuccess: (data) => {
       alert("이메일이 재발송되었습니다");
