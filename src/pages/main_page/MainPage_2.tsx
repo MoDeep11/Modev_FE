@@ -22,9 +22,9 @@ const Main = () => {
           <img src={Arrow} width={16} height={16} />
           <Process num={2} text="개발 분야 선택" use={true}/>
           <img src={Arrow} width={16} height={16} />
-          <Process num={2} text="개발 분야 선택" use={false}/>
+          <Process num={3} text="기술 스택 선택" use={false}/>
           <img src={Arrow} width={16} height={16} />
-          <Process num={2} text="개발 분야 선택" use={false}/>
+          <Process num={4} text="의존성 선택" use={false}/>
         </Main_top>
         }
         <Main_section>
@@ -67,12 +67,12 @@ const Main = () => {
             </Choice_text>
           </Choice_box>
         </Main_section>
-        <Before onClick={() => navigate("/")}>
+        <Before onClick={() => navigate("/main")}>
           <img src={Arrow} alt="" />
           이전
         </Before>
 
-        <Next onClick={() => navigate("/Main_next")}>
+        <Next onClick={() => navigate("/main-3")}>
           다음
           <img src={Arrow} alt="" />
         </Next>

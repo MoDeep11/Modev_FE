@@ -43,7 +43,7 @@ const Main = () => {
             </Choice_text>
           </Choice_box>
         </Main_section>
-        <Next onClick={() => navigate("/Main")}>
+        <Next onClick={() => navigate("/main-2")}>
           다음
           <img src={Arrow} alt="" />
         </Next>

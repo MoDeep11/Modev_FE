@@ -152,7 +152,7 @@ const Main = () => {
         <Btn_box>
           <Before
             onClick={() => {
-              navigate("/Main");
+              navigate("/main-2");
             }}
           >
             <img src={Arrow} alt="" />
@@ -160,7 +160,7 @@ const Main = () => {
           </Before>
 
           <Next onClick={() => {
-            navigate("/Main_last")
+            navigate("/main-4")
           }}>
             다음
             <img src={Arrow} alt="" />

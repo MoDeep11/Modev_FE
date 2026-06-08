@@ -151,7 +151,7 @@ const Main = () => {
         <Btn_box>
           <Before
             onClick={() => {
-              navigate("/Main_next");
+              navigate("/main-3");
             }}
           >
             <img src={Arrow} alt="" />
@@ -160,7 +160,7 @@ const Main = () => {
 
           <Next
             onClick={() => {
-              navigate("/End");
+              navigate("/build-progress");
             }}
           >
             프로젝트 생성
