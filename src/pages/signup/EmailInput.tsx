@@ -14,7 +14,7 @@ export default function EmailInput() {
 
   navigate("/signup/password", { state: { userEmail: email } });
 
-  const EmailInput = (e) => setEmail(e.target.value);
+  const HandleEmailInput = (e) => setEmail(e.target.value);
   const VerifyEmail = () => {
     if (!email.trim()) {
       alert("이메일을 입력해주세요!");
@@ -35,7 +35,7 @@ export default function EmailInput() {
             <InputContainer>
               <InputText>이메일</InputText>
               <Input
-                onChange={EmailInput}
+                onChange={HandleEmailInput}
                 placeholder="이메일을 입력해주세요."
                 value={email}
               ></Input>

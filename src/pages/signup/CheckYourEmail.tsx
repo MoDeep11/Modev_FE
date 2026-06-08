@@ -13,11 +13,11 @@ export default function CheckYourEmail() {
 
   const email = location.state?.email;
 
-  const { mutate: checkEmail, isPending } = useCheckEmail();
+  const { mutate: checkEmail } = useCheckEmail();
   const { mutate: sendEmail, isPending: isSending } = useSendEmail();
 
   const codeReSend = () => {
-    sendEmail(email);
+    sendEmail({ email });
   };
 
   useEffect(() => {
@@ -44,7 +44,9 @@ export default function CheckYourEmail() {
             </MessageContainer>
 
             <BottomWrapper>
-              <VerifyButton onClick={codeReSend}>코드 재발송</VerifyButton>
+              <VerifyButton onClick={codeReSend} disabled={isSending}>
+                {isSending ? "발송 중..." : "코드 재발송"}
+              </VerifyButton>
             </BottomWrapper>
           </Wrapper>
         </WrapperContainer>

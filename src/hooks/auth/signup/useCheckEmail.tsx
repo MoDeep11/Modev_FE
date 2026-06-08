@@ -1,18 +1,19 @@
 import { useMutation } from "@tanstack/react-query";
 import { EmailCheck } from "../../../apis/auth";
 import { useNavigate } from "react-router-dom";
+import { AxiosError } from "axios";
 
 export const useCheckEmail = () => {
   const navigate = useNavigate();
   return useMutation({
     mutationFn: EmailCheck,
 
-    onSuccess: (data) => {
+    onSuccess: () => {
       alert("이메일이 인증되었습니다");
       navigate("/login");
     },
 
-    onError: (error: any) => {
+    onError: (error: AxiosError<any>) => {
       const errorCode = error.response?.data?.code;
       if (errorCode === "VERIFY_TOKEN_EXPIRED")
         alert("인증 링크가 만료되었습니다");

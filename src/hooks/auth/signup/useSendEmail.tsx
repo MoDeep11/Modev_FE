@@ -1,15 +1,16 @@
 import { useMutation } from "@tanstack/react-query";
 import { EmailSend } from "../../../apis/auth";
+import { AxiosError } from "axios";
 
 export const useSendEmail = () => {
   return useMutation({
     mutationFn: EmailSend,
 
-    onSuccess: (data) => {
+    onSuccess: () => {
       alert("이메일이 재발송되었습니다");
     },
 
-    onError: (error: any) => {
+    onError: (error: AxiosError<any>) => {
       const errorCode = error.response?.data?.code;
       if (errorCode === "ALREADY_VERIFIED") alert("이미 인증된 계정입니다");
       else if (errorCode === "RESEND_RATE_LIMIT")

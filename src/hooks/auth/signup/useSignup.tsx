@@ -1,15 +1,16 @@
 import { useMutation } from "@tanstack/react-query";
 import { CreateUser } from "../../../apis/auth/index";
+import { AxiosError } from "axios";
 
 export const useSignup = () => {
   return useMutation({
     mutationFn: CreateUser,
 
-    onSuccess: (data) => {
+    onSuccess: () => {
       alert("회원가입이 완료되었습니다! 인증 이메일을 확인해 주세요.");
     },
 
-    onError: (error: any) => {
+    onError: (error: AxiosError<any>) => {
       const errorCode = error.response?.data?.code;
       if (errorCode === "EMAIL_ALREADY_EXISTS") alert("중복 이메일입니다");
       else if (errorCode === "INVALID_PASSWORD_FORMAT")

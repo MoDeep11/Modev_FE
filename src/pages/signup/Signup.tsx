@@ -2,10 +2,12 @@ import Header from "../../layouts/Header";
 import styled from "styled-components";
 import { Colors } from "../../styles/color";
 import { useSignup } from "../../hooks/auth/signup/useSignup";
-import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 export default function Signup() {
+  const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.userEmail || "";
   const [password, setPassword] = useState("");
@@ -24,6 +26,13 @@ export default function Signup() {
 
     sendPassword({ email, password, passwordConfirm });
   };
+
+  useEffect(() => {
+    if (!email) {
+      alert("올바르지 않은 접근입니다. 이메일을 다시 입력해 주세요.");
+      navigate("/signup");
+    }
+  }, [email, navigate]);
 
   return (
     <>

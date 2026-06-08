@@ -5,23 +5,18 @@ const BaseURL: string = import.meta.env.VITE_BASE_URL;
 export const api = axios.create({
   baseURL: BaseURL,
   timeout: 5000,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  headers: { "Content-Type": "application/json" },
   withCredentials: true,
 });
 
+let currentRefreshPromise: Promise<string> | null = null;
+
 api.interceptors.request.use((config) => {
   const skipUrls = ["/login", "/signup"];
-
-  if (skipUrls.some((url) => config.url?.includes(url))) {
-    return config;
-  }
+  if (skipUrls.some((url) => config.url?.includes(url))) return config;
 
   const accessToken = localStorage.getItem("accessToken");
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
-  }
+  if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
   return config;
 });
 
@@ -32,41 +27,48 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401 && !config._retry) {
       config._retry = true;
-      localStorage.removeItem("accessToken");
 
       try {
-        const response = await axios.post(
-          `${BaseURL}/auth/token/refresh`,
-          {},
-          { withCredentials: true }, //쿠키 보내기
-        );
+        if (!currentRefreshPromise) {
+          currentRefreshPromise = axios
+            .post(
+              `${BaseURL}/auth/token/refresh`,
+              {},
+              { withCredentials: true },
+            )
+            .then((res) => {
+              const newAccessToken = res.data.data.accessToken;
+              localStorage.setItem("accessToken", newAccessToken);
+              return newAccessToken;
+            })
+            .finally(() => {
+              currentRefreshPromise = null;
+            });
+        }
 
-        const newAccessToken: string = response.data.data.accessToken;
-
-        localStorage.setItem("accessToken", newAccessToken);
+        const newAccessToken = await currentRefreshPromise;
 
         config.headers.Authorization = `Bearer ${newAccessToken}`;
-
         return api(config);
-      } catch (error) {
-        console.log(error);
-
-        const errorCode = error.response?.data?.code;
+      } catch (refreshError: any) {
+        console.log(refreshError);
+        const errorCode = refreshError.response?.data?.code;
 
         if (
-          errorCode === "REFRESH_TOKEN_EXPIRED" ||
-          errorCode === "REFRESH_TOKEN_INVALID" ||
-          errorCode === "REFRESH_TOKEN_REUSED"
+          [
+            "REFRESH_TOKEN_EXPIRED",
+            "REFRESH_TOKEN_INVALID",
+            "REFRESH_TOKEN_REUSED",
+          ].includes(errorCode)
         ) {
           alert("세션이 만료되었습니다. 다시 로그인해 주세요.");
-          window.location.href = "/login";
         } else {
           alert("인증 갱신에 실패했습니다. 다시 시도해 주세요.");
-          window.location.href = "/login";
         }
 
         localStorage.removeItem("accessToken");
-        throw error;
+        window.location.href = "/login";
+        return Promise.reject(refreshError);
       }
     }
     return Promise.reject(error);
