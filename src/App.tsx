@@ -7,7 +7,7 @@ import ProjectDatailCheck from "./pages/ProjectDatailCheck";
 import Main from "./pages/main_page/MainPage";
 import Main_2 from "./pages/main_page/MainPage_2";
 import Main_3 from "./pages/main_page/MainPage_3";
-import Main_4 from "../src/pages/main_page/MainPage_4";
+import Main_4 from "./pages/main_page/MainPage_4";
 import { Routes, Route } from "react-router-dom";
 
 function App() {
