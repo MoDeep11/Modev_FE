@@ -1,9 +1,31 @@
 import Header from "../../layouts/Header";
 import styled from "styled-components";
 import { Colors } from "../../styles/color";
-import VerifyBtn from "../../assets/VerifyBtn.svg";
+import { useCheckEmail } from "../../hooks/auth/signup/useCheckEmail";
+import { useSendEmail } from "../../hooks/auth/signup/useSendEmail";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 export default function CheckYourEmail() {
+  const location = useLocation();
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get("token");
+
+  const email = location.state?.email;
+
+  const { mutate: checkEmail, isPending } = useCheckEmail();
+  const { mutate: sendEmail, isPending: isSending } = useSendEmail();
+
+  const codeReSend = () => {
+    sendEmail(email);
+  };
+
+  useEffect(() => {
+    if (token) {
+      checkEmail({ token });
+    }
+  }, [token, checkEmail]);
+
   return (
     <>
       <WrapperAll>
@@ -13,8 +35,7 @@ export default function CheckYourEmail() {
             <Title>회원가입</Title>
             <MessageContainer>
               <SentMessage>
-                <UserEmail>example@email.com</UserEmail> 으로 가입 링크를
-                보냈습니다.
+                <UserEmail>{email}</UserEmail> 으로 가입 링크를 보냈습니다.
               </SentMessage>
               <SentMessageSecond>
                 메일함의 링크를 눌러 가입을 완료해 주세요
@@ -23,7 +44,7 @@ export default function CheckYourEmail() {
             </MessageContainer>
 
             <BottomWrapper>
-              <VerifyButton>코드 재발송</VerifyButton>
+              <VerifyButton onClick={codeReSend}>코드 재발송</VerifyButton>
             </BottomWrapper>
           </Wrapper>
         </WrapperContainer>
