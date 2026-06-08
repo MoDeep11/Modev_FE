@@ -2,24 +2,49 @@ import Header from "../../layouts/Header";
 import styled from "styled-components";
 import { Colors } from "../../styles/color";
 import VerifyBtn from "../../assets/VerifyBtn.svg";
+import { useState } from "react";
+import { useSendEmail } from "../../hooks/auth/signup/useSendEmail";
+import { useNavigate } from "react-router-dom";
 
 export default function EmailInput() {
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const { mutate: sendEmail, isPending } = useSendEmail();
+
+  navigate("/signup/password", { state: { userEmail: email } });
+
+  const HandleEmailInput = (e) => setEmail(e.target.value);
+  const VerifyEmail = () => {
+    if (!email.trim()) {
+      alert("이메일을 입력해주세요!");
+      return;
+    }
+
+    sendEmail({ email });
+  };
+
   return (
     <>
       <WrapperAll>
-        <Header />
+        <Header text="로그인" />
         <WrapperContainer>
           <Wrapper>
             <Title>회원가입</Title>
 
             <InputContainer>
               <InputText>이메일</InputText>
-              <Input placeholder="이메일을 입력해주세요."></Input>
+              <Input
+                onChange={HandleEmailInput}
+                placeholder="이메일을 입력해주세요."
+                value={email}
+              ></Input>
             </InputContainer>
 
             <BottomWrapper>
-              <VerifyButton>
-                이메일 인증 <Img src={VerifyBtn} alt="" />
+              <VerifyButton onClick={VerifyEmail} disabled={isPending}>
+                {isPending ? "전송 중..." : "이메일 인증"}
+                <Img src={VerifyBtn} alt="" />
               </VerifyButton>
 
               <LoginContainer>
