@@ -1,5 +1,10 @@
 import { api } from "..";
-import type { SignupProps, EmailCheckProps, EmailSendProps } from "./type";
+import type {
+  SignupProps,
+  EmailCheckProps,
+  EmailSendProps,
+  LoginProps,
+} from "./type";
 
 export const CreateUser = async ({
   email,
@@ -25,5 +30,18 @@ export const EmailSend = async ({ email }: EmailSendProps) => {
   const response = await api.post(`/auth/email/resend`, {
     email,
   });
+  return response.data;
+};
+
+export const LoginUser = async ({ email, password }: LoginProps) => {
+  const response = await api.post(`/auth/login`, {
+    email,
+    password,
+  });
+  return response.data;
+};
+
+export const LogoutUser = async () => {
+  const response = await api.post(`/auth/logout`, {});
   return response.data;
 };
