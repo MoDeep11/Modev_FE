@@ -1,12 +1,34 @@
 import Header from "../../layouts/Header";
 import styled from "styled-components";
 import { Colors } from "../../styles/color";
+import { useSignup } from "../../hooks/auth/signup/useSignup";
+import { useState } from "react";
+import { useLocation } from "react-router-dom";
 
 export default function Signup() {
+  const location = useLocation();
+  const email = location.state?.userEmail || "";
+  const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+
+  const { mutate: sendPassword, isPending } = useSignup();
+
+  const PasswordInput = (e) => setPassword(e.target.value);
+  const CheckPasswordInput = (e) => setPasswordConfirm(e.target.value);
+
+  const SignupHandle = () => {
+    if (!password.trim() || !passwordConfirm.trim()) {
+      alert("비밀번호를 입력해주세요!");
+      return;
+    }
+
+    sendPassword({ email, password, passwordConfirm });
+  };
+
   return (
     <>
       <WrapperAll>
-        <Header />
+        <Header text="로그인" />
         <WrapperContainer>
           <Wrapper>
             <Title>회원가입</Title>
@@ -14,17 +36,29 @@ export default function Signup() {
             <InputAllContainer>
               <InputContainer>
                 <InputText>비밀번호</InputText>
-                <Input placeholder="비밀번호를 입력해주세요."></Input>
+                <Input
+                  type="password"
+                  onChange={PasswordInput}
+                  placeholder="비밀번호를 입력해주세요."
+                  value={password}
+                ></Input>
               </InputContainer>
 
               <InputContainer>
                 <InputText>비밀번호 확인</InputText>
-                <Input placeholder="비밀번호를 다시 입력해주세요."></Input>
+                <Input
+                  type="password"
+                  onChange={CheckPasswordInput}
+                  placeholder="비밀번호를 다시 입력해주세요."
+                  value={passwordConfirm}
+                ></Input>
               </InputContainer>
             </InputAllContainer>
 
             <BottomWrapper>
-              <VerifyButton>회원가입</VerifyButton>
+              <VerifyButton onClick={SignupHandle} disabled={isPending}>
+                {isPending ? "가입 중..." : "회원가입"}
+              </VerifyButton>
 
               <LoginContainer>
                 <SignInQuestion>계정이 있으신가요?</SignInQuestion>
