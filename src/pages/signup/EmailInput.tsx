@@ -4,10 +4,15 @@ import { Colors } from "../../styles/color";
 import VerifyBtn from "../../assets/VerifyBtn.svg";
 import { useState } from "react";
 import { useSendEmail } from "../../hooks/auth/signup/useSendEmail";
+import { useNavigate } from "react-router-dom";
 
 export default function EmailInput() {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const { mutate: sendEmail, isPending } = useSendEmail();
+
+  navigate("/signup/password", { state: { userEmail: email } });
 
   const EmailInput = (e) => setEmail(e.target.value);
   const VerifyEmail = () => {
