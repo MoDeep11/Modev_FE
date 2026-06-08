@@ -8,6 +8,7 @@ export const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
 
 api.interceptors.request.use((config) => {
@@ -32,25 +33,39 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !config._retry) {
       config._retry = true;
       localStorage.removeItem("accessToken");
-      const refreshToken = localStorage.getItem("refreshToken");
 
       try {
-        const response: any = await api.post(`/api/v1/auth/refresh`, {
-          refreshToken,
-        });
+        const response = await axios.post(
+          `${BaseURL}/auth/token/refresh`,
+          {},
+          { withCredentials: true }, //쿠키 보내기
+        );
 
-        const newAccessToken: string = response.data.accessToken;
-        const newRefreshToken: string = response.data.refreshToken;
+        const newAccessToken: string = response.data.data.accessToken;
 
         localStorage.setItem("accessToken", newAccessToken);
-        localStorage.setItem("refreshToken", newRefreshToken);
 
         config.headers.Authorization = `Bearer ${newAccessToken}`;
 
         return api(config);
       } catch (error) {
         console.log(error);
-        alert("다시 시도해주세요");
+
+        const errorCode = error.response?.data?.code;
+
+        if (
+          errorCode === "REFRESH_TOKEN_EXPIRED" ||
+          errorCode === "REFRESH_TOKEN_INVALID" ||
+          errorCode === "REFRESH_TOKEN_REUSED"
+        ) {
+          alert("세션이 만료되었습니다. 다시 로그인해 주세요.");
+          window.location.href = "/login";
+        } else {
+          alert("인증 갱신에 실패했습니다. 다시 시도해 주세요.");
+          window.location.href = "/login";
+        }
+
+        localStorage.removeItem("accessToken");
         throw error;
       }
     }
