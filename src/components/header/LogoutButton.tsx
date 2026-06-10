@@ -16,7 +16,7 @@ const Wrapper = styled.div`
   border: 1px solid ${Colors.background.overlay};
   color: white;
   padding: 8px 24px;
-  width: 129px;
+  width: fit-content;
   height: 40px;
   display: flex;
   justify-content: center;
