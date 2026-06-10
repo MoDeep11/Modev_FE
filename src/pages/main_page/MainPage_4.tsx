@@ -1,7 +1,7 @@
 import HeaderV2 from "../../layouts/HeaderV2";
 import styled from "@emotion/styled";
 import { Colors } from "../../styles/color";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 import Arrow from "../../assets/Arrow.svg";
 import Fold from "../../assets/Fold.svg";
 import Cancel from "../../assets/Vector (Stroke).svg";
@@ -12,19 +12,26 @@ import Search_img from "../../assets/search.svg";
 const Main = () => {
   const num = 3;
   const navigate = useNavigate();
+  const location = useLocation()
+
+    const isModify = location.pathname === "/main-md-4";
 
   return (
     <>
-      <HeaderV2 text="로그아웃" page="프로젝트 빌더" />
+      <HeaderV2 text="로그아웃" page="프로젝트 빌더"  />
       <Body>
         <Main_top>
-          <Process num={1} text="프로젝트 생성" use={false}/>
-          <img src={Arrow} width={16} height={16} />
-          <Process num={2} text="개발 분야 선택" use={false}/>
-          <img src={Arrow} width={16} height={16} />
-          <Process num={3} text="기술 스택 선택" use={false}/>
-          <img src={Arrow} width={16} height={16} />
-          <Process num={4} text="의존성 선택" use={true}/>
+          {!isModify && (
+            <>
+              <Process num={1} text="프로젝트 생성" use={false} />
+              <img src={Arrow} width={16} height={16} alt="" />
+            </>
+          )}
+          <Process num={isModify ? 1 : 2} text="개발 분야 선택" use={true} />
+          <img src={Arrow} width={16} height={16} alt="" />
+          <Process num={isModify ? 2 : 3} text="기술 스택 선택" use={false} />
+          <img src={Arrow} width={16} height={16} alt="" />
+          <Process num={isModify ? 3 : 4} text="의존성 선택" use={false} />
         </Main_top>
         <Main_section>
           <Title_box>
@@ -151,7 +158,7 @@ const Main = () => {
         <Btn_box>
           <Before
             onClick={() => {
-              navigate("/main-3");
+              navigate(isModify ? "/main-md-3" : "/main-3");
             }}
           >
             <img src={Arrow} alt="" />
@@ -160,7 +167,7 @@ const Main = () => {
 
           <Next
             onClick={() => {
-              navigate("/build-progress");
+              navigate(isModify ? "/project-detail" : "/build-progress");
             }}
           >
             프로젝트 생성

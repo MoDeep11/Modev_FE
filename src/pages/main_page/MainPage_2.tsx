@@ -1,7 +1,7 @@
 import HeaderV2 from "../../layouts/HeaderV2";
 import styled from "@emotion/styled";
 import { Colors } from "../../styles/color";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import Arrow from "../../assets/Arrow.svg";
 import Process from "../../components/main_com/TopProcess";
@@ -9,24 +9,50 @@ import Cancel from "../../assets/Vector (Stroke).svg";
 import List from "../../components/choice/DevBlock";
 
 const Main = () => {
-  const [isAppear, setIsappear] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isModify = location.pathname === "/main-md-2";
+
+  const [selectedFields, setSelectedFields] = useState([]);
+
+  const devFields = [
+    { id: "frontend_1", title: "FrontEnd", text: "모바일, 웹의 사용자 환경을 개발합니다." },
+    { id: "backend", title: "BackEnd", text: "서버, API 및 데이터베이스를 개발합니다." },
+    { id: "ios", title: "iOS", text: "아이폰 환경의 어플리케이션을 개발합니다." },
+    { id: "android", title: "Android", text: "안드로이드 환경의 어플리케이션을 개발합니다." },
+  ];
+
+  const handleSelect = (field) => {
+    if (selectedFields.some((item) => item.id === field.id)) {
+      handleRemove(field.id);
+    } else {
+      setSelectedFields([...selectedFields, field]);
+    }
+  };
+
+  const handleRemove = (id) => {
+    setSelectedFields(selectedFields.filter((item) => item.id !== id));
+  };
 
   return (
     <>
-      <HeaderV2 text="로그아웃" page="프로젝트 빌더" />
+      <HeaderV2 text="로그아웃" page="프로젝트 빌더"/>
       <Body>
-        {!isAppear &&
         <Main_top>
-          <Process num={1} text="프로젝트 생성" use={false} />
-          <img src={Arrow} width={16} height={16} />
-          <Process num={2} text="개발 분야 선택" use={true}/>
-          <img src={Arrow} width={16} height={16} />
-          <Process num={3} text="기술 스택 선택" use={false}/>
-          <img src={Arrow} width={16} height={16} />
-          <Process num={4} text="의존성 선택" use={false}/>
+          {!isModify && (
+            <>
+              <Process num={1} text="프로젝트 생성" use={false} />
+              <img src={Arrow} width={16} height={16} alt="" />
+            </>
+          )}
+          <Process num={isModify ? 1 : 2} text="개발 분야 선택" use={true} />
+          <img src={Arrow} width={16} height={16} alt="" />
+          <Process num={isModify ? 2 : 3} text="기술 스택 선택" use={false} />
+          <img src={Arrow} width={16} height={16} alt="" />
+          <Process num={isModify ? 3 : 4} text="의존성 선택" use={false} />
         </Main_top>
-        }
+
         <Main_section>
           <Title_box>
             <Sec_title>개발 분야 선택</Sec_title>
@@ -34,31 +60,39 @@ const Main = () => {
           </Title_box>
           <Choice_box>
             <Choice_info>
-              <Choice_num>2개 선택됨</Choice_num>
-              <Line></Line>
-              <Choice_option>
-                Frontend
-                <img src={Cancel} />
-              </Choice_option>
+              <Choice_num>{selectedFields.length}개 선택됨</Choice_num>
+              {selectedFields.length > 0 && <Line />}
+              
+              {selectedFields.map((field) => (
+                <Choice_option key={field.id}>
+                  {field.title}
+                  <img 
+                    src={Cancel} 
+                    alt="삭제" 
+                    onClick={() => handleRemove(field.id)} 
+                    style={{ cursor: "pointer" }} 
+                  />
+                </Choice_option>
+              ))}
             </Choice_info>
+            
             <List_box>
               <Select_list>
-                <List
-                  title="FrontEnd"
-                  text="모바일, 웹의 사용자 환경을 개발합니다."
-                ></List>
-                <List
-                  title="FrontEnd"
-                  text="모바일, 웹의 사용자 환경을 개발합니다."
-                ></List>
-                <List
-                  title="FrontEnd"
-                  text="모바일, 웹의 사용자 환경을 개발합니다."
-                ></List>
-                <List
-                  title="FrontEnd"
-                  text="모바일, 웹의 사용자 환경을 개발합니다."
-                ></List>
+                {devFields.map((field) => {
+                  const isSelected = selectedFields.some((item) => item.id === field.id);
+                  return (
+                    <div 
+                      key={field.id} 
+                      onClick={() => handleSelect(field)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <List
+                        title={field.title}
+                        text={field.text}
+                      />
+                    </div>
+                  );
+                })}
               </Select_list>
             </List_box>
             <Choice_text>
@@ -67,12 +101,15 @@ const Main = () => {
             </Choice_text>
           </Choice_box>
         </Main_section>
-        <Before onClick={() => navigate("/main")}>
-          <img src={Arrow} alt="" />
-          이전
-        </Before>
+        
+        {!isModify && (
+          <Before onClick={() => navigate("/main")}>
+            <img src={Arrow} alt="" />
+            이전
+          </Before>
+        )}
 
-        <Next onClick={() => navigate("/main-3")}>
+        <Next onClick={() => navigate(isModify ? "/main-md-3" : "/main-3")}>
           다음
           <img src={Arrow} alt="" />
         </Next>
@@ -90,7 +127,6 @@ const Body = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 48px;
-
 `;
 
 const Main_top = styled.div`
@@ -122,6 +158,7 @@ const Next = styled.div`
   position: absolute;
   bottom: 102px;
   right: 270px;
+  cursor: pointer;
 `;
 
 const Before = styled.button`
@@ -140,8 +177,9 @@ const Before = styled.button`
   position: absolute;
   bottom: 102px;
   left: 270px;
+  cursor: pointer;
   img {
-    rotate: calc(180deg);
+    transform: rotate(180deg);
   }
 `;
 
@@ -178,14 +216,16 @@ const Choice_box = styled.div`
 
 const Choice_info = styled.div`
   display: flex;
-  justify-content: baseline;
+  justify-content: flex-start; /* baseline에서 변경 */
   gap: 12px;
   align-items: center;
+  min-height: 26px;
 `;
 
 const Choice_num = styled.div`
   font-size: 14px;
   color: ${Colors.text.secondary};
+  white-space: nowrap;
 `;
 
 const Line = styled.div`
