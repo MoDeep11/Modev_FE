@@ -1,20 +1,41 @@
 import Header from "../../layouts/Header";
 import styled from "styled-components";
 import { Colors } from "../../styles/color";
-import VerifyBtn from "../../assets/VerifyBtn.svg";
+import { useCheckEmail } from "../../hooks/auth/signup/useCheckEmail";
+import { useSendEmail } from "../../hooks/auth/signup/useSendEmail";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 export default function CheckYourEmail() {
+  const location = useLocation();
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get("token");
+
+  const email = location.state?.email;
+
+  const { mutate: checkEmail } = useCheckEmail();
+  const { mutate: sendEmail, isPending: isSending } = useSendEmail();
+
+  const codeReSend = () => {
+    sendEmail({ email });
+  };
+
+  useEffect(() => {
+    if (token) {
+      checkEmail({ token });
+    }
+  }, [token, checkEmail]);
+
   return (
     <>
       <WrapperAll>
-        <Header />
+        <Header text="로그인" />
         <WrapperContainer>
           <Wrapper>
             <Title>회원가입</Title>
             <MessageContainer>
               <SentMessage>
-                <UserEmail>example@email.com</UserEmail> 으로 가입 링크를
-                보냈습니다.
+                <UserEmail>{email}</UserEmail> 으로 가입 링크를 보냈습니다.
               </SentMessage>
               <SentMessageSecond>
                 메일함의 링크를 눌러 가입을 완료해 주세요
@@ -23,14 +44,9 @@ export default function CheckYourEmail() {
             </MessageContainer>
 
             <BottomWrapper>
-              <VerifyButton>
-                메일함으로 이동하기 <Img src={VerifyBtn} alt="" />
+              <VerifyButton onClick={codeReSend} disabled={isSending}>
+                {isSending ? "발송 중..." : "코드 재발송"}
               </VerifyButton>
-
-              <LoginContainer>
-                <SentQuestion>이메일을 못 받으셨나요?</SentQuestion>
-                <ReSendBtn>코드 재발송</ReSendBtn>
-              </LoginContainer>
             </BottomWrapper>
           </Wrapper>
         </WrapperContainer>
@@ -83,25 +99,11 @@ const Wrapper = styled.div`
   flex-direction: column;
 `;
 
-const LoginContainer = styled.div`
-  font-size: 14px;
-  width: 436px;
-  display: flex;
-  justify-content: center;
-`;
-
 const BottomWrapper = styled.div`
   display: flex;
   align-items: center;
   flex-direction: column;
   gap: 6px;
-`;
-
-const Img = styled.img`
-  width: 4px;
-  height: 8px;
-  margin-left: 5px;
-  margin-bottom: 2px;
 `;
 
 const VerifyButton = styled.button`
@@ -111,6 +113,7 @@ const VerifyButton = styled.button`
   padding: 10px 32px;
   border-radius: 12px;
   font-size: 16px;
+  margin-bottom: 20px;
 `;
 
 const MessageContainer = styled.div`
@@ -125,14 +128,4 @@ const Title = styled.p`
   color: white;
   font-size: 24px;
   font-weight: 600;
-`;
-
-const SentQuestion = styled.p`
-  color: ${Colors.text.secondary};
-`;
-
-const ReSendBtn = styled.p`
-  color: ${Colors.brand.default};
-  cursor: pointer;
-  margin-left: 5px;
 `;
