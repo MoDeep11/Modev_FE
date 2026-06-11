@@ -1,12 +1,14 @@
 import styled from "styled-components";
 import { Colors } from "../../styles/color";
 import Login from "../../assets/Login.svg";
+import { useLogout } from "../../hooks/auth";
 
 export default function LogoutButton() {
+  const { mutate: logout } = useLogout();
   return (
     <Wrapper>
       <Img src={Login}></Img>
-      <Text>로그아웃</Text>
+      <Text onClick={() => logout()}>로그아웃</Text>
     </Wrapper>
   );
 }
