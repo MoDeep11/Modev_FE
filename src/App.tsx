@@ -8,8 +8,11 @@ import Main from "./pages/main_page/MainPage";
 import Main_2 from "./pages/main_page/MainPage_2";
 import Main_3 from "./pages/main_page/MainPage_3";
 import Main_4 from "./pages/main_page/MainPage_4";
+<<<<<<< Updated upstream
 import CheckYourEmail from "./pages/signup/CheckYourEmail";
 import EmailInput from "./pages/signup/EmailInput";
+=======
+>>>>>>> Stashed changes
 import { Routes, Route } from "react-router-dom";
 
 function App() {
@@ -17,8 +20,11 @@ function App() {
     <Routes>
       <Route path="/" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+<<<<<<< Updated upstream
       <Route path="/emailInput" element={<EmailInput />} />
       <Route path="/checkEmail" element={<CheckYourEmail />}></Route>
+=======
+>>>>>>> Stashed changes
       <Route path="/build-progress" element={<BuildProgress />} />
       <Route path="/myproject" element={<MyProject />} />
       <Route path="/project-detail" element={<ProjectDatailCheck />} />
