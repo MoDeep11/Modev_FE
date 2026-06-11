@@ -55,6 +55,15 @@ export default function CheckYourEmail() {
     }
   };
 
+  const handleConfirm = () => {
+    const code = getCode();
+    if (code.length < 6) {
+      alert("6자리 코드를 모두 입력해주세요.");
+      return;
+    }
+    checkEmail({ token: code });
+  };
+
   return (
     <>
       <WrapperAll>
@@ -88,7 +97,7 @@ export default function CheckYourEmail() {
             </MessageContainer>
 
             <BottomWrapper>
-              <CheckButton onClick={() => checkEmail}>확인</CheckButton>
+              <CheckButton onClick={handleConfirm}>확인</CheckButton>
               <VerifyButton onClick={codeReSend}>
                 {isSending ? "발송 중..." : "코드 재발송"}
               </VerifyButton>

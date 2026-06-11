@@ -65,12 +65,13 @@ export const useCheckEmail = () => {
 };
 
 export const useSignup = () => {
+  const navigate = useNavigate();
   return useMutation({
     mutationFn: createUser,
 
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       toast.success("회원가입이 완료되었습니다!");
-      //로그인화면으로 이동
+      navigate("/", { state: { email: variables.email } });
     },
 
     onError: (error: AxiosError<ErrorResponse>) => {

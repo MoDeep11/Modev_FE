@@ -3,13 +3,11 @@ import styled from "styled-components";
 import { Colors } from "../../styles/color";
 import VerifyBtn from "../../assets/VerifyBtn.svg";
 import { useState } from "react";
-import { useSendEmail } from "../../hooks/auth";
 import { useNavigate } from "react-router-dom";
 
 export default function EmailInput() {
-
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
-  const { mutate: sendEmail, isPending } = useSendEmail();
 
   const HandleEmailInput = (e) => setEmail(e.target.value);
   const VerifyEmail = () => {
@@ -17,8 +15,7 @@ export default function EmailInput() {
       alert("이메일을 입력해주세요!");
       return;
     }
-
-    sendEmail({ email });
+    navigate("/signup/password", { state: { userEmail: email } });
   };
 
   return (
@@ -39,14 +36,14 @@ export default function EmailInput() {
             </InputContainer>
 
             <BottomWrapper>
-              <VerifyButton onClick={VerifyEmail} disabled={isPending}>
-                {isPending ? "전송 중..." : "이메일 인증"}
+              <VerifyButton onClick={VerifyEmail}>
+                이메일 인증
                 <Img src={VerifyBtn} alt="" />
               </VerifyButton>
 
               <LoginContainer>
                 <SignInQuestion>계정이 있으신가요?</SignInQuestion>
-                <LoginBtn>로그인</LoginBtn>
+                <LoginBtn onClick={() => navigate("/")}>로그인</LoginBtn>
               </LoginContainer>
             </BottomWrapper>
           </Wrapper>
