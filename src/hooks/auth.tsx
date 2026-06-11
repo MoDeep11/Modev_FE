@@ -94,12 +94,12 @@ export const useLogin = () => {
     mutationFn: loginUser,
 
     onSuccess: (data) => {
-      localStorage.setItem("accessToken", data.accessToken);
+      localStorage.setItem("accessToken", data.data.accessToken);
       queryClient.invalidateQueries({
         queryKey: ["me"],
       });
       toast.success("로그인 성공!");
-      //메인페이지로 이동
+      navigate("/main");
     },
     onError: (error: AxiosError<ErrorResponse>) => {
       const errorCode = getErrorCode(error);

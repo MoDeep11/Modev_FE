@@ -3,10 +3,13 @@ import styled from "styled-components";
 import { Colors } from "../styles/color";
 import { useLogin } from "../hooks/auth";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const navigate = useNavigate();
 
   const { mutate: login, isPending } = useLogin();
 
@@ -58,7 +61,9 @@ export default function Login() {
 
               <LoginContainer>
                 <SignInQuestion>계정이 없으신가요?</SignInQuestion>
-                <LoginBtn>회원가입</LoginBtn>
+                <LoginBtn onClick={() => navigate("/signup")}>
+                  회원가입
+                </LoginBtn>
               </LoginContainer>
             </BottomWrapper>
           </Wrapper>
