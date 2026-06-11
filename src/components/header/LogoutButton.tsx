@@ -8,7 +8,7 @@ export default function LogoutButton() {
   return (
     <Wrapper>
       <Img src={Login}></Img>
-      <Text onClick={() => logout}>로그아웃</Text>
+      <Text onClick={() => logout()}>로그아웃</Text>
     </Wrapper>
   );
 }
