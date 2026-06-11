@@ -17,6 +17,7 @@ api.interceptors.request.use((config) => {
     "/auth/signup",
     "/auth/email/verify",
     "/auth/email/resend",
+    "/auth/token/refresh",
   ];
 
   if (skipUrls.some((url) => config.url?.includes(url))) return config;
@@ -58,7 +59,7 @@ api.interceptors.response.use(
         return api(config);
       } catch (refreshError: any) {
         console.log(refreshError);
-        const errorCode = refreshError.response?.data?.code;
+        const errorCode = refreshError.response?.data?.data?.code;
 
         if (
           [
