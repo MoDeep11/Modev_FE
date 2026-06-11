@@ -12,8 +12,6 @@ export default function EmailInput() {
   const [email, setEmail] = useState("");
   const { mutate: sendEmail, isPending } = useSendEmail();
 
-  navigate("/signup/password", { state: { userEmail: email } });
-
   const HandleEmailInput = (e) => setEmail(e.target.value);
   const VerifyEmail = () => {
     if (!email.trim()) {
