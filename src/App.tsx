@@ -1,6 +1,8 @@
 import "./styles/reset.css";
 import Login from "./pages/Login";
 import Signup from "./pages/signup/Signup";
+import CheckYourEmail from "./pages/signup/CheckYourEmail";
+import EmailInput from "./pages/signup/EmailInput";
 import BuildProgress from "./pages/BuildProgress";
 import MyProject from "./pages/MyProject";
 import ProjectDatailCheck from "./pages/ProjectDatailCheck";
@@ -15,6 +17,8 @@ function App() {
     <Routes>
       <Route path="/" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/emailInput" element={<EmailInput />} />
+      <Route path="/checkEmail" element={<CheckYourEmail />} />
       <Route path="/build-progress" element={<BuildProgress />} />
       <Route path="/myproject" element={<MyProject />} />
       <Route path="/project-detail" element={<ProjectDatailCheck />} />

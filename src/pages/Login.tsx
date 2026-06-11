@@ -1,12 +1,31 @@
 import Header from "../layouts/Header";
 import styled from "styled-components";
 import { Colors } from "../styles/color";
+import { useLogin } from "../hooks/auth";
+import { useState } from "react";
 
 export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const { mutate: login, isPending } = useLogin();
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+  };
+
+  const onSubmit = () => {
+    login({ email, password });
+  };
+
   return (
     <>
       <WrapperAll>
-        <Header />
+        <Header text="로그인" />
         <WrapperContainer>
           <Wrapper>
             <Title>로그인</Title>
@@ -14,17 +33,28 @@ export default function Login() {
             <InputAllContainer>
               <InputContainer>
                 <InputText>이메일</InputText>
-                <Input placeholder="이메일을 입력해주세요."></Input>
+                <Input
+                  onChange={handleEmailChange}
+                  value={email}
+                  placeholder="이메일을 입력해주세요."
+                ></Input>
               </InputContainer>
 
               <InputContainer>
                 <InputText>비밀번호</InputText>
-                <Input placeholder="비밀번호를 입력해주세요."></Input>
+                <Input
+                  onChange={handlePasswordChange}
+                  value={password}
+                  type="password"
+                  placeholder="비밀번호를 입력해주세요."
+                ></Input>
               </InputContainer>
             </InputAllContainer>
 
             <BottomWrapper>
-              <VerifyButton>로그인</VerifyButton>
+              <VerifyButton onClick={onSubmit} disabled={isPending}>
+                {isPending ? "로그인 중..." : "로그인"}
+              </VerifyButton>
 
               <LoginContainer>
                 <SignInQuestion>계정이 없으신가요?</SignInQuestion>

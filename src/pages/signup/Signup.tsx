@@ -1,10 +1,9 @@
 import Header from "../../layouts/Header";
 import styled from "styled-components";
 import { Colors } from "../../styles/color";
-import { useSignup } from "../../hooks/auth/signup/useSignup";
+import { useSignup } from "../../hooks/auth";
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Navigate } from "react-router-dom";
 
 export default function Signup() {
   const navigate = useNavigate();
