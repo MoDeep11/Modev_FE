@@ -6,7 +6,7 @@ import type {
   LoginProps,
 } from "./type";
 
-export const CreateUser = async ({
+export const createUser = async ({
   email,
   password,
   passwordConfirm,
@@ -19,29 +19,30 @@ export const CreateUser = async ({
   return response.data;
 };
 
-export const EmailCheck = async ({ token }: EmailCheckProps) => {
+export const emailCheck = async ({ token }: EmailCheckProps) => {
   const response = await api.post(`/auth/email/verify`, {
     token,
   });
   return response.data;
 };
 
-export const EmailSend = async ({ email }: EmailSendProps) => {
+export const emailSend = async ({ email }: EmailSendProps) => {
   const response = await api.post(`/auth/email/resend`, {
     email,
   });
   return response.data;
 };
 
-export const LoginUser = async ({ email, password }: LoginProps) => {
+export const loginUser = async ({ email, password }: LoginProps) => {
   const response = await api.post(`/auth/login`, {
     email,
     password,
   });
+
   return response.data;
 };
 
-export const LogoutUser = async () => {
-  const response = await api.post(`/auth/logout`, {});
+export const logoutUser = async () => {
+  const response = await api.post(`/auth/logout`);
   return response.data;
 };
