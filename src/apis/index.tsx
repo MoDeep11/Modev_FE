@@ -12,7 +12,13 @@ export const api = axios.create({
 let currentRefreshPromise: Promise<string> | null = null;
 
 api.interceptors.request.use((config) => {
-  const skipUrls = ["/", "/signup", "/emailInput", "/checkEmail"];
+  const skipUrls = [
+    "/auth/login",
+    "/auth/signup",
+    "/auth/email/verify",
+    "/auth/email/resend",
+  ];
+
   if (skipUrls.some((url) => config.url?.includes(url))) return config;
 
   const accessToken = localStorage.getItem("accessToken");
