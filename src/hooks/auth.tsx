@@ -125,9 +125,7 @@ export const useLogout = () => {
       localStorage.removeItem("accessToken");
       queryClient.clear();
       toast.success("로그아웃 성공!");
-      //로그인 페이지로 이동
-
-      //쿠키 삭제
+      navigate("/");
     },
 
     onError: () => {
