@@ -7,7 +7,6 @@ import { useSendEmail } from "../../hooks/auth";
 import { useNavigate } from "react-router-dom";
 
 export default function EmailInput() {
-  const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const { mutate: sendEmail, isPending } = useSendEmail();

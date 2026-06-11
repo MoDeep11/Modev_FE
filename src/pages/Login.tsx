@@ -45,6 +45,7 @@ export default function Login() {
                 <Input
                   onChange={handlePasswordChange}
                   value={password}
+                  type="password"
                   placeholder="비밀번호를 입력해주세요."
                 ></Input>
               </InputContainer>

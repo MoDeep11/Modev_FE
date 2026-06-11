@@ -15,6 +15,29 @@ type ErrorResponse = {
   message?: string;
 };
 
+export const useSendEmail = () => {
+  return useMutation({
+    mutationFn: emailSend,
+
+    onSuccess: () => {
+      toast.success("이메일이 발송되었습니다!");
+      //이메일 인증 페이지로 이동
+    },
+
+    onError: (error: AxiosError<ErrorResponse>) => {
+      const errorCode = getErrorCode(error);
+      if (errorCode === "ALREADY_VERIFIED")
+        toast.error("이미 인증된 계정입니다");
+      else if (errorCode === "RESEND_RATE_LIMIT")
+        toast.error("재발송 횟수가 초과되었습니다");
+      else
+        toast.error(
+          "이메일 재전송 중 오류가 발생했습니다. 다시 시도해 주세요.",
+        );
+    },
+  });
+};
+
 const getErrorCode = (error: AxiosError<ErrorResponse>) =>
   error.response?.data?.code;
 
@@ -41,34 +64,13 @@ export const useCheckEmail = () => {
   });
 };
 
-export const useSendEmail = () => {
-  return useMutation({
-    mutationFn: emailSend,
-
-    onSuccess: () => {
-      toast.success("이메일이 재발송되었습니다!");
-    },
-
-    onError: (error: AxiosError<ErrorResponse>) => {
-      const errorCode = getErrorCode(error);
-      if (errorCode === "ALREADY_VERIFIED")
-        toast.error("이미 인증된 계정입니다");
-      else if (errorCode === "RESEND_RATE_LIMIT")
-        toast.error("재발송 횟수가 초과되었습니다");
-      else
-        toast.error(
-          "이메일 재전송 중 오류가 발생했습니다. 다시 시도해 주세요.",
-        );
-    },
-  });
-};
-
 export const useSignup = () => {
   return useMutation({
     mutationFn: createUser,
 
     onSuccess: () => {
-      toast.success("회원가입이 완료되었습니다! 인증 이메일을 확인해 주세요");
+      toast.success("회원가입이 완료되었습니다!");
+      //로그인화면으로 이동
     },
 
     onError: (error: AxiosError<ErrorResponse>) => {
