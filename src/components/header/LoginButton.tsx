@@ -1,12 +1,14 @@
 import styled from "styled-components";
 import { Colors } from "../../styles/color";
 import Login from "../../assets/Login.svg";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginButton() {
+  const navigate = useNavigate();
   return (
     <Wrapper>
       <Img src={Login}></Img>
-      <Text>로그인</Text>
+      <Text onClick={() => navigate("/login")}>로그인</Text>
     </Wrapper>
   );
 }
