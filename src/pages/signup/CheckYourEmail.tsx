@@ -88,7 +88,7 @@ export default function CheckYourEmail() {
             </MessageContainer>
 
             <BottomWrapper>
-              <CheckButton>확인</CheckButton>
+              <CheckButton onClick={() => checkEmail}>확인</CheckButton>
               <VerifyButton onClick={codeReSend}>
                 {isSending ? "발송 중..." : "코드 재발송"}
               </VerifyButton>

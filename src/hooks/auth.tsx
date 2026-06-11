@@ -94,7 +94,7 @@ export const useLogin = () => {
     mutationFn: loginUser,
 
     onSuccess: (data) => {
-      //쿠키 저장
+      localStorage.setItem("accessToken", data.accessToken);
       queryClient.invalidateQueries({
         queryKey: ["me"],
       });
@@ -122,9 +122,11 @@ export const useLogout = () => {
     mutationFn: logoutUser,
 
     onSuccess: () => {
+      localStorage.removeItem("accessToken");
       queryClient.clear();
       toast.success("로그아웃 성공!");
       //로그인 페이지로 이동
+
       //쿠키 삭제
     },
 
