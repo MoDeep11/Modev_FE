@@ -1,8 +1,7 @@
 import Header from "../../layouts/Header";
 import styled from "styled-components";
 import { Colors } from "../../styles/color";
-import { useCheckEmail } from "../../hooks/auth/signup/useCheckEmail";
-import { useSendEmail } from "../../hooks/auth/signup/useSendEmail";
+import { useCheckEmail, useSendEmail } from "../../hooks/auth";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 

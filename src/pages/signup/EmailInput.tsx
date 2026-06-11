@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Colors } from "../../styles/color";
 import VerifyBtn from "../../assets/VerifyBtn.svg";
 import { useState } from "react";
-import { useSendEmail } from "../../hooks/auth/signup/useSendEmail";
+import { useSendEmail } from "../../hooks/auth";
 import { useNavigate } from "react-router-dom";
 
 export default function EmailInput() {

@@ -6,7 +6,7 @@ export default function Login() {
   return (
     <>
       <WrapperAll>
-        <Header />
+        <Header text="로그인" />
         <WrapperContainer>
           <Wrapper>
             <Title>로그인</Title>
