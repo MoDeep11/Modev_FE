@@ -2,66 +2,32 @@ import Header from "../../layouts/Header";
 import styled from "styled-components";
 import { Colors } from "../../styles/color";
 import { useCheckEmail, useSendEmail } from "../../hooks/auth";
-import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
+import CodeInput from "../../components/auth/CodeInput";
+import { useRef } from "react";
+import { toast } from "react-toastify";
 
 export default function CheckYourEmail() {
   const location = useLocation();
-  const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get("token");
-
   const email = location.state?.email;
 
   const { mutate: checkEmail } = useCheckEmail();
   const { mutate: sendEmail, isPending: isSending } = useSendEmail();
 
-  const codeReSend = () => {
-    sendEmail({ email });
-  };
-
-  useEffect(() => {
-    if (token) {
-      checkEmail({ token });
-    }
-  }, [token, checkEmail]);
-
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-
-  const getCode = () => inputRefs.current.map((el) => el?.value ?? "").join("");
-
-  const handleChange = (
-    index: number,
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const val = e.target.value.replace(/\D/g, "");
-    e.target.value = val.slice(-1);
-
-    if (val && index < 5) {
-      inputRefs.current[index + 1]?.focus();
-    }
-
-    if (index === 5 && val) {
-      const code = getCode();
-      if (code.length === 6) checkEmail({ token: code });
-    }
-  };
-
-  const handleKeyDown = (
-    index: number,
-    e: React.KeyboardEvent<HTMLInputElement>,
-  ) => {
-    if (e.key === "Backspace" && !e.currentTarget.value && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-  };
+  const getCodeRef = useRef<() => string>(() => "");
 
   const handleConfirm = () => {
-    const code = getCode();
+    const code = getCodeRef.current();
     if (code.length < 6) {
-      alert("6자리 코드를 모두 입력해주세요.");
+      toast.error("6자리 코드를 모두 입력해주세요.");
       return;
     }
-    checkEmail({ token: code });
+    checkEmail({ code: code });
+  };
+
+  const codeReSend = () => {
+    if (!email) return;
+    sendEmail({ email });
   };
 
   return (
@@ -72,27 +38,13 @@ export default function CheckYourEmail() {
           <Wrapper>
             <Title>회원가입</Title>
             <MessageContainer>
-              <SentMessage>
-                <UserEmail>{email}</UserEmail>&nbsp;으로 인증 코드를 보냈습니다.
-              </SentMessage>
+              <SentMessage>인증 코드를 보냈습니다.</SentMessage>
               <SentMessageSecond>6자리 코드를 입력해 주세요</SentMessageSecond>
-
-              <CodeInputRow>
-                {[0, 1, 2, 3, 4, 5].map((i) => (
-                  <CodeInput
-                    key={i}
-                    ref={(el) => {
-                      inputRefs.current[i] = el;
-                    }}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    onChange={(e) => handleChange(i, e)}
-                    onKeyDown={(e) => handleKeyDown(i, e)}
-                  />
-                ))}
-              </CodeInputRow>
-
+              <CodeInput
+                onReady={(fn) => {
+                  getCodeRef.current = fn;
+                }}
+              />
               <If>혹시 메일이 오지 않았다면 스팸 메일함을 확인해 주세요.</If>
             </MessageContainer>
 
@@ -119,29 +71,6 @@ const CheckButton = styled.button`
   margin-bottom: 20px;
 `;
 
-const CodeInputRow = styled.div`
-  display: flex;
-  gap: 10px;
-`;
-
-const CodeInput = styled.input`
-  width: 44px;
-  height: 52px;
-  text-align: center;
-  font-size: 22px;
-  font-weight: 600;
-  border-radius: 8px;
-  background-color: ${Colors.background.base};
-  border: 1px solid ${Colors.background.overlay};
-  color: white;
-  caret-color: transparent;
-
-  &:focus {
-    outline: none;
-    border-color: ${Colors.brand.default};
-  }
-`;
-
 const If = styled.p`
   color: ${Colors.text.secondary};
   font-size: 14px;
@@ -156,10 +85,6 @@ const SentMessage = styled.p`
 
 const SentMessageSecond = styled.p`
   color: white;
-`;
-
-const UserEmail = styled.p`
-  color: ${Colors.brand.subtle};
 `;
 
 const WrapperAll = styled.div`
