@@ -21,7 +21,7 @@ export default function EmailInput() {
     }
 
     sendEmail(
-      { email },
+      { email: email.trim() },
       {
         onSuccess: () => {
           navigate("/checkEmail", {

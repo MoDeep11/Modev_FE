@@ -10,9 +10,9 @@ export interface LoginProps {
 }
 
 export interface EmailCheckProps {
-  code: String;
+  code: string;
 }
 
 export interface EmailSendProps {
-  email: String;
+  email: string;
 }
