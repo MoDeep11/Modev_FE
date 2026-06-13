@@ -19,15 +19,15 @@ export const createUser = async ({
   return response.data;
 };
 
-export const emailCheck = async ({ token }: EmailCheckProps) => {
+export const emailCheck = async ({ code }: EmailCheckProps) => {
   const response = await api.post(`/auth/email/verify`, {
-    token,
+    code,
   });
   return response.data;
 };
 
 export const emailSend = async ({ email }: EmailSendProps) => {
-  const response = await api.post(`/auth/email/resend`, {
+  const response = await api.post(`/auth/email/send`, {
     email,
   });
   return response.data;
