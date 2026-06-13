@@ -21,7 +21,6 @@ export const useSendEmail = () => {
 
     onSuccess: () => {
       toast.success("이메일이 발송되었습니다!");
-      //이메일 인증 페이지로 이동
     },
 
     onError: (error: AxiosError<ErrorResponse>) => {
