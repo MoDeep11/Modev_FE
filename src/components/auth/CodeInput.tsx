@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import { Colors } from "../../styles/color";
 import { useRef, useEffect } from "react";
-import { useSendEmail } from "../../hooks/auth";
 
 type Props = {
   onReady: (getCode: () => string) => void;
@@ -13,8 +12,6 @@ export default function CodeInput({ onReady }: Props) {
   }, []);
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-
-  const getCode = () => inputRefs.current.map((el) => el?.value ?? "").join("");
 
   const handleChange = (
     index: number,
