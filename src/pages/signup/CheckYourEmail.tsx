@@ -26,10 +26,9 @@ export default function CheckYourEmail() {
   };
 
   const codeReSend = () => {
-    if (!email) return;
+    if (!email || isSending) return;
     sendEmail({ email });
   };
-
   return (
     <>
       <WrapperAll>
@@ -50,7 +49,7 @@ export default function CheckYourEmail() {
 
             <BottomWrapper>
               <CheckButton onClick={handleConfirm}>확인</CheckButton>
-              <VerifyButton onClick={codeReSend}>
+              <VerifyButton $isSending={isSending} onClick={codeReSend}>
                 {isSending ? "발송 중..." : "코드 재발송"}
               </VerifyButton>
             </BottomWrapper>
@@ -119,11 +118,15 @@ const BottomWrapper = styled.div`
   gap: 3px;
 `;
 
-const VerifyButton = styled.div`
+const VerifyButton = styled.div<{ $isSending: boolean }>`
   background-color: ${Colors.background.base};
   color: white;
-  cursor: pointer;
   font-size: 13px;
+  cursor: ${({ $isSending }) => ($isSending ? "not-allowed" : "pointer")};
+  pointer-events: ${({ $isSending }) => ($isSending ? "none" : "auto")};
+  opacity: ${({ $isSending }) => ($isSending ? 0.5 : 1)};
+
+  transition: opacity 0.2s ease-in-out;
 `;
 
 const MessageContainer = styled.div`
