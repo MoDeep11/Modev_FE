@@ -1,21 +1,35 @@
 import Header from "../../layouts/Header";
 import styled from "styled-components";
 import { Colors } from "../../styles/color";
-import VerifyBtn from "../../assets/VerifyBtn.svg";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSendEmail } from "../../hooks/auth";
+import { toast } from "react-toastify";
 
 export default function EmailInput() {
+  const { mutate: sendEmail, isPending } = useSendEmail();
+
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
 
   const HandleEmailInput = (e) => setEmail(e.target.value);
-  const VerifyEmail = () => {
+
+  const verifyEmail = () => {
     if (!email.trim()) {
-      alert("이메일을 입력해주세요!");
+      toast.error("이메일을 입력해주세요!");
       return;
     }
-    navigate("/signup/password", { state: { userEmail: email } });
+
+    sendEmail(
+      { email: email.trim() },
+      {
+        onSuccess: () => {
+          navigate("/checkEmail", {
+            state: { email: email.trim() },
+          });
+        },
+      },
+    );
   };
 
   return (
@@ -36,9 +50,8 @@ export default function EmailInput() {
             </InputContainer>
 
             <BottomWrapper>
-              <VerifyButton onClick={VerifyEmail}>
-                이메일 인증
-                <Img src={VerifyBtn} alt="" />
+              <VerifyButton disabled={isPending} onClick={verifyEmail}>
+                {isPending ? "전송 중..." : "이메일 인증"}
               </VerifyButton>
 
               <LoginContainer>
@@ -100,13 +113,6 @@ const LoginBtn = styled.p`
   color: ${Colors.brand.default};
   cursor: pointer;
   margin-left: 5px;
-`;
-
-const Img = styled.img`
-  width: 4px;
-  height: 8px;
-  margin-left: 5px;
-  margin-bottom: 2px;
 `;
 
 const VerifyButton = styled.button`

@@ -16,7 +16,7 @@ api.interceptors.request.use((config) => {
     "/auth/login",
     "/auth/signup",
     "/auth/email/verify",
-    "/auth/email/resend",
+    "/auth/email/send",
     "/auth/token/refresh",
   ];
 
