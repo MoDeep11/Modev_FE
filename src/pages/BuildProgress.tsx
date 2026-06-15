@@ -129,6 +129,9 @@ const DownloadFile = styled.button`
   width: 181px;
   height: 39px;
   border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   font-weight: 600;
 `;
 
