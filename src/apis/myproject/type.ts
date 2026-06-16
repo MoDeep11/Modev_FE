@@ -1,31 +1,31 @@
-export interface GetProjectsParams {
+export type GetProjectsParams = {
   page?: number;
   size?: number;
   keyword?: string;
-}
+};
 
-export interface ProjectItem {
+export type Project = {
   projectId: string;
   projectName: string;
   description: string;
   stacks: string[];
   createdAt: string;
   updatedAt: string;
-  status: string;
-}
+  status: "ACTIVE" | "INACTIVE";
+};
 
-export interface PaginationInfo {
+export type Pagination = {
   currentPage: number;
   totalPages: number;
   totalCount: number;
   size: number;
-}
+};
 
-export interface GetProjectsResponse {
+export type GetProjectsResponse = {
   success: boolean;
   data: {
-    projects: ProjectItem[];
-    pagination: PaginationInfo;
+    projects: Project[];
+    pagination: Pagination;
   };
   error: null | string;
-}
+};
