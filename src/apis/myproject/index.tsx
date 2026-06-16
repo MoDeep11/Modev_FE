@@ -6,10 +6,8 @@ export const getMyProjects = async (
 ): Promise<GetProjectsResponse> => {
   const response = await api.get<GetProjectsResponse>(`/projects`, {
     params: {
-      params: {
-        ...params,
-        keyword: params?.keyword?.trim() || undefined,
-      },
+      ...params,
+      keyword: params?.keyword?.trim() || undefined,
     },
   });
   return response.data;
