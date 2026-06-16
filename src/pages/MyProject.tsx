@@ -1,58 +1,86 @@
+import { useState } from "react";
 import styled from "styled-components";
 import HeaderV2 from "../layouts/HeaderV2";
 import { Colors } from "../styles/color";
-import ProjectBox from "../components/myprojects/ProjectBox";
+import ProjectGrid from "../components/myprojects/Projects";
+import { useMyProjects } from "../hooks/myproject";
 import search from "../assets/search.svg";
+import { useDebounce } from "../hooks/debounce";
+import Pagination from "react-js-pagination";
+
+const PAGE_SIZE = 9;
 
 export default function MyProject() {
+  const [keyword, setKeyword] = useState("");
+  const [page, setPage] = useState(1);
+  const debouncedKeyword = useDebounce(keyword, 500);
+
+  const handlePageChange = (pageNumber) => {
+    setPage(pageNumber);
+  };
+
+  const handleKeywordChange = (value) => {
+    setKeyword(value);
+    setPage(1);
+  };
+
+  const { data, isLoading } = useMyProjects({
+    keyword: debouncedKeyword,
+    page,
+    size: PAGE_SIZE,
+  });
+
+  const projects = data?.data?.projects ?? [];
+  const pagination = data?.data?.pagination;
+
   return (
-    <>
-      <WrapperAll>
-        <HeaderV2 text="로그아웃" page="내 프로젝트" />
+    <WrapperAll>
+      <HeaderV2 text="로그아웃" page="내 프로젝트" />
+      <WrapperContainer>
+        <Wrapper>
+          <TopContainer>
+            <Title>프로젝트 이력 조회</Title>
+            <Text>지금껏 구성한 프로젝트들의 히스토리와 스택 현황입니다.</Text>
+            <InputContainer>
+              <Input
+                placeholder="프로젝트를 찾아보세요!"
+                value={keyword}
+                onChange={(e) => handleKeywordChange(e.target.value)}
+              />
+              <SearchIcon src={search} alt="검색" />
+            </InputContainer>
+          </TopContainer>
 
-        <WrapperContainer>
-          <Wrapper>
-            <TopContainer>
-              <Title>프로젝트 이력 조회</Title>
-              <Text>
-                지금껏 구성한 프로젝트들의 히스토리와 스택 현황입니다.
-              </Text>
-              <InputContainer>
-                <Input placeholder="프로젝트를 찾아보세요!"></Input>
-                <SearchIcon src={search} alt=""></SearchIcon>
-              </InputContainer>
-            </TopContainer>
+          {isLoading ? (
+            <LoadingText>불러오는 중...</LoadingText>
+          ) : projects.length === 0 ? (
+            <EmptyText>
+              {keyword
+                ? `"${keyword}" 검색 결과가 없습니다.`
+                : "프로젝트가 없습니다."}
+            </EmptyText>
+          ) : (
+            <>
+              <ProjectGrid projects={projects} />
 
-            <ProjectBoxWrapper>
-              <ProjectBox
-                title="프로젝트명"
-                text="프로젝트 한 줄 설명이 들어갑니다."
-                createdAt="2026-09-03"
-                lastModifiedAt="2026-09-08"
-              />
-              <ProjectBox
-                title="프로젝트명"
-                text="프로젝트 한 줄 설명이 들어갑니다."
-                createdAt="2026-09-03"
-                lastModifiedAt="2026-09-08"
-              />
-              <ProjectBox
-                title="프로젝트명"
-                text="프로젝트 한 줄 설명이 들어갑니다."
-                createdAt="2026-09-03"
-                lastModifiedAt="2026-09-08"
-              />
-              <ProjectBox
-                title="프로젝트명"
-                text="프로젝트 한 줄 설명이 들어갑니다."
-                createdAt="2026-09-03"
-                lastModifiedAt="2026-09-08"
-              />
-            </ProjectBoxWrapper>
-          </Wrapper>
-        </WrapperContainer>
-      </WrapperAll>
-    </>
+              {pagination && (
+                <PaginationWrapper>
+                  <Pagination
+                    activePage={page}
+                    itemsCountPerPage={PAGE_SIZE}
+                    totalItemsCount={pagination.totalCount}
+                    pageRangeDisplayed={5}
+                    prevPageText={"‹"}
+                    nextPageText={"›"}
+                    onChange={handlePageChange}
+                  />
+                </PaginationWrapper>
+              )}
+            </>
+          )}
+        </Wrapper>
+      </WrapperContainer>
+    </WrapperAll>
   );
 }
 
@@ -87,13 +115,6 @@ const TopContainer = styled.div`
   margin-top: 60px;
 `;
 
-const ProjectBoxWrapper = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  width: 100%;
-`;
-
 const Title = styled.div`
   color: ${Colors.text.primary};
   text-align: center;
@@ -119,8 +140,6 @@ const Input = styled.input`
 `;
 
 const SearchIcon = styled.img`
-  color: white;
-  font-size: 20px;
   cursor: pointer;
 `;
 
@@ -134,4 +153,23 @@ const InputContainer = styled.div`
   border-radius: 50px;
   background-color: ${Colors.background.overlay};
   margin-bottom: 48px;
+`;
+
+const LoadingText = styled.div`
+  color: ${Colors.text.secondary};
+  font-size: 14px;
+  margin-top: 40px;
+`;
+
+const EmptyText = styled.div`
+  color: ${Colors.text.disabled};
+  font-size: 14px;
+  margin-top: 40px;
+`;
+
+const PaginationWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+  align-items: center;
 `;

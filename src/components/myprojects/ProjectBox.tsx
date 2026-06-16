@@ -1,11 +1,14 @@
 import styled from "styled-components";
 import { Colors } from "../../styles/color";
 
+const MAX_VISIBLE_SKILLS = 3;
+
 interface ProjectBoxProps {
   title: string;
   text: string;
   createdAt: string;
   lastModifiedAt: string;
+  stacks: string[];
 }
 
 export default function ProjectBox({
@@ -13,7 +16,11 @@ export default function ProjectBox({
   text,
   createdAt,
   lastModifiedAt,
+  stacks,
 }: ProjectBoxProps) {
+  const visibleStacks = stacks.slice(0, MAX_VISIBLE_SKILLS);
+  const hiddenCount = stacks.length - MAX_VISIBLE_SKILLS;
+
   return (
     <Wrapper>
       <TopWrapper>
@@ -21,30 +28,29 @@ export default function ProjectBox({
         <ProjectDetail>{text}</ProjectDetail>
       </TopWrapper>
 
-      <Border></Border>
+      <Border />
 
       <DateWrapper>
-        <DateTitle style={{ marginBottom: "6px" }}>생성일</DateTitle>
-        <ShortBorder></ShortBorder>
+        <DateTitle>생성일</DateTitle>
+        <ShortBorder />
         <DetailDate>{createdAt}</DetailDate>
       </DateWrapper>
 
-      <DateWrapper>
-        <DateTitle style={{ marginBottom: "16px" }}>최종 수정일</DateTitle>
-        <ShortBorder></ShortBorder>
+      <DateWrapper style={{ marginBottom: "12px" }}>
+        <DateTitle>최종 수정일</DateTitle>
+        <ShortBorder />
         <DetailDate>{lastModifiedAt}</DetailDate>
       </DateWrapper>
 
       <SkillContainer>
-        <SkillItem>Frontend</SkillItem>
-        <SkillItem>Frontend</SkillItem>
-        <SkillItem>Frontend</SkillItem>
-        <Plus>+2</Plus>
+        {visibleStacks.map((stack) => (
+          <SkillItem key={stack}>{stack}</SkillItem>
+        ))}
+        {hiddenCount > 0 && <Plus>+{hiddenCount}</Plus>}
       </SkillContainer>
     </Wrapper>
   );
 }
-
 const SkillContainer = styled.div`
   display: flex;
 `;
