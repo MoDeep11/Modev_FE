@@ -11,20 +11,25 @@ export default function DownloadFile() {
     download({ projectId: Number(id) });
   };
 
-  return isPending ? (
-    <Wrapper onClick={downloadFunc}>로딩 중...</Wrapper>
-  ) : (
-    <Wrapper onClick={downloadFunc}>.zip 파일 다운로드</Wrapper>
+  return (
+    <Wrapper onClick={downloadFunc} disabled={isPending}>
+      {isPending ? "로딩 중..." : ".zip 파일 다운로드"}
+    </Wrapper>
   );
 }
 
 const Wrapper = styled.button`
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
   padding: 10px 32px;
   border: 1px solid ${Colors.border.strong};
   color: White;
   background-color: ${Colors.background.base};
   border-radius: 10px;
-  width: 181px;
+  width: 185px;
   height: 39px;
   font-size: 16px;
   display: flex;
