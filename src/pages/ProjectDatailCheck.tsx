@@ -2,8 +2,11 @@ import styled from "styled-components";
 import { Colors } from "../styles/color";
 import Folders from "../components/Build/Folders";
 import HeaderV2 from "../layouts/HeaderV2";
+import DownloadFile from "../components/Button/DownloadFile";
+import { useParams } from "react-router-dom";
 
 export default function ProjectDatailCheck() {
+  const { id } = useParams<{ id: string }>();
   return (
     <>
       <WrapperAll>
@@ -55,7 +58,7 @@ export default function ProjectDatailCheck() {
             <Bottom>
               <Delete>삭제</Delete>
               <BottomRight>
-                <DownloadFile>.zip 파일 다운로드</DownloadFile>
+                <DownloadFile />
                 <ModifySkillStack>기술 스택 수정</ModifySkillStack>
                 <Check>확인</Check>
               </BottomRight>
@@ -82,20 +85,6 @@ const ModifySkillStack = styled.div`
   display: flex;
   align-items: center;
   height: 39px;
-  cursor: pointer;
-`;
-
-const DownloadFile = styled.button`
-  padding: 10px 32px;
-  border: 1px solid ${Colors.border.strong};
-  color: White;
-  background-color: ${Colors.background.base};
-  border-radius: 10px;
-  width: 181ppx;
-  height: 39px;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
   cursor: pointer;
 `;
 
