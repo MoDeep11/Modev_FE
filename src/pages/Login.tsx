@@ -61,7 +61,7 @@ export default function Login() {
 
               <LoginContainer>
                 <SignInQuestion>계정이 없으신가요?</SignInQuestion>
-                <LoginBtn onClick={() => navigate("/signup")}>
+                <LoginBtn onClick={() => navigate("/emailInput")}>
                   회원가입
                 </LoginBtn>
               </LoginContainer>
