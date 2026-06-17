@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { Colors } from "../styles/color";
 import Folders from "../components/Build/Folders";
 import HeaderV2 from "../layouts/HeaderV2";
-import DownloadFile from "../components/Button/DownloadFile";
+import DownloadFile from "../components/newproject/DownloadFile";
 import DeleteProject from "../components/Button/DeleteProject";
 
 export default function ProjectDatailCheck() {
