@@ -1,5 +1,9 @@
 import { api } from "..";
-import type { GetProjectsParams, GetProjectsResponse } from "./type";
+import type {
+  GetProjectsParams,
+  GetProjectsResponse,
+  DeleteProjectProps,
+} from "./type";
 
 export const getMyProjects = async (
   params?: GetProjectsParams,
@@ -11,4 +15,9 @@ export const getMyProjects = async (
     },
   });
   return response.data;
+};
+
+export const deleteProject = async ({ projectId }: DeleteProjectProps) => {
+  const response = await api.delete(`/projects/${projectId}`);
+  return response;
 };
