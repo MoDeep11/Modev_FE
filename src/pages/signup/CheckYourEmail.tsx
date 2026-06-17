@@ -4,17 +4,26 @@ import { Colors } from "../../styles/color";
 import { useCheckEmail, useSendEmail } from "../../hooks/auth";
 import { useLocation } from "react-router-dom";
 import CodeInput from "../../components/auth/CodeInput";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 export default function CheckYourEmail() {
   const location = useLocation();
   const email = location.state?.email;
+  const navigate = useNavigate();
 
   const { mutate: checkEmail } = useCheckEmail();
   const { mutate: sendEmail, isPending: isSending } = useSendEmail();
 
   const getCodeRef = useRef<() => string>(() => "");
+
+  useEffect(() => {
+    if (!email) {
+      toast.error("이메일을 먼저 입력해주세요");
+      navigate("/emailInput");
+    }
+  }, []);
 
   const handleConfirm = () => {
     const code = getCodeRef.current();
