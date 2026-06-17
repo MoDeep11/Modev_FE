@@ -2,12 +2,14 @@ import styled from "styled-components";
 import { Colors } from "../../styles/color";
 import { useDownloadZip } from "../../hooks/downloadZip";
 import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function DownloadFile() {
   const { mutate: download, isPending } = useDownloadZip();
   const { id } = useParams<{ id: string }>();
 
   const downloadFunc = () => {
+    if (!id) return toast.error("오류가 발생했습니다");
     download({ projectId: Number(id) });
   };
 

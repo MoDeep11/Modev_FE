@@ -6,9 +6,6 @@ export const useDownloadZip = () => {
   return useMutation({
     mutationFn: DownloadZip,
 
-    onSuccess: (data) => {
-      window.open(data.data.downloadUrl);
-    },
     onError: () => {
       toast.error("다운로드에 실패했습니다.");
     },

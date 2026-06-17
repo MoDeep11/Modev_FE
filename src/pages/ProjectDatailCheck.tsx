@@ -3,10 +3,8 @@ import { Colors } from "../styles/color";
 import Folders from "../components/Build/Folders";
 import HeaderV2 from "../layouts/HeaderV2";
 import DownloadFile from "../components/Button/DownloadFile";
-import { useParams } from "react-router-dom";
 
 export default function ProjectDatailCheck() {
-  const { id } = useParams<{ id: string }>();
   return (
     <>
       <WrapperAll>
