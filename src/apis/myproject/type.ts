@@ -29,3 +29,7 @@ export type GetProjectsResponse = {
   };
   error: null | string;
 };
+
+export type DeleteProjectProps = {
+  projectId: number;
+};
