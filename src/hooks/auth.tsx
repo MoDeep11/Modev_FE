@@ -31,7 +31,7 @@ export const useSendEmail = () => {
         toast.error("재발송 횟수가 초과되었습니다");
       else
         toast.error(
-          "이메일 재전송 중 오류가 발생했습니다. 다시 시도해 주세요.",
+          "이메일 재전송 중 오류가 발생했습니다.",
         );
     },
   });

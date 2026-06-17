@@ -4,6 +4,7 @@ import { Colors } from "../../styles/color";
 import { useSignup } from "../../hooks/auth";
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -17,6 +18,13 @@ export default function Signup() {
   const PasswordInput = (e) => setPassword(e.target.value);
   const CheckPasswordInput = (e) => setPasswordConfirm(e.target.value);
 
+  useEffect(() => {
+    if (!email) {
+      toast.error("이메일을 먼저 입력해주세요");
+      navigate("/emailInput");
+    }
+  }, []);
+
   const SignupHandle = () => {
     if (!password.trim() || !passwordConfirm.trim()) {
       alert("비밀번호를 입력해주세요!");
@@ -25,13 +33,6 @@ export default function Signup() {
 
     sendPassword({ email, password, passwordConfirm });
   };
-
-  useEffect(() => {
-    if (!email) {
-      alert("올바르지 않은 접근입니다. 이메일을 다시 입력해 주세요.");
-      navigate("/signup");
-    }
-  }, [email, navigate]);
 
   return (
     <>
