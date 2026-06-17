@@ -1,0 +1,16 @@
+import { api } from "..";
+import type { DownloadZipProps } from "./type";
+
+export const DownloadZip = async ({ projectId }: DownloadZipProps) => {
+  const response = await api.post(`/projects/structures/${projectId}/download`);
+
+  const { downloadUrl, fileName } = response.data.data;
+
+  const link = document.createElement("a");
+  link.href = downloadUrl;
+  link.setAttribute("download", fileName);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  return response.data;
+};

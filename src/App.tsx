@@ -21,7 +21,7 @@ function App() {
       <Route path="/checkEmail" element={<CheckYourEmail />} />
       <Route path="/build-progress" element={<BuildProgress />} />
       <Route path="/myproject" element={<MyProject />} />
-      <Route path="/project-detail" element={<ProjectDatailCheck />} />
+      <Route path="/project-detail/:id" element={<ProjectDatailCheck />} />
       <Route path="/main" element={<Main />} />
       <Route path="/main-2" element={<Main_2 />} />
       <Route path="/main-3" element={<Main_3 />} />
