@@ -1,11 +1,11 @@
 import styled from "styled-components";
 import { Colors } from "../../styles/color";
-import { useDownloadZip } from "../../hooks/downloadZip";
+import { useNewDownloadZip } from "../../hooks/downloadZip";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 export default function DownloadFile() {
-  const { mutate: download, isPending } = useDownloadZip();
+  const { mutate: download, isPending } = useNewDownloadZip();
   const { id } = useParams<{ id: string }>();
 
   const downloadFunc = () => {
