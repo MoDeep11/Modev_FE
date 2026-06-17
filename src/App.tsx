@@ -5,11 +5,12 @@ import CheckYourEmail from "./pages/signup/CheckYourEmail";
 import EmailInput from "./pages/signup/EmailInput";
 import BuildProgress from "./pages/BuildProgress";
 import MyProject from "./pages/MyProject";
-import ProjectDatailCheck from "./pages/ProjectDatailCheck";
+import ProjectDatailCheck from "./pages/ProjectDatail";
 import Main from "./pages/main_page/MainPage";
 import Main_2 from "./pages/main_page/MainPage_2";
 import Main_3 from "./pages/main_page/MainPage_3";
 import Main_4 from "./pages/main_page/MainPage_4";
+import NewProjectDatail from "./pages/newProjectDetail";
 import { Routes, Route } from "react-router-dom";
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
       <Route path="/build-progress" element={<BuildProgress />} />
       <Route path="/myproject" element={<MyProject />} />
       <Route path="/project-detail/:id" element={<ProjectDatailCheck />} />
+      <Route path="/new-project-detail/:id" element={<NewProjectDatail />} />
       <Route path="/main" element={<Main />} />
       <Route path="/main-2" element={<Main_2 />} />
       <Route path="/main-3" element={<Main_3 />} />
