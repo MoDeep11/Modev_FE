@@ -3,6 +3,7 @@ import { Colors } from "../styles/color";
 import Folders from "../components/Build/Folders";
 import HeaderV2 from "../layouts/HeaderV2";
 import DownloadFile from "../components/Button/DownloadFile";
+import DeleteProject from "../components/Button/DeleteProject";
 
 export default function ProjectDatailCheck() {
   return (
@@ -54,7 +55,7 @@ export default function ProjectDatailCheck() {
             </BottomWrapper>
 
             <Bottom>
-              <Delete>삭제</Delete>
+              <DeleteProject />
               <BottomRight>
                 <DownloadFile />
                 <ModifySkillStack>기술 스택 수정</ModifySkillStack>
@@ -94,19 +95,6 @@ const Check = styled.div`
   height: 39px;
   border-radius: 12px;
   font-weight: 600;
-  display: flex;
-  align-items: center;
-`;
-
-const Delete = styled.div`
-  padding: 10px 32px;
-  border: 1px solid ${Colors.status.error};
-  color: ${Colors.status.error};
-  background-color: ${Colors.background.base};
-  border-radius: 10px;
-  width: 92ppx;
-  height: 39px;
-  cursor: pointer;
   display: flex;
   align-items: center;
 `;
