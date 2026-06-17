@@ -3,14 +3,25 @@ import { Colors } from "../styles/color";
 import HeaderV2 from "../layouts/HeaderV2";
 import DownloadFile from "../components/Button/DownloadFile";
 import DeleteProject from "../components/Button/DeleteProject";
-import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useFileContent, useProjectStatus } from "../hooks/newproject";
 import FileTree from "../components/newproject/FileTree";
+import { useEffect, useState } from "react";
 
 export default function NewProjectDatail() {
   const { id } = useParams<{ id: string }>();
   const [selectedFile, setSelectedFile] = useState("");
+
+  useEffect(() => {
+    setSelectedFile("");
+  }, [id]);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(fileData?.content ?? "");
+    } catch {}
+  };
+
   const { data: projectData } = useProjectStatus(Number(id));
   const { data: fileData, isLoading } = useFileContent(
     Number(id),
@@ -66,13 +77,7 @@ export default function NewProjectDatail() {
               <CodeWrapper>
                 <CodeTextsWrapper>
                   <FileName>{fileData?.filePath ?? "파일명"}</FileName>
-                  <CopyButton
-                    onClick={() =>
-                      navigator.clipboard.writeText(fileData?.content ?? "")
-                    }
-                  >
-                    복사하기
-                  </CopyButton>
+                  <CopyButton onClick={handleCopy}>복사하기</CopyButton>
                 </CodeTextsWrapper>
                 <pre
                   style={{
@@ -162,9 +167,12 @@ const FileName = styled.div`
   font-size: 14px;
 `;
 
-const CopyButton = styled.div`
+const CopyButton = styled.button`
   color: white;
   font-size: 14px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
 `;
 
 const BottomWrapper = styled.div`

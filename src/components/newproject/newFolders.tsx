@@ -27,6 +27,18 @@ export default function Folders({ text, file, depth, onClick }: FoldersProps) {
       depth={depth}
       isClickable={isClickable}
       onClick={isClickable ? onClick : undefined}
+      role={isClickable ? "button" : undefined}
+      tabIndex={isClickable ? 0 : -1}
+      onKeyDown={
+        isClickable
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick?.();
+              }
+            }
+          : undefined
+      }
     >
       {Array.from({ length: depth }).map((_, index) => (
         <TreeLine key={index} index={index} />
