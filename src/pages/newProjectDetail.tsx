@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { Colors } from "../styles/color";
 import HeaderV2 from "../layouts/HeaderV2";
-import DownloadFile from "../components/Button/DownloadFile";
+import DownloadFile from "../components/newproject/DownloadFile";
 import DeleteProject from "../components/Button/DeleteProject";
 import { useParams } from "react-router-dom";
 import { useFileContent, useProjectStatus } from "../hooks/newproject";

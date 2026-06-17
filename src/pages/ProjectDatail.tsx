@@ -2,10 +2,31 @@ import styled from "styled-components";
 import { Colors } from "../styles/color";
 import Folders from "../components/Build/Folders";
 import HeaderV2 from "../layouts/HeaderV2";
-import DownloadFile from "../components/Button/DownloadFile";
+import DownloadFile from "../components/newproject/DownloadFile";
 import DeleteProject from "../components/Button/DeleteProject";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { useFileContent } from "../hooks/newproject";
 
 export default function ProjectDatailCheck() {
+  const { id } = useParams<{ id: string }>();
+  const [selectedFile, setSelectedFile] = useState("");
+
+  useEffect(() => {
+    setSelectedFile("");
+  }, [id]);
+
+  const { data: fileData, isLoading } = useFileContent(
+    Number(id),
+    selectedFile,
+  );
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(fileData?.content ?? "");
+    } catch {}
+  };
+
   return (
     <>
       <WrapperAll>
@@ -48,9 +69,21 @@ export default function ProjectDatailCheck() {
 
               <CodeWrapper>
                 <CodeTextsWrapper>
-                  <FileName>파일명</FileName>
-                  <CopyButton>복사하기</CopyButton>
+                  <FileName>{fileData?.filePath ?? "파일명"}</FileName>
+                  <CopyButton onClick={handleCopy}>복사하기</CopyButton>
                 </CodeTextsWrapper>
+                <pre
+                  style={{
+                    color: "white",
+                    overflow: "auto",
+                    margin: 0,
+                    fontSize: "13px",
+                  }}
+                >
+                  {isLoading
+                    ? "로딩 중..."
+                    : (fileData?.content ?? "파일을 선택해주세요.")}
+                </pre>
               </CodeWrapper>
             </BottomWrapper>
 
