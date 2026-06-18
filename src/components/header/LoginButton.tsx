@@ -8,7 +8,7 @@ export default function LoginButton() {
   return (
     <Wrapper>
       <Img src={Login}></Img>
-      <Text onClick={() => navigate("/login")}>로그인</Text>
+      <Text onClick={() => navigate("/")}>로그인</Text>
     </Wrapper>
   );
 }
@@ -34,4 +34,5 @@ const Img = styled.img`
 
 const Text = styled.p`
   font-size: 16px;
+  cursor: pointer;
 `;

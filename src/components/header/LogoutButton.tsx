@@ -25,6 +25,7 @@ const Wrapper = styled.div`
   align-items: center;
   border-radius: 50px;
   gap: 6px;
+  cursor: pointer;
 `;
 
 const Img = styled.img`
