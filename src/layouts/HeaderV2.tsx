@@ -3,6 +3,7 @@ import MoDevLogo from "../assets/MoDevLogo.svg";
 import { Colors } from "../styles/color";
 import LoginButton from "../components/header/LoginButton";
 import LogoutButton from "../components/header/LogoutButton";
+import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   text: "로그아웃" | "로그인";
@@ -10,16 +11,25 @@ interface HeaderProps {
 }
 
 export default function HeaderV2({ text, page }: HeaderProps) {
+  const navigate = useNavigate();
   const Button = text === "로그인" ? LoginButton : LogoutButton;
 
   return (
     <Wrapper>
       <Left>
         <Img src={MoDevLogo} alt="MoDev로고" />
-        <ProjectBuilder isActive={page === "프로젝트 빌더"}>
+        <ProjectBuilder
+          isActive={page === "프로젝트 빌더"}
+          onClick={() => navigate("/main")}
+        >
           프로젝트 빌더
         </ProjectBuilder>
-        <MyProject isActive={page === "내 프로젝트"}>내 프로젝트</MyProject>
+        <MyProject
+          isActive={page === "내 프로젝트"}
+          onClick={() => navigate("/myproject")}
+        >
+          내 프로젝트
+        </MyProject>
       </Left>
       <Button />
     </Wrapper>
@@ -34,11 +44,13 @@ const Left = styled.div`
 const ProjectBuilder = styled.div<{ isActive: boolean }>`
   color: ${(props) => (props.isActive ? "white" : Colors.text.disabled)};
   padding: 8px 12px;
+  cursor: pointer;
 `;
 
 const MyProject = styled.div<{ isActive: boolean }>`
   color: ${(props) => (props.isActive ? "white" : Colors.text.disabled)};
   padding: 8px 12px;
+  cursor: pointer;
 `;
 
 const Wrapper = styled.div`
