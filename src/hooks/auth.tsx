@@ -109,7 +109,7 @@ export const useLogin = () => {
         toast.error("나중에 다시 시도하십시오");
       else if (errorCode === "EMAIL_NOT_VERIFIED")
         toast.error("이메일 미인증 계정입니다.");
-      else toast.error("로그인 중 오류가 발생했습니다. 다시 시도해 주세요.");
+      else toast.error("로그인 중 오류가 발생했습니다.");
     },
   });
 };

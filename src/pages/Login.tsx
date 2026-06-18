@@ -4,6 +4,7 @@ import { Colors } from "../styles/color";
 import { useLogin } from "../hooks/auth";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -21,7 +22,11 @@ export default function Login() {
     setPassword(e.target.value);
   };
 
-  const onSubmit = () => {
+  const handleLogin = () => {
+    if (!email.trim() || !password.trim()) {
+      toast.error("필수 입력 항목이 누락되었습니다.");
+      return;
+    }
     login({ email, password });
   };
 
@@ -55,7 +60,7 @@ export default function Login() {
             </InputAllContainer>
 
             <BottomWrapper>
-              <VerifyButton onClick={onSubmit} disabled={isPending}>
+              <VerifyButton onClick={handleLogin} disabled={isPending}>
                 {isPending ? "로그인 중..." : "로그인"}
               </VerifyButton>
 
@@ -158,7 +163,7 @@ const Input = styled.input`
   padding: 8px 16px;
   background-color: ${Colors.background.base};
   border: 1px solid ${Colors.background.base};
-  color: ${Colors.text.disabled};
+  color: white;
 
   &::placeholder {
     color: ${Colors.text.disabled};
