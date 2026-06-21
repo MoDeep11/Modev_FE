@@ -10,6 +10,7 @@ export interface LoginProps {
 }
 
 export interface EmailCheckProps {
+  email: string;
   code: string;
 }
 

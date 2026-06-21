@@ -19,8 +19,9 @@ export const createUser = async ({
   return response.data;
 };
 
-export const emailCheck = async ({ code }: EmailCheckProps) => {
+export const emailCheck = async ({ email, code }: EmailCheckProps) => {
   const response = await api.post(`/auth/email/verify`, {
+    email,
     code,
   });
   return response.data;
