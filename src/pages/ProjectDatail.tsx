@@ -26,7 +26,11 @@ export default function ProjectDetailCheck() {
     setSelectedFile("");
   }, [id]);
 
-  const { data: project, isLoading: projectLoading } = useProject(id ?? "");
+  const {
+    data: project,
+    isLoading: projectLoading,
+    isError: projectError,
+  } = useProject(id ?? "");
   const { data: fileData, isLoading: fileLoading } = useFileContent(
     id ?? "",
     selectedFile,
@@ -38,7 +42,10 @@ export default function ProjectDetailCheck() {
     } catch {}
   };
 
-  if (projectLoading || !project) return <div>로딩 중...</div>;
+  if (!id) return <div>잘못된 접근입니다.</div>;
+  if (projectLoading) return <div>로딩 중...</div>;
+  if (projectError || !project)
+    return <div>프로젝트를 불러오지 못했습니다.</div>;
 
   return (
     <WrapperAll>

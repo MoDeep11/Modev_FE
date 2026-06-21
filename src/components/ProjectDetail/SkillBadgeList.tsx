@@ -20,7 +20,7 @@ export default function SkillBadgeList({ activeTab, project }: Props) {
   return (
     <Container>
       {items.map((label, i) => (
-        <SkillBadge key={i} label={label} />
+        <SkillBadge key={`${activeTab}-${String(label)}-${i}`} label={label} />
       ))}
     </Container>
   );

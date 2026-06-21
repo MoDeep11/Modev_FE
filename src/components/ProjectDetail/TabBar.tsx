@@ -16,10 +16,12 @@ const TAB_LABELS: { key: Tab; label: string }[] = [
 
 export default function TabBar({ activeTab, onTabChange }: Props) {
   return (
-    <Container>
+    <Container role="tablist" aria-label="프로젝트 상세 탭">
       {TAB_LABELS.map(({ key, label }) => (
         <Tab
           key={key}
+          role="tab"
+          aria-selected={activeTab === key}
           $active={activeTab === key}
           onClick={() => onTabChange(key)}
         >
@@ -36,9 +38,12 @@ const Container = styled.div`
   margin-left: 10px;
 `;
 
-const Tab = styled.p<{ $active: boolean }>`
+const Tab = styled.button<{ $active: boolean }>`
   font-size: 16px;
   color: ${({ $active }) =>
     $active ? Colors.text.primary : Colors.text.disabled};
   cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
 `;

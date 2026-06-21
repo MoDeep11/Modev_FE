@@ -8,26 +8,43 @@ interface Props {
   onCopy: () => void;
 }
 
-export default function CodeViewer({ filePath, content, isLoading, onCopy }: Props) {
+export default function CodeViewer({
+  filePath,
+  content,
+  isLoading,
+  onCopy,
+}: Props) {
   return (
     <Wrapper>
       <Header>
         <FileName>{filePath || "파일명"}</FileName>
-        <CopyButton onClick={onCopy}>복사하기</CopyButton>
+        <CopyButton type="button" onClick={onCopy}>
+          복사하기
+        </CopyButton>
       </Header>
-      <pre style={{ color: "white", overflow: "auto", margin: 0, fontSize: "13px" }}>
+      <pre
+        style={{
+          color: "white",
+          overflow: "auto",
+          margin: 0,
+          fontSize: "13px",
+        }}
+      >
         {isLoading ? "로딩 중..." : content || "파일을 선택해주세요."}
       </pre>
     </Wrapper>
   );
 }
 
-const Wrapper = styled.div`
+const Wrapper = styled.button`
   background-color: ${Colors.background.surface};
   border: 1px solid ${Colors.background.overlay};
   width: 616px;
   height: 343px;
   border-radius: 12px;
+  background: none;
+  border: 0;
+  padding: 0;
   padding: 11px 15px;
 `;
 
