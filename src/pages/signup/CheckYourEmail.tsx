@@ -31,7 +31,7 @@ export default function CheckYourEmail() {
       toast.error("6자리 코드를 모두 입력해주세요.");
       return;
     }
-    checkEmail({ code: code });
+    checkEmail({ email: email, code: code });
   };
 
   const codeReSend = () => {
