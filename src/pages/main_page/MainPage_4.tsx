@@ -11,7 +11,7 @@ import Skill from "../../components/choice/SkillBlock";
 import Search_img from "../../assets/search.svg";
 import { useProjectForm } from "../../hooks/useProjectForm";
 import { useMutation, useQuery } from "@tanstack/react-query"; 
-import { createProject, getProjectDependencies } from "../../apis/project/index";
+import { createProject, updateProject, getProjectDetail, getProjectDependencies, generateAIStructure } from "../../apis/project/index"; 
 import type { ProjectPayload, ServerDependency } from "../../apis/project/type";
 
 const stackTitleMap: Record<string, string> = {
@@ -33,17 +33,15 @@ const Main = () => {
   const [searchKeyword, setSearchKeyword] = useState<string>("");
   const [collapsedCategories, setCollapsedCategories] = useState<string[]>([]);
 
-  // 3단계까지 선택된 스택 ID를 세션에서 먼저 복원 (의존성 API 호출에 필요)
   useEffect(() => {
     const savedForm = sessionStorage.getItem("projectForm");
     if (savedForm) {
       const parsed = JSON.parse(savedForm);
-      const stackIdsFromSession: string[] = parsed.stackIds || [];
-      setSelectedStackIds(stackIdsFromSession);
+      setSelectedStackIds(parsed.stackIds || []);
     }
   }, []);
 
-  // ✅ stackIds는 API 필수 파라미터라, 세션에서 selectedStackIds가 복원된 뒤에만 조회 가능
+  // 1. 의존성 목록 가져오기
   const { data: serverData, isError: isDepsError, error: depsError } = useQuery({
     queryKey: ["projectDependencies", selectedStackIds],
     queryFn: async () => {
@@ -53,23 +51,36 @@ const Main = () => {
       return res;
     },
     enabled: selectedStackIds.length > 0,
-    retry: 1,
   });
 
-  useEffect(() => {
-    if (isDepsError) {
-      console.error("%c❌ [GET] 의존성 목록 요청 실패:", "color: #ff4d4d; font-weight: bold;", depsError);
-    }
-  }, [isDepsError, depsError]);
+  // 2. 수정 모드 데이터 로드하기
+  const { data: projectResponse } = useQuery({
+    queryKey: ["projectDetail", projectId],
+    queryFn: async () => {
+      if (!projectId) return null;
+      return await getProjectDetail(projectId);
+    },
+    enabled: isModify && !!projectId,
+  });
 
   const allDependencies: ServerDependency[] = serverData?.data?.dependencies ?? [];
 
-  // 스택 복원이 끝나고 의존성 목록이 도착한 뒤에 이전에 선택했던 의존성 복원
+  // 3. 기존 의존성 복원 처리
   useEffect(() => {
-    if (allDependencies.length === 0) return;
+    if (isModify && projectResponse?.data?.dependencies && allDependencies.length > 0) {
+      const savedDeps = projectResponse.data.dependencies;
+      const restored = allDependencies.filter((d) => 
+        savedDeps.some((sd: any) => sd.dependencyId === d.dependencyId || sd.name === d.name)
+      );
+      setSelectedDeps(restored);
+      console.log("%c🔄 [수정 모드] 기존 선택 의존성 복원 완료:", "color: #ff9f43; font-weight: bold;", restored);
+    }
+  }, [isModify, projectResponse, allDependencies]);
 
+  useEffect(() => {
+    if (isModify) return;
     const savedForm = sessionStorage.getItem("projectForm");
-    if (savedForm) {
+    if (savedForm && allDependencies.length > 0) {
       const parsed = JSON.parse(savedForm);
       const dependencyIdsFromSession: string[] = parsed.dependencyIds || [];
       if (dependencyIdsFromSession.length > 0) {
@@ -77,7 +88,13 @@ const Main = () => {
         setSelectedDeps(restored);
       }
     }
-  }, [allDependencies]);
+  }, [allDependencies, isModify]);
+
+  useEffect(() => {
+    if (isDepsError) {
+      console.error("%c❌ [GET] 의존성 목록 요청 실패:", "color: #ff4d4d; font-weight: bold;", depsError);
+    }
+  }, [isDepsError, depsError]);
 
   const handleToggleCategory = (categoryId: string) => {
     if (collapsedCategories.includes(categoryId)) {
@@ -87,22 +104,45 @@ const Main = () => {
     }
   };
 
+  // 신규 생성 또는 업데이트 연동 Mutation 처리
   const projectMutation = useMutation({
     mutationFn: async (payload: ProjectPayload) => {
-      console.log("%c🚀 [POST] 서버 전송 시작 -> 엔드포인트: /projects", "color: #ff007f; font-weight: bold;");
-      console.log("%c📦 REQUEST BODY (Payload):", "color: #ff007f;", payload);
-      return await createProject(payload);
+      if (isModify && projectId) {
+        console.log("%c🚀 [PUT] 서버 수정 요청 시작 -> /projects/" + projectId, "color: #ff007f; font-weight: bold;");
+        return await updateProject({ projectId, data: payload });
+      } else {
+        console.log("%c🚀 [POST] 서버 생성 요청 시작 -> /projects", "color: #ff007f; font-weight: bold;");
+        return await createProject(payload);
+      }
     },
-    onSuccess: (response) => {
-      console.log("%c🎉 [POST] RESPONSE 성공 데이터 수신 완료:", "color: #00ff87; font-weight: bold;", response);
-      alert("🎉 프로젝트가 성공적으로 생성되었습니다!");
-      sessionStorage.removeItem("projectForm");
+    onSuccess: async (response) => {
+      console.log("%c🎉 성공 데이터 수신 완료:", "color: #00ff87; font-weight: bold;", response);
       
-      navigate(isModify ? `/project-detail/${projectId}` : "/build-progress");
+      const activeProjectId = projectId || response?.data?.projectId || response?.projectId;
+
+      if (!activeProjectId) {
+        alert("⚠️ 프로젝트 ID를 특정할 수 없습니다.");
+        return;
+      }
+
+      sessionStorage.setItem("currentProjectId", String(activeProjectId));
+
+      try {
+        console.log(`📡 AI 구조 빌드 연쇄 요청 시작 (/projects/structures -> id: ${activeProjectId})`);
+        await generateAIStructure(String(activeProjectId));
+        
+        alert(isModify ? "🎉 프로젝트가 성공적으로 수정되었습니다!" : "🎉 프로젝트가 성공적으로 생성되었습니다!");
+        sessionStorage.removeItem("projectForm");
+        
+        navigate(isModify ? `/project-detail/${activeProjectId}` : "/build-progress");
+      } catch (error) {
+        console.error("❌ AI 구조 생성 API 에러:", error);
+        alert("⚠️ 프로젝트 메타 구조 처리는 반영되었으나, AI 빌드 컨텍스트 전송 중 에러가 발생했습니다.");
+      }
     },
     onError: (error) => {
-      console.error("%c❌ [POST] 프로젝트 생성 실패:", "color: #ff4d4d; font-weight: bold;", error);
-      alert("⚠️ 프로젝트 생성 중 서버 오류가 발생했습니다.");
+      console.error("❌ 처리 실패:", error);
+      alert("⚠️ 서버 통신 중 오류가 발생했습니다.");
     }
   });
 
@@ -152,7 +192,6 @@ const Main = () => {
       dependencyIds: finalDepIds,
     };
 
-    console.log("🚀 서버로 보낼 최종 데이터 규격:", payload);
     projectMutation.mutate(payload);
   };
 
@@ -177,9 +216,7 @@ const Main = () => {
         <Main_section>
           <Title_box>
             <Sec_title>프로젝트 세부 라이브러리 및 의존성 구성</Sec_title>
-            <Sec_text>
-              선택한 프레임워크 스택과 호환되는 유용한 라이브러리 꾸러미입니다.
-            </Sec_text>
+            <Sec_text>선택한 프레임워크 스택과 호환되는 유용한 라이브러리 꾸러미입니다.</Sec_text>
           </Title_box>
 
           <Search_container>
@@ -261,7 +298,7 @@ const Main = () => {
           </Before>
           
           <Next onClick={handleCompleteForm} style={{ cursor: "pointer" }}>
-            프로젝트 생성
+            프로젝트 {isModify ? "수정 완료" : "생성"}
           </Next>
         </Btn_box>
       </Body>
@@ -269,7 +306,7 @@ const Main = () => {
   );
 };
 
-
+// ─── 스타일 컴포넌트 원본 100% 보존 ───
 const Body = styled.div`
   width: 100%;
   min-height: calc(100vh - 64px);
@@ -281,7 +318,6 @@ const Body = styled.div`
   gap: 48px;
   box-sizing: border-box;
 `;
-
 const Main_top = styled.div`
   display: flex;
   margin-bottom: 24px;
@@ -289,21 +325,18 @@ const Main_top = styled.div`
   padding: 0px 6px;
   gap: 6px;
 `;
-
 const Main_section = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 24px;
 `;
-
 const Btn_box = styled.div`
   width: 100%;
   display: flex;
   height: fit-content;
   justify-content: space-between;
 `;
-
 const Next = styled.div`
   width: fit-content;
   height: 40px;
@@ -317,7 +350,6 @@ const Next = styled.div`
   font-weight: 600;
   gap: 10px;
 `;
-
 const Before = styled.div`
   width: 118px;
   height: 40px;
@@ -331,30 +363,24 @@ const Before = styled.div`
   font-size: 16px;
   font-weight: 600;
   gap: 10px;
-  img {
-    rotate: calc(180deg);
-  }
+  img { rotate: calc(180deg); }
 `;
-
 const Title_box = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
 `;
-
 const Sec_title = styled.p`
   color: #fff;
   font-size: 24px;
   font-weight: 600;
 `;
-
 const Sec_text = styled.div`
   color: #9898bb;
   font-size: 14px;
   font-weight: 400;
 `;
-
 const Choice_box = styled.div`
   width: 900px;
   height: fit-content;
@@ -366,13 +392,11 @@ const Choice_box = styled.div`
   flex-direction: column;
   gap: 20px;
 `;
-
 const Skill_box = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 22px;
 `;
-
 const Skill_category = styled.div`
   display: flex;
   gap: 12px;
@@ -381,7 +405,6 @@ const Skill_category = styled.div`
   color: #fff;
   align-items: center;
 `;
-
 const Skill_container = styled.div`
   display: flex;
   flex-direction: column;
@@ -390,19 +413,16 @@ const Skill_container = styled.div`
   border-bottom: 1px solid ${Colors.border.strong};
   margin-bottom: 36px;
 `;
-
 const Choice_num = styled.div`
   font-size: 14px;
   color: ${Colors.text.secondary};
 `;
-
 const Line = styled.div`
   display: flex;
   width: 1px;
   height: 17px;
   background: ${Colors.border.strong};
 `;
-
 const Choice_option = styled.div`
   display: flex;
   align-items: center;
@@ -416,7 +436,6 @@ const Choice_option = styled.div`
   font-size: 12px;
   font-weight: 300;
 `;
-
 const Search_container = styled.div`
   width: 100%;
   height: 84px;
@@ -425,7 +444,6 @@ const Search_container = styled.div`
   flex-direction: column;
   padding: 0px 80px;
 `;
-
 const Search_input = styled.input`
   width: 100%;
   height: 100%;
@@ -436,14 +454,9 @@ const Search_input = styled.input`
   border: none;
   color: #fff;
   background-color: ${Colors.background.overlay};
-  &:focus {
-    outline: none;
-  }
-  &:placeholder-shown {
-    color: ${Colors.text.disabled};
-  }
+  &:focus { outline: none; }
+  &:placeholder-shown { color: ${Colors.text.disabled}; }
 `;
-
 const Search_bar = styled.div`
   display: flex;
   width: 740px;
@@ -454,26 +467,22 @@ const Search_bar = styled.div`
   background: ${Colors.background.overlay};
   border-radius: 33554400px;
 `;
-
 const Choice_tag = styled.div`
   height: 24px;
   display: flex;
   gap: 12px;
   align-items: center;
 `;
-
 const Choice_text = styled.div`
   color: ${Colors.text.disabled};
   font-size: 14px;
 `;
-
 const NoDataText = styled.div`
   color: ${Colors.text.disabled};
   text-align: center;
   padding: 147px 0;
   font-size: 16px;
 `;
-
 const RecommendBadge = styled.div`
   position: absolute;
   top: 12px;
@@ -485,7 +494,6 @@ const RecommendBadge = styled.div`
   padding: 2px 6px;
   border-radius: 4px;
 `;
-
 const FoldIcon = styled.img<{ isCollapsed: boolean }>`
   transition: transform 0.2s ease;
   transform: ${({ isCollapsed }) => (isCollapsed ? "rotate(-90deg)" : "rotate(0deg)")};
