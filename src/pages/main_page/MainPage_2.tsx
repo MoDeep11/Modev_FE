@@ -1,38 +1,105 @@
 import HeaderV2 from "../../layouts/HeaderV2";
 import styled from "@emotion/styled";
 import { Colors } from "../../styles/color";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useNavigate, useLocation, useParams } from "react-router-dom"; 
+import { useState, useEffect } from "react"; 
 import Arrow from "../../assets/Arrow.svg";
 import Process from "../../components/main_com/TopProcess";
 import Cancel from "../../assets/Vector (Stroke).svg";
-import List from "../../components/choice/DevBlock";
+import List from "../../components/choice/DevBlock"; 
+import { useProjectForm } from "../../hooks/useProjectForm";
+import { useQuery } from "@tanstack/react-query";
+import { getDevFields, getProject } from "../../apis/project/index";
+import type { ServerField } from "../../apis/project/type";
 
 const Main = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { projectId } = useParams<{ projectId: string }>(); 
+  const { saveStepData } = useProjectForm();
 
-  const isModify = location.pathname === "/main-md-2";
+  const isModify = !!projectId && location.pathname.startsWith("/main-md-2/");
 
-  const [selectedFields, setSelectedFields] = useState([]);
+  const [selectedFields, setSelectedFields] = useState<ServerField[]>([]);
 
-  const devFields = [
-    { id: "frontend_1", title: "FrontEnd", text: "모바일, 웹의 사용자 환경을 개발합니다." },
-    { id: "backend", title: "BackEnd", text: "서버, API 및 데이터베이스를 개발합니다." },
-    { id: "ios", title: "iOS", text: "아이폰 환경의 어플리케이션을 개발합니다." },
-    { id: "android", title: "Android", text: "안드로이드 환경의 어플리케이션을 개발합니다." },
-  ];
+  const { data: serverData, isError: isFieldsError, error: fieldsError } = useQuery({
+    queryKey: ["devFields"],
+    queryFn: async () => {
+      console.log("%c📡 [GET] 개발 분야 목록 요청 시작 -> /dev-fields", "color: #00d2ff; font-weight: bold;");
+      const res = await getDevFields();
+      console.log("%c✅ [GET] 개발 분야 목록 수신 성공:", "color: #00ff87; font-weight: bold;", res);
+      return res;
+    },
+  });
 
-  const handleSelect = (field) => {
-    if (selectedFields.some((item) => item.id === field.id)) {
-      handleRemove(field.id);
+  useEffect(() => {
+    if (isFieldsError) {
+      console.error("%c❌ [GET] 개발 분야 목록 요청 실패:", "color: #ff4d4d; font-weight: bold;", fieldsError);
+    } 
+  }, [isFieldsError, fieldsError]);
+
+  const { data: projectResponse, isError: isProjectError, error: projectError } = useQuery({
+    queryKey: ["projectDetail", projectId],
+    queryFn: async () => {
+      console.log(`%c📡 [GET] 프로젝트 상세 요청 시작 -> ID: ${projectId}`, "color: #00d2ff; font-weight: bold;");
+      const res = await getProject(projectId!);
+      console.log("%c✅ [GET] 프로젝트 상세 수신 성공:", "color: #00ff87; font-weight: bold;", res);
+      return res;
+    },
+    enabled: isModify, 
+  });
+
+  useEffect(() => {
+    if (isProjectError) {
+      console.error("%c❌ [GET] 프로젝트 상세 요청 실패:", "color: #ff4d4d; font-weight: bold;", projectError);
+    }
+  }, [isProjectError, projectError]);
+
+  const devFields: ServerField[] = serverData?.data?.fields ?? [];
+
+  useEffect(() => {
+    if (devFields.length === 0) return;
+
+    if (isModify) {
+      if (projectResponse?.fields) {
+        const serverSelectedNames = projectResponse.fields; 
+        const matchedFields = devFields.filter((field) => serverSelectedNames.includes(field.name));
+        console.log("%c📥 수정 모드: 서버에서 받은 선택 분야 복원:", "color: #b970ff;", matchedFields);
+        setSelectedFields(matchedFields);
+      }
+    } else {
+      const savedForm = sessionStorage.getItem("projectForm");
+      if (savedForm) {
+        try {
+          const { fieldIds } = JSON.parse(savedForm);
+          if (fieldIds && Array.isArray(fieldIds)) {
+            // 💡 타입 서류와 일치하므로 field.fieldId로 정석 비교
+            const matchedFields = devFields.filter((field) => fieldIds.includes(field.fieldId));
+            setSelectedFields(matchedFields);
+          }
+        } catch (e) {
+          console.error("sessionStorage 파싱 에러:", e);
+        }
+      }
+    }
+  }, [serverData, projectResponse, isModify, devFields]); 
+
+  const handleSelect = (field: ServerField) => {
+    if (selectedFields.some((item) => item.fieldId === field.fieldId)) {
+      handleRemove(field.fieldId);
     } else {
       setSelectedFields([...selectedFields, field]);
     }
   };
 
-  const handleRemove = (id) => {
-    setSelectedFields(selectedFields.filter((item) => item.id !== id));
+  const handleRemove = (fieldId: string) => {
+    setSelectedFields(selectedFields.filter((item) => item.fieldId !== fieldId));
+  };
+
+  const handleNextStep = () => {
+    const fieldIds = selectedFields.map((field) => field.fieldId);
+    saveStepData({ fieldIds: fieldIds });
+    navigate(isModify ? `/main-md-3/${projectId}` : "/main-3");
   };
 
   return (
@@ -64,14 +131,17 @@ const Main = () => {
               {selectedFields.length > 0 && <Line />}
               
               {selectedFields.map((field) => (
-                <Choice_option key={field.id}>
-                  {field.title}
+                <Choice_option key={field.fieldId}>
+                  {field.name}
                   <img 
                     src={Cancel} 
                     alt="삭제" 
-                    onClick={() => handleRemove(field.id)} 
+                    onClick={(e) => {
+                      e.stopPropagation(); 
+                      handleRemove(field.fieldId);
+                    }} 
                     style={{ cursor: "pointer" }} 
-                  />
+                    />
                 </Choice_option>
               ))}
             </Choice_info>
@@ -79,16 +149,18 @@ const Main = () => {
             <List_box>
               <Select_list>
                 {devFields.map((field) => {
-                  const isSelected = selectedFields.some((item) => item.id === field.id);
+                  const isSelected = selectedFields.some((item) => item.fieldId === field.fieldId);
+
                   return (
                     <div 
-                      key={field.id} 
+                      key={field.fieldId} 
                       onClick={() => handleSelect(field)}
                       style={{ cursor: "pointer" }}
                     >
                       <List
-                        title={field.title}
-                        text={field.text}
+                        title={field.name} 
+                        text={field.description}
+                        isSelected={isSelected} 
                       />
                     </div>
                   );
@@ -109,7 +181,7 @@ const Main = () => {
           </Before>
         )}
 
-        <Next onClick={() => navigate(isModify ? "/main-md-3" : "/main-3")}>
+        <Next onClick={handleNextStep}>
           다음
           <img src={Arrow} alt="" />
         </Next>
@@ -204,7 +276,8 @@ const Sec_text = styled.div`
 
 const Choice_box = styled.div`
   width: 900px;
-  height: 492px;
+  height: auto;
+  min-height: 492px;
   background: ${Colors.background.surface};
   border-radius: 12px;
   border: 1px solid ${Colors.background.overlay};
@@ -251,7 +324,8 @@ const Choice_option = styled.div`
 
 const List_box = styled.div`
   width: 100%;
-  height: 344px;
+  height: auto;
+  min-height: 344px;
 `;
 
 const Select_list = styled.div`
@@ -264,5 +338,6 @@ const Choice_text = styled.div`
   color: ${Colors.text.disabled};
   font-size: 14px;
 `;
+
 
 export default Main;
