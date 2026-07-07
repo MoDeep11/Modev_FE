@@ -9,7 +9,6 @@ export const api = axios.create({
   withCredentials: true,
 });
 
-
 let currentRefreshPromise: Promise<string> | null = null;
 
 api.interceptors.request.use((config) => {
@@ -19,13 +18,6 @@ api.interceptors.request.use((config) => {
     "/auth/email/verify",
     "/auth/email/send",
     "/auth/token/refresh",
-    "/new-project-detail/:id",
-    "/",
-    "/projectDetail/:id",
-    "/newProjectDetail/:id",
-    "/build-progress",
-    "/login",
-    "/signup",
   ];
 
   if (skipUrls.some((url) => config.url?.includes(url))) return config;
@@ -40,11 +32,12 @@ api.interceptors.response.use(
   async (error) => {
     const config = error.config;
 
-    if (error.response?.status === 401 && config && !config._retry) {
+    if (error.response?.status === 401 && !config._retry) {
       config._retry = true;
 
       try {
         if (!currentRefreshPromise) {
+          console.log("🔄 토큰 갱신 시작...");
           currentRefreshPromise = axios
             .post(
               `${BaseURL}/auth/token/refresh`,
@@ -54,6 +47,7 @@ api.interceptors.response.use(
             .then((res) => {
               const newAccessToken = res.data.data.accessToken;
               localStorage.setItem("accessToken", newAccessToken);
+              console.log("✅ 토큰 갱신 성공!");
               return newAccessToken;
             })
             .finally(() => {
@@ -66,7 +60,11 @@ api.interceptors.response.use(
         config.headers.Authorization = `Bearer ${newAccessToken}`;
         return api(config);
       } catch (refreshError: any) {
-        console.log(refreshError);
+        console.error("❌ 토큰 갱신 실패!");
+        console.error("Status:", refreshError.response?.status);
+        console.error("Data:", refreshError.response?.data);
+        console.error("Message:", refreshError.message);
+
         const errorCode = refreshError.response?.data?.data?.code;
 
         if (

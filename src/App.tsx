@@ -24,7 +24,6 @@ function App() {
       <Route path="/build-progress/:projectId" element={<BuildProgress />} />
       <Route path="/project-detail/:id" element={<ProjectDetailCheck />} />
       <Route path="/new-project-detail/:id" element={<NewProjectDatail />} />
-
       <Route path="/main" element={<Main />} />
       <Route path="/main-2" element={<Main_2 />} />
       <Route path="/main-3" element={<Main_3 />} />

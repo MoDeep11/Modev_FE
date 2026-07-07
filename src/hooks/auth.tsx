@@ -97,7 +97,10 @@ export const useLogin = () => {
     mutationFn: loginUser,
 
     onSuccess: (data) => {
+      console.log("🔐 Login response:", data);
       localStorage.setItem("accessToken", data.data.accessToken);
+      // refreshToken은 응답에 없고 쿠키에 저장됨
+
       queryClient.invalidateQueries({
         queryKey: ["me"],
       });
@@ -126,6 +129,7 @@ export const useLogout = () => {
 
     onSuccess: () => {
       localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
       queryClient.clear();
       toast.success("로그아웃 성공!");
       navigate("/");
