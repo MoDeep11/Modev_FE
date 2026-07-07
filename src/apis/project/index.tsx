@@ -8,6 +8,7 @@ import type {
   DependenciesResponse,
   ProjectMetadataResponse,
   ProjectDetail,
+  ProjectDetailResponse,
   FileContent
 } from "./type";
 
@@ -17,7 +18,7 @@ export const createProject = async (payload: ProjectPayload): Promise<ProjectRes
 };
 
 export const updateProject = async ({ projectId, data }: UpdateProjectPayload): Promise<ProjectResponse> => {
-  const response = await api.put<ProjectResponse>(`/projects/${projectId}`, data);
+  const response = await api.patch<ProjectResponse>(`/projects/${projectId}/stacks`, data);
   return response.data;
 };
 
@@ -27,9 +28,9 @@ export const getDevFields = async (): Promise<FieldsResponse> => {
 };
 
 export const getDevStacks = async (fieldIds: string[], keyword?: string): Promise<StacksResponse> => {
-  const response = await api.get<StacksResponse>("/catalog/stacks", { // ✅ /projects/stacks -> /catalog/stacks (명세서 기준)
+  const response = await api.get<StacksResponse>("/catalog/stacks", { 
     params: {
-      fieldIds: fieldIds.join(","), // ✅ 배열이 아니라 "domain_fe,domain_be" 콤마 구분 문자열로 전달 (명세서 기준)
+      fieldIds: fieldIds.join(","), 
       ...(keyword ? { keyword } : {}),
     },
   });
@@ -40,9 +41,9 @@ export const getProjectDependencies = async (
   stackIds: string[],
   keyword?: string
 ): Promise<DependenciesResponse> => {
-  const response = await api.get<DependenciesResponse>("/catalog/dependencies", { // ✅ /projects/dependencies -> /catalog/dependencies (명세서 기준)
+  const response = await api.get<DependenciesResponse>("/catalog/dependencies", { 
     params: {
-      stackIds: stackIds.join(","), // ✅ 필수 파라미터, 콤마 구분 문자열로 전달 (명세서 기준)
+      stackIds: stackIds.join(","), 
       ...(keyword ? { keyword } : {}),
     },
   });
@@ -65,11 +66,6 @@ export const updateProjectMetadata = async (
   return response.data;
 };
 
-export const getProject = async (projectId: string): Promise<ProjectDetail> => {
-  const response = await api.get<ProjectDetail>(`/projects/${projectId}`);
-  return response.data;
-};
-
 export const getFileContent = async (
   projectId: string,
   filePath: string
@@ -77,5 +73,10 @@ export const getFileContent = async (
   const response = await api.get<FileContent>(`/projects/${projectId}/files`, {
     params: { filePath },
   });
+  return response.data;
+};
+
+export const generateAIStructure = async (projectId: string): Promise<any> => {
+  const response = await api.post("/projects/structures", { projectId });
   return response.data;
 };
