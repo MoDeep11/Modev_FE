@@ -22,3 +22,31 @@ export interface GetFileContentResponse {
   content: string;
   language: string;
 }
+export interface ConnectedEvent {
+  projectId: string;
+  message: string;
+}
+
+export interface ProgressEvent {
+  step: "analyzing" | "generating";
+  message: string;
+}
+
+export interface FileCreatedEvent {
+  type: "directory" | "file";
+  path: string;
+  depth: number;
+  content?: string;
+}
+
+export interface CompleteEvent {
+  projectId: string;
+  totalFiles: number;
+  totalDirectories: number;
+  message: string;
+}
+
+export interface ErrorEvent {
+  code: string;
+  message: string;
+}
