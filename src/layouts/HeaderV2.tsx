@@ -18,20 +18,13 @@ export default function HeaderV2({ text, page }: HeaderProps) {
     <Wrapper>
       <Left>
         <Img src={MoDevLogo} alt="MoDev로고" />
-        <ProjectBuilder
-          type="button"
-          isActive={page === "프로젝트 빌더"}
-          onClick={() => navigate("/main")}
-        >
+        <ProjectBuilder $isActive={page === "프로젝트 빌더"}>
           프로젝트 빌더
         </ProjectBuilder>
-        <MyProject
-          type="button"
-          isActive={page === "내 프로젝트"}
-          onClick={() => navigate("/myproject")}
-        >
+        <MyProject $isActive={page === "내 프로젝트"}>
           내 프로젝트
         </MyProject>
+        
       </Left>
       <Button />
     </Wrapper>
@@ -43,16 +36,16 @@ const Left = styled.div`
   align-items: center;
 `;
 
-const ProjectBuilder = styled.button<{ isActive: boolean }>`
-  color: ${(props) => (props.isActive ? "white" : Colors.text.disabled)};
+const ProjectBuilder = styled.div<{ $isActive: boolean }>`
+  color: ${(props) => (props.$isActive ? "white" : Colors.text.disabled)};
   padding: 8px 12px;
   cursor: pointer;
   background: transparent;
   border: 0;
 `;
 
-const MyProject = styled.button<{ isActive: boolean }>`
-  color: ${(props) => (props.isActive ? "white" : Colors.text.disabled)};
+const MyProject = styled.div<{ $isActive: boolean }>`
+  color: ${(props) => (props.$isActive ? "white" : Colors.text.disabled)};
   padding: 8px 12px;
   cursor: pointer;
   background: transparent;

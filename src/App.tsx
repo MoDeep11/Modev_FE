@@ -5,7 +5,6 @@ import CheckYourEmail from "./pages/signup/CheckYourEmail";
 import EmailInput from "./pages/signup/EmailInput";
 import BuildProgress from "./pages/BuildProgress";
 import MyProject from "./pages/MyProject";
-import ProjectDatailCheck from "./pages/ProjectDatail";
 import Main from "./pages/main_page/MainPage";
 import Main_2 from "./pages/main_page/MainPage_2";
 import Main_3 from "./pages/main_page/MainPage_3";
