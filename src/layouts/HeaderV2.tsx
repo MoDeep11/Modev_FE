@@ -14,17 +14,30 @@ export default function HeaderV2({ text, page }: HeaderProps) {
   const navigate = useNavigate();
   const Button = text === "로그인" ? LoginButton : LogoutButton;
 
+  const handleProjectBuilderClick = () => {
+    navigate("/main");
+  };
+
+  const handleMyProjectClick = () => {
+    navigate("/myproject");
+  };
+
   return (
     <Wrapper>
       <Left>
         <Img src={MoDevLogo} alt="MoDev로고" />
-        <ProjectBuilder $isActive={page === "프로젝트 빌더"}>
+        <ProjectBuilder
+          $isActive={page === "프로젝트 빌더"}
+          onClick={handleProjectBuilderClick}
+        >
           프로젝트 빌더
         </ProjectBuilder>
-        <MyProject $isActive={page === "내 프로젝트"}>
+        <MyProject
+          $isActive={page === "내 프로젝트"}
+          onClick={handleMyProjectClick}
+        >
           내 프로젝트
         </MyProject>
-        
       </Left>
       <Button />
     </Wrapper>

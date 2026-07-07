@@ -16,15 +16,18 @@ export const newDownloadZip = async ({ projectId }: DownloadZipProps) => {
 };
 
 export const DownloadZip = async ({ projectId }: DownloadZipProps) => {
-  const response = await api.post(`/projects/${projectId}/download`);
+  const { data } = await api.post(`/projects/${projectId}/download`);
 
-  const { downloadUrl, fileName } = response.data.data;
+  const { downloadUrl, fileName } = data.data;
 
   const link = document.createElement("a");
+
   link.href = downloadUrl;
-  link.setAttribute("download", fileName);
+  link.download = fileName;
+
   document.body.appendChild(link);
   link.click();
   link.remove();
-  return response.data;
+
+  return data;
 };

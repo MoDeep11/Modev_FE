@@ -1,46 +1,45 @@
-import Folders from "./newFolders";
-import type { FileTreeNode } from "../../apis/newproject/type";
+import type { FileTreeNode } from "../../apis/project/type";
+import Folders from "../Build/Folders";
 
-interface FileTreeProps {
+interface Props {
   nodes: FileTreeNode[];
   parentPath?: string;
   depth?: number;
   onFileClick: (filePath: string) => void;
 }
 
-export default function FileTrees({
+export default function FileTree({
   nodes,
   parentPath = "",
   depth = 0,
   onFileClick,
-}: FileTreeProps) {
+}: Props) {
   return (
     <>
       {nodes.map((node) => {
         const currentPath = parentPath
           ? `${parentPath}/${node.name}`
           : node.name;
-        const fileType =
-          node.type === "DIRECTORY"
-            ? depth === 0
-              ? "topFolder"
-              : "folder"
-            : "file";
+
+        const isDirectory = node.type === "DIRECTORY";
 
         return (
           <div key={currentPath}>
             <Folders
-              file={fileType}
-              text={node.type === "DIRECTORY" ? `${node.name}/` : node.name}
+              file={
+                isDirectory ? (depth === 0 ? "topFolder" : "folder") : "file"
+              }
+              text={isDirectory ? `${node.name}/` : node.name}
               depth={depth}
               onClick={
-                node.type === "FILE"
-                  ? () => onFileClick(currentPath)
-                  : undefined
+                isDirectory
+                  ? undefined
+                  : () => onFileClick(node.path || currentPath)
               }
             />
-            {node.children?.length > 0 && (
-              <FileTrees
+
+            {isDirectory && node.children && node.children.length > 0 && (
+              <FileTree
                 nodes={node.children}
                 parentPath={currentPath}
                 depth={depth + 1}

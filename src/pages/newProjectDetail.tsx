@@ -5,7 +5,7 @@ import DownloadFile from "../components/newproject/DownloadFile";
 import DeleteProject from "../components/Button/DeleteProject";
 import { useParams } from "react-router-dom";
 import { useFileContent, useProjectStatus } from "../hooks/newproject";
-import FileTree from "../components/newproject/FileTree";
+import FileTree from "../components/common/FileTree";
 import { useEffect, useState } from "react";
 
 export default function NewProjectDatail() {
@@ -65,7 +65,7 @@ export default function NewProjectDatail() {
                 {fileTree.length > 0 ? (
                   <FileTree nodes={fileTree} onFileClick={setSelectedFile} />
                 ) : (
-                  <p style={{ color: "white", fontSize: "14px" }}>
+                  <p style={{ color: "white" }}>
                     {projectData?.status === "PENDING" ||
                     projectData?.status === "IN_PROGRESS"
                       ? "생성 중..."

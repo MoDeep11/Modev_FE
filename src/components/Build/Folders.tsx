@@ -16,11 +16,12 @@ interface FoldersProps {
   text: string;
   file: "topFolder" | "folder" | "file" | "writeFile";
   depth: number;
+  onClick?: () => void;
 }
 
-export default function Folders({ text, file, depth }: FoldersProps) {
+export default function Folders({ text, file, depth, onClick }: FoldersProps) {
   return (
-    <Wrapper depth={depth}>
+    <Wrapper depth={depth} onClick={onClick}>
       {Array.from({ length: depth }).map((_, index) => (
         <TreeLine key={index} index={index} />
       ))}
@@ -37,6 +38,7 @@ const Wrapper = styled.div<{ depth: number }>`
   align-items: center;
   padding-left: ${(props) => props.depth * 24 + 12}px;
   height: 26px;
+  cursor: pointer;
 `;
 
 const TreeLine = styled.div<{ index: number }>`

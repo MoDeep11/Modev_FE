@@ -1,10 +1,10 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { getMyProjects } from "../apis/myproject";
-import type { GetProjectsParams } from "../apis/myproject/type";
-import { deleteProject } from "../apis/myproject";
-import { toast } from "react-toastify";
-import { AxiosError } from "axios";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { AxiosError } from "axios";
+import { toast } from "react-toastify";
+
+import { getMyProjects, deleteProject } from "../apis/myproject";
+import type { GetProjectsParams } from "../apis/myproject/type";
 
 export const useMyProjects = (params?: GetProjectsParams) => {
   return useQuery({
@@ -23,14 +23,24 @@ const getErrorCode = (error: AxiosError<ErrorResponse>) =>
 
 export const useDeleteMyProject = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: deleteProject,
+
     onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["projects"],
+      });
+
       toast.success("삭제되었습니다!");
+
       navigate("/myproject");
     },
+
     onError: (error: AxiosError<ErrorResponse>) => {
       const errorCode = getErrorCode(error);
+
       if (errorCode === "NOT_FOUND") {
         toast.error("프로젝트를 찾을 수 없습니다.");
       } else if (errorCode === "FORBIDDEN") {

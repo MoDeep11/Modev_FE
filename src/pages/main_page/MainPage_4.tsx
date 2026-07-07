@@ -1,7 +1,7 @@
 import HeaderV2 from "../../layouts/HeaderV2";
 import styled from "@emotion/styled";
 import { Colors } from "../../styles/color";
-import { useNavigate, useLocation, useParams } from "react-router-dom"; 
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Arrow from "../../assets/Arrow.svg";
 import Fold from "../../assets/Fold.svg";
@@ -10,8 +10,16 @@ import Process from "../../components/main_com/TopProcess";
 import Skill from "../../components/choice/SkillBlock";
 import Search_img from "../../assets/search.svg";
 import { useProjectForm } from "../../hooks/useProjectForm";
+<<<<<<< HEAD
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  createProject,
+  getProjectDependencies,
+} from "../../apis/project/index";
+=======
 import { useMutation, useQuery } from "@tanstack/react-query"; 
 import { createProject, updateProject, getProjectDetail, getProjectDependencies, generateAIStructure } from "../../apis/project/index"; 
+>>>>>>> origin/develop
 import type { ProjectPayload, ServerDependency } from "../../apis/project/type";
 
 const stackTitleMap: Record<string, string> = {
@@ -23,9 +31,9 @@ const stackTitleMap: Record<string, string> = {
 const Main = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { projectId } = useParams<{ projectId: string }>(); 
+  const { projectId } = useParams<{ projectId: string }>();
   const { saveStepData } = useProjectForm();
-  
+
   const isModify = !!projectId && location.pathname.startsWith("/main-md-4/");
 
   const [selectedStackIds, setSelectedStackIds] = useState<string[]>([]);
@@ -41,18 +49,45 @@ const Main = () => {
     }
   }, []);
 
+<<<<<<< HEAD
+  // ✅ stackIds는 API 필수 파라미터라, 세션에서 selectedStackIds가 복원된 뒤에만 조회 가능
+  const {
+    data: serverData,
+    isError: isDepsError,
+    error: depsError,
+  } = useQuery({
+=======
   // 1. 의존성 목록 가져오기
   const { data: serverData, isError: isDepsError, error: depsError } = useQuery({
+>>>>>>> origin/develop
     queryKey: ["projectDependencies", selectedStackIds],
     queryFn: async () => {
-      console.log(`%c📡 [GET] 의존성 목록 요청 시작 -> /catalog/dependencies?stackIds=${selectedStackIds.join(",")}`, "color: #00d2ff; font-weight: bold;");
+      console.log(
+        `%c📡 [GET] 의존성 목록 요청 시작 -> /catalog/dependencies?stackIds=${selectedStackIds.join(",")}`,
+        "color: #00d2ff; font-weight: bold;",
+      );
       const res = await getProjectDependencies(selectedStackIds);
-      console.log("%c✅ [GET] 의존성 목록 수신 성공:", "color: #00ff87; font-weight: bold;", res);
+      console.log(
+        "%c✅ [GET] 의존성 목록 수신 성공:",
+        "color: #00ff87; font-weight: bold;",
+        res,
+      );
       return res;
     },
     enabled: selectedStackIds.length > 0,
   });
 
+<<<<<<< HEAD
+  useEffect(() => {
+    if (isDepsError) {
+      console.error(
+        "%c❌ [GET] 의존성 목록 요청 실패:",
+        "color: #ff4d4d; font-weight: bold;",
+        depsError,
+      );
+    }
+  }, [isDepsError, depsError]);
+=======
   // 2. 수정 모드 데이터 로드하기
   const { data: projectResponse } = useQuery({
     queryKey: ["projectDetail", projectId],
@@ -62,8 +97,10 @@ const Main = () => {
     },
     enabled: isModify && !!projectId,
   });
+>>>>>>> origin/develop
 
-  const allDependencies: ServerDependency[] = serverData?.data?.dependencies ?? [];
+  const allDependencies: ServerDependency[] =
+    serverData?.data?.dependencies ?? [];
 
   // 3. 기존 의존성 복원 처리
   useEffect(() => {
@@ -84,7 +121,9 @@ const Main = () => {
       const parsed = JSON.parse(savedForm);
       const dependencyIdsFromSession: string[] = parsed.dependencyIds || [];
       if (dependencyIdsFromSession.length > 0) {
-        const restored = allDependencies.filter((dep) => dependencyIdsFromSession.includes(dep.dependencyId));
+        const restored = allDependencies.filter((dep) =>
+          dependencyIdsFromSession.includes(dep.dependencyId),
+        );
         setSelectedDeps(restored);
       }
     }
@@ -98,7 +137,9 @@ const Main = () => {
 
   const handleToggleCategory = (categoryId: string) => {
     if (collapsedCategories.includes(categoryId)) {
-      setCollapsedCategories(collapsedCategories.filter((id) => id !== categoryId));
+      setCollapsedCategories(
+        collapsedCategories.filter((id) => id !== categoryId),
+      );
     } else {
       setCollapsedCategories([...collapsedCategories, categoryId]);
     }
@@ -107,6 +148,39 @@ const Main = () => {
   // 신규 생성 또는 업데이트 연동 Mutation 처리
   const projectMutation = useMutation({
     mutationFn: async (payload: ProjectPayload) => {
+<<<<<<< HEAD
+      console.log(
+        "%c🚀 [POST] 서버 전송 시작 -> 엔드포인트: /projects",
+        "color: #ff007f; font-weight: bold;",
+      );
+      console.log("%c📦 REQUEST BODY (Payload):", "color: #ff007f;", payload);
+      return await createProject(payload);
+    },
+    onSuccess: (response) => {
+      console.log(
+        "%c🎉 [POST] RESPONSE 성공 데이터 수신 완료:",
+        "color: #00ff87; font-weight: bold;",
+        response,
+      );
+      const generatedProjectId = response?.data?.projectId;
+      alert("🎉 프로젝트가 성공적으로 생성되었습니다!");
+      sessionStorage.removeItem("projectForm");
+
+      if (isModify) {
+        navigate(`/project-detail/${projectId}`);
+      } else {
+        navigate(`/build-progress/${generatedProjectId}`);
+      }
+    },
+    onError: (error) => {
+      console.error(
+        "%c❌ [POST] 프로젝트 생성 실패:",
+        "color: #ff4d4d; font-weight: bold;",
+        error,
+      );
+      alert("⚠️ 프로젝트 생성 중 서버 오류가 발생했습니다.");
+    },
+=======
       if (isModify && projectId) {
         console.log("%c🚀 [PUT] 서버 수정 요청 시작 -> /projects/" + projectId, "color: #ff007f; font-weight: bold;");
         return await updateProject({ projectId, data: payload });
@@ -144,21 +218,26 @@ const Main = () => {
       console.error("❌ 처리 실패:", error);
       alert("⚠️ 서버 통신 중 오류가 발생했습니다.");
     }
+>>>>>>> origin/develop
   });
 
   const filteredDeps = allDependencies.filter((dep) => {
     const isRelatedToStack = selectedStackIds.includes(dep.stackId);
-    const matchesSearch = dep.name.toLowerCase().includes(searchKeyword.toLowerCase());
+    const matchesSearch = dep.name
+      .toLowerCase()
+      .includes(searchKeyword.toLowerCase());
     return isRelatedToStack && matchesSearch;
   });
 
-  const groupedCategories = selectedStackIds.map((stackId) => {
-    return {
-      stackId,
-      categoryName: stackTitleMap[stackId] || `선택한 스택 관련 의존성`,
-      dependencies: filteredDeps.filter((dep) => dep.stackId === stackId),
-    };
-  }).filter((group) => group.dependencies.length > 0);
+  const groupedCategories = selectedStackIds
+    .map((stackId) => {
+      return {
+        stackId,
+        categoryName: stackTitleMap[stackId] || `선택한 스택 관련 의존성`,
+        dependencies: filteredDeps.filter((dep) => dep.stackId === stackId),
+      };
+    })
+    .filter((group) => group.dependencies.length > 0);
 
   const handleSelectDep = (dep: ServerDependency) => {
     if (selectedDeps.some((item) => item.dependencyId === dep.dependencyId)) {
@@ -169,7 +248,9 @@ const Main = () => {
   };
 
   const handleRemoveDep = (dependencyId: string) => {
-    setSelectedDeps(selectedDeps.filter((item) => item.dependencyId !== dependencyId));
+    setSelectedDeps(
+      selectedDeps.filter((item) => item.dependencyId !== dependencyId),
+    );
   };
 
   const handleCompleteForm = () => {
@@ -188,7 +269,7 @@ const Main = () => {
       projectName: parsedData.projectName || "새로운 프로젝트",
       description: parsedData.description || "프로젝트 한 줄 설명",
       fieldIds: parsedData.fieldIds || [],
-      stackIds: parsedData.stackIds || [], 
+      stackIds: parsedData.stackIds || [],
       dependencyIds: finalDepIds,
     };
 
@@ -212,7 +293,7 @@ const Main = () => {
           <img src={Arrow} width={16} height={16} alt="" />
           <Process num={isModify ? 3 : 4} text="의존성 선택" use={true} />
         </Main_top>
-        
+
         <Main_section>
           <Title_box>
             <Sec_title>프로젝트 세부 라이브러리 및 의존성 구성</Sec_title>
@@ -221,23 +302,23 @@ const Main = () => {
 
           <Search_container>
             <Search_bar>
-              <Search_input 
+              <Search_input
                 placeholder="라이브러리명을 찾아보세요!"
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
               />
               <img src={Search_img} alt="" />
             </Search_bar>
-            
+
             <Choice_tag>
               <Choice_num>{selectedDeps.length}개 선택됨</Choice_num>
               {selectedDeps.length > 0 && <Line />}
               {selectedDeps.map((dep) => (
                 <Choice_option key={dep.dependencyId}>
                   {dep.name}
-                  <img 
-                    src={Cancel} 
-                    alt="삭제" 
+                  <img
+                    src={Cancel}
+                    alt="삭제"
                     onClick={() => handleRemoveDep(dep.dependencyId)}
                     style={{ cursor: "pointer" }}
                   />
@@ -249,33 +330,54 @@ const Main = () => {
           <Choice_box>
             {groupedCategories.length > 0 ? (
               groupedCategories.map((category) => {
-                const isCollapsed = collapsedCategories.includes(category.stackId);
+                const isCollapsed = collapsedCategories.includes(
+                  category.stackId,
+                );
 
                 return (
                   <Skill_container key={category.stackId}>
-                    <Skill_category onClick={() => handleToggleCategory(category.stackId)} style={{ cursor: "pointer" }}>
+                    <Skill_category
+                      onClick={() => handleToggleCategory(category.stackId)}
+                      style={{ cursor: "pointer" }}
+                    >
                       {category.categoryName}
-                      <FoldIcon src={Fold} width={16} height={16} alt="토글" isCollapsed={isCollapsed} />
+                      <FoldIcon
+                        src={Fold}
+                        width={16}
+                        height={16}
+                        alt="토글"
+                        isCollapsed={isCollapsed}
+                      />
                     </Skill_category>
-                    
+
                     {!isCollapsed && (
                       <Skill_box>
                         {category.dependencies.map((dep) => {
-                          const isSelected = selectedDeps.some(item => item.dependencyId === dep.dependencyId);
+                          const isSelected = selectedDeps.some(
+                            (item) => item.dependencyId === dep.dependencyId,
+                          );
                           return (
-                            <div 
-                              key={dep.dependencyId} 
+                            <div
+                              key={dep.dependencyId}
                               onClick={() => handleSelectDep(dep)}
-                              style={{ 
+                              style={{
                                 cursor: "pointer",
                                 borderRadius: "12px",
                                 position: "relative",
-                                outline: isSelected ? `2px solid ${Colors.brand.default}` : "none",
-                                transition: "all 0.1s ease"
+                                outline: isSelected
+                                  ? `2px solid ${Colors.brand.default}`
+                                  : "none",
+                                transition: "all 0.1s ease",
                               }}
                             >
-                              <Skill title={`${dep.name} (${dep.version})`} text={dep.description} isSelected={isSelected} />
-                              {dep.isRecommended && <RecommendBadge>추천</RecommendBadge>}
+                              <Skill
+                                title={`${dep.name} (${dep.version})`}
+                                text={dep.description}
+                                isSelected={isSelected}
+                              />
+                              {dep.isRecommended && (
+                                <RecommendBadge>추천</RecommendBadge>
+                              )}
                             </div>
                           );
                         })}
@@ -285,18 +387,27 @@ const Main = () => {
                 );
               })
             ) : (
-              <NoDataText>3단계에서 선택한 기술 스택이 없거나 조건에 맞는 데이터가 없습니다.</NoDataText>
+              <NoDataText>
+                3단계에서 선택한 기술 스택이 없거나 조건에 맞는 데이터가
+                없습니다.
+              </NoDataText>
             )}
-            <Choice_text>선택한 의존성은 빌드 시스템 파일에 자동 주입됩니다.</Choice_text>
+            <Choice_text>
+              선택한 의존성은 빌드 시스템 파일에 자동 주입됩니다.
+            </Choice_text>
           </Choice_box>
         </Main_section>
-        
+
         <Btn_box>
-          <Before onClick={() => navigate(isModify ? `/main-md-3/${projectId}` : "/main-3")}>
+          <Before
+            onClick={() =>
+              navigate(isModify ? `/main-md-3/${projectId}` : "/main-3")
+            }
+          >
             <img src={Arrow} alt="" />
             이전
           </Before>
-          
+
           <Next onClick={handleCompleteForm} style={{ cursor: "pointer" }}>
             프로젝트 {isModify ? "수정 완료" : "생성"}
           </Next>
@@ -306,7 +417,10 @@ const Main = () => {
   );
 };
 
+<<<<<<< HEAD
+=======
 // ─── 스타일 컴포넌트 원본 100% 보존 ───
+>>>>>>> origin/develop
 const Body = styled.div`
   width: 100%;
   min-height: calc(100vh - 64px);
@@ -496,7 +610,8 @@ const RecommendBadge = styled.div`
 `;
 const FoldIcon = styled.img<{ isCollapsed: boolean }>`
   transition: transform 0.2s ease;
-  transform: ${({ isCollapsed }) => (isCollapsed ? "rotate(-90deg)" : "rotate(0deg)")};
+  transform: ${({ isCollapsed }) =>
+    isCollapsed ? "rotate(-90deg)" : "rotate(0deg)"};
 `;
 
 export default Main;

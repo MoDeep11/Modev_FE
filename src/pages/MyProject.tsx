@@ -6,7 +6,8 @@ import ProjectGrid from "../components/myprojects/Projects";
 import { useMyProjects } from "../hooks/myproject";
 import search from "../assets/search.svg";
 import { useDebounce } from "../hooks/debounce";
-import Pagination from "react-js-pagination";
+import Pagination from "rc-pagination";
+import "rc-pagination/assets/index.css";
 
 const PAGE_SIZE = 9;
 
@@ -15,7 +16,7 @@ export default function MyProject() {
   const [page, setPage] = useState(1);
   const debouncedKeyword = useDebounce(keyword, 500);
 
-  const handlePageChange = (pageNumber) => {
+  const handlePageChange = (pageNumber: number) => {
     setPage(pageNumber);
   };
 
@@ -66,12 +67,9 @@ export default function MyProject() {
               {pagination && (
                 <PaginationWrapper>
                   <Pagination
-                    activePage={page}
-                    itemsCountPerPage={PAGE_SIZE}
-                    totalItemsCount={pagination.totalCount}
-                    pageRangeDisplayed={5}
-                    prevPageText={"‹"}
-                    nextPageText={"›"}
+                    current={page}
+                    pageSize={PAGE_SIZE}
+                    total={pagination.totalCount}
                     onChange={handlePageChange}
                   />
                 </PaginationWrapper>

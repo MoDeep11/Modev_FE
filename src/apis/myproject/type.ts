@@ -31,5 +31,5 @@ export type GetProjectsResponse = {
 };
 
 export type DeleteProjectProps = {
-  projectId: number;
+  projectId: string;
 };

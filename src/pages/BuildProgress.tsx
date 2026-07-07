@@ -3,22 +3,50 @@ import HeaderV2 from "../layouts/HeaderV2";
 import { Colors } from "../styles/color";
 import ProgressBar from "../components/Build/progressBar";
 import under from "../assets/under.svg";
-import FileTree from "../components/newproject/FileTree";
+import FileTree from "../components/common/FileTree";
 import { useParams } from "react-router-dom";
 import { useProjectStatus } from "../hooks/newproject";
 import { useEffect, useState } from "react";
+import { useProjectStream } from "../hooks/useProjectStream";
 
 export default function BuildProgress() {
   const { projectId } = useParams<{ projectId: string }>();
   const [selectedFile, setSelectedFile] = useState("");
+  const [projectForm, setProjectForm] = useState<any>({});
+
+  const [selectedTab, setSelectedTab] = useState<
+    "field" | "stack" | "dependency"
+  >("field");
+
+  const [activeTab, setActiveTab] = useState<"field" | "stack" | "dependency">(
+    "field",
+  );
 
   console.log("🔍 BuildProgress projectId:", projectId);
 
+  console.log(
+    `${import.meta.env.VITE_BASE_URL}/projects/structures/${projectId}/stream`,
+  );
+
   useEffect(() => {
     setSelectedFile("");
+    // sessionStorage에서 프로젝트 폼 데이터 가져오기
+    const savedForm = sessionStorage.getItem("projectForm");
+    if (savedForm) {
+      setProjectForm(JSON.parse(savedForm));
+    }
   }, [projectId]);
 
-  const { data: projectData } = useProjectStatus(projectId || "");
+  const { data: projectData, refetch } = useProjectStatus(projectId || "");
+
+  const { progress, message, completed } = useProjectStream(projectId || "");
+
+  useEffect(() => {
+    if (!completed) return;
+
+    refetch();
+  }, [completed, refetch]);
+
   const fileTree = projectData?.result?.fileTree ?? [];
   const status = projectData?.status ?? "PENDING";
   return (
@@ -30,48 +58,82 @@ export default function BuildProgress() {
           <Wrapper>
             <TopContainer>
               <Project>
-                <ProjectTitle>프로젝트명</ProjectTitle>
-                <ProjectDetail>프로젝트 설명이 들어가~입니다</ProjectDetail>
+                <ProjectTitle>
+                  {projectForm.projectName || "프로젝트명"}
+                </ProjectTitle>
+                <ProjectDetail>
+                  {projectForm.description || "프로젝트 설명이 들어가~입니다"}
+                </ProjectDetail>
+                <ProjectIdDisplay>ID: {projectId}</ProjectIdDisplay>
               </Project>
 
               <TopRightContainer>
                 <TabItemContainer>
-                  <TabItem>기술분야</TabItem>
-                  <TabItem>기술스택</TabItem>
-                  <TabItem>의존성</TabItem>
+                  <TabItem
+                    $active={activeTab === "field"}
+                    onClick={() => setActiveTab("field")}
+                  >
+                    기술분야
+                  </TabItem>
+
+                  <TabItem
+                    $active={activeTab === "stack"}
+                    onClick={() => setActiveTab("stack")}
+                  >
+                    기술스택
+                  </TabItem>
+
+                  <TabItem
+                    $active={activeTab === "dependency"}
+                    onClick={() => setActiveTab("dependency")}
+                  >
+                    의존성
+                  </TabItem>
                 </TabItemContainer>
 
                 <SkillItemContainer>
-                  <SkillItem>Frontend</SkillItem>
-                  <SkillItem>Frontend</SkillItem>
-                  <SkillItem>Frontend</SkillItem>
-                  <SkillItem>Frontend</SkillItem>
-                  <SkillItem>Frontend</SkillItem>
+                  {activeTab === "field" &&
+                    (projectForm.fieldIds?.length ? (
+                      projectForm.fieldIds.map((field: string) => (
+                        <SkillItem key={field}>{field}</SkillItem>
+                      ))
+                    ) : (
+                      <SkillItem>선택 안됨</SkillItem>
+                    ))}
+
+                  {activeTab === "stack" &&
+                    (projectForm.stackIds?.length ? (
+                      projectForm.stackIds.map((stack: string) => (
+                        <SkillItem key={stack}>{stack}</SkillItem>
+                      ))
+                    ) : (
+                      <SkillItem>선택 안됨</SkillItem>
+                    ))}
+
+                  {activeTab === "dependency" &&
+                    (projectForm.dependencyIds?.length ? (
+                      projectForm.dependencyIds.map((dep: string) => (
+                        <SkillItem key={dep}>{dep}</SkillItem>
+                      ))
+                    ) : (
+                      <SkillItem>선택 안됨</SkillItem>
+                    ))}
                 </SkillItemContainer>
               </TopRightContainer>
             </TopContainer>
 
             <Progress>
-              <ProgressBar
-                current={
-                  status === "COMPLETED"
-                    ? 100
-                    : status === "IN_PROGRESS"
-                      ? 64
-                      : 0
-                }
-              />
-
+              <ProgressBar current={progress} />
               <ProgressBarBottom>
                 <StatusDescription>
-                  {status === "PENDING" &&
-                    "🚀 [SYSTEM] Starting project bootstrapping engine..."}
-                  {status === "IN_PROGRESS" &&
-                    "⚙️ [SYSTEM] Project generation in progress..."}
-                  {status === "COMPLETED" &&
-                    "✅ [SYSTEM] Project generation completed!"}
-                  {status === "FAILED" &&
-                    "❌ [SYSTEM] Project generation failed!"}
+                  {message ||
+                    (status === "PENDING"
+                      ? "생성 대기 중..."
+                      : status === "IN_PROGRESS"
+                        ? "프로젝트 생성 중..."
+                        : status === "COMPLETED"
+                          ? "생성 완료"
+                          : "생성 실패")}
                 </StatusDescription>
 
                 <Detail>
@@ -127,6 +189,22 @@ const Wrapper = styled.div`
 `;
 
 const Project = styled.div``;
+
+const ProjectIdDisplay = styled.p`
+  color: ${Colors.text.secondary};
+  font-family: Inter;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px;
+  margin-top: 4px;
+`;
+
+const TabItemText = styled.p`
+  font-size: 12px;
+  color: ${Colors.text.disabled};
+  margin: 0;
+`;
 
 const ProgressBarBottom = styled.div`
   display: flex;
@@ -296,8 +374,10 @@ const TabItemContainer = styled.div`
   margin-left: 10px;
 `;
 
-const TabItem = styled.p`
+const TabItem = styled.p<{ $active: boolean }>`
   font-size: 16px;
-  color: ${Colors.text.disabled};
   cursor: pointer;
+  color: ${({ $active }) =>
+    $active ? Colors.text.primary : Colors.text.disabled};
+  font-weight: ${({ $active }) => ($active ? 600 : 400)};
 `;

@@ -7,9 +7,19 @@ export default function DeleteProject() {
   const { id } = useParams<{ id: string }>();
 
   const { mutate: handleDelete, isPending } = useDeleteMyProject();
+
   const deleteFunc = () => {
-    handleDelete({ projectId: Number(id) });
+    if (!id) return;
+
+    const ok = window.confirm("정말 삭제하시겠습니까?");
+
+    if (!ok) return;
+
+    handleDelete({
+      projectId: id,
+    });
   };
+
   return (
     <Delete onClick={deleteFunc}>{isPending ? "삭제 중..." : "삭제"}</Delete>
   );
@@ -21,9 +31,10 @@ const Delete = styled.div`
   color: ${Colors.status.error};
   background-color: ${Colors.background.base};
   border-radius: 10px;
-  width: 92ppx;
+  width: 92px;
   height: 39px;
   cursor: pointer;
   display: flex;
+  justify-content: center;
   align-items: center;
 `;

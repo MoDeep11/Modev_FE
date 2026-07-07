@@ -1,4 +1,4 @@
-import { api } from ".."; 
+import { api } from "..";
 import type {
   ProjectPayload,
   ProjectResponse,
@@ -8,17 +8,24 @@ import type {
   DependenciesResponse,
   ProjectMetadataResponse,
   ProjectDetail,
-  ProjectDetailResponse,
-  FileContent
+  FileContent,
 } from "./type";
 
-export const createProject = async (payload: ProjectPayload): Promise<ProjectResponse> => {
+export const createProject = async (
+  payload: ProjectPayload,
+): Promise<ProjectResponse> => {
   const response = await api.post<ProjectResponse>("/projects", payload);
   return response.data;
 };
 
-export const updateProject = async ({ projectId, data }: UpdateProjectPayload): Promise<ProjectResponse> => {
-  const response = await api.patch<ProjectResponse>(`/projects/${projectId}/stacks`, data);
+export const updateProject = async ({
+  projectId,
+  data,
+}: UpdateProjectPayload): Promise<ProjectResponse> => {
+  const response = await api.put<ProjectResponse>(
+    `/projects/${projectId}`,
+    data,
+  );
   return response.data;
 };
 
@@ -27,10 +34,13 @@ export const getDevFields = async (): Promise<FieldsResponse> => {
   return response.data;
 };
 
-export const getDevStacks = async (fieldIds: string[], keyword?: string): Promise<StacksResponse> => {
-  const response = await api.get<StacksResponse>("/catalog/stacks", { 
+export const getDevStacks = async (
+  fieldIds: string[],
+  keyword?: string,
+): Promise<StacksResponse> => {
+  const response = await api.get<StacksResponse>("/catalog/stacks", {
     params: {
-      fieldIds: fieldIds.join(","), 
+      fieldIds: fieldIds.join(","),
       ...(keyword ? { keyword } : {}),
     },
   });
@@ -39,44 +49,52 @@ export const getDevStacks = async (fieldIds: string[], keyword?: string): Promis
 
 export const getProjectDependencies = async (
   stackIds: string[],
-  keyword?: string
+  keyword?: string,
 ): Promise<DependenciesResponse> => {
-  const response = await api.get<DependenciesResponse>("/catalog/dependencies", { 
-    params: {
-      stackIds: stackIds.join(","), 
-      ...(keyword ? { keyword } : {}),
+  const response = await api.get<DependenciesResponse>(
+    "/catalog/dependencies",
+    {
+      // ✅ /projects/dependencies -> /catalog/dependencies (명세서 기준)
+      params: {
+        stackIds: stackIds.join(","), // ✅ 필수 파라미터, 콤마 구분 문자열로 전달 (명세서 기준)
+        ...(keyword ? { keyword } : {}),
+      },
     },
-  });
+  );
   return response.data;
 };
 
-export const getProjectDetail = async (projectId: string): Promise<ProjectMetadataResponse> => {
-  const response = await api.get<ProjectMetadataResponse>(`/projects/${projectId}`);
+export const getProjectDetail = async (
+  projectId: string,
+): Promise<ProjectMetadataResponse> => {
+  const response = await api.get<ProjectMetadataResponse>(
+    `/projects/${projectId}`,
+  );
   return response.data;
 };
 
 export const updateProjectMetadata = async (
   projectId: string,
-  payload: { projectName: string; description: string }
+  payload: { projectName: string; description: string },
 ): Promise<ProjectMetadataResponse> => {
   const response = await api.patch<ProjectMetadataResponse>(
     `/projects/${projectId}/metadata`,
-    payload
+    payload,
   );
   return response.data;
 };
 
-export const getFileContent = async (
-  projectId: string,
-  filePath: string
-): Promise<FileContent> => {
-  const response = await api.get<FileContent>(`/projects/${projectId}/files`, {
-    params: { filePath },
-  });
-  return response.data;
+export const getProject = async (projectId: string): Promise<ProjectDetail> => {
+  const response = await api.get<any>(`/projects/${projectId}`);
+  return response.data?.data ?? response.data;
 };
 
-export const generateAIStructure = async (projectId: string): Promise<any> => {
-  const response = await api.post("/projects/structures", { projectId });
-  return response.data;
+export const getFileContent = async (
+  projectId: string,
+  filePath: string,
+): Promise<FileContent> => {
+  const response = await api.get<any>(`/projects/${projectId}/files`, {
+    params: { filePath },
+  });
+  return response.data?.data ?? response.data;
 };

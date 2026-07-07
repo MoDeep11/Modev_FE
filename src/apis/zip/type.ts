@@ -1,3 +1,3 @@
 export interface DownloadZipProps {
-  projectId: number;
+  projectId: string;
 }
