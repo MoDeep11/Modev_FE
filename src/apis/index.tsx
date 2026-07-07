@@ -9,6 +9,7 @@ export const api = axios.create({
   withCredentials: true,
 });
 
+
 let currentRefreshPromise: Promise<string> | null = null;
 
 api.interceptors.request.use((config) => {
@@ -74,7 +75,7 @@ api.interceptors.response.use(
         }
 
         localStorage.removeItem("accessToken");
-        window.location.href = "/login";
+        window.location.href = "/";
         return Promise.reject(refreshError);
       }
     }

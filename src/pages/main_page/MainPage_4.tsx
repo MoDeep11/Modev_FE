@@ -1,31 +1,179 @@
 import HeaderV2 from "../../layouts/HeaderV2";
 import styled from "@emotion/styled";
 import { Colors } from "../../styles/color";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom"; 
+import { useState, useEffect } from "react";
 import Arrow from "../../assets/Arrow.svg";
 import Fold from "../../assets/Fold.svg";
 import Cancel from "../../assets/Vector (Stroke).svg";
 import Process from "../../components/main_com/TopProcess";
 import Skill from "../../components/choice/SkillBlock";
 import Search_img from "../../assets/search.svg";
+import { useProjectForm } from "../../hooks/useProjectForm";
+import { useMutation, useQuery } from "@tanstack/react-query"; 
+import { createProject, getProjectDependencies } from "../../apis/project/index";
+import type { ProjectPayload, ServerDependency } from "../../apis/project/type";
+
+const stackTitleMap: Record<string, string> = {
+  stack_spring: "Spring Boot 관련 라이브러리",
+  stack_axios: "Axios 관련 라이브러리",
+  stack_react_query: "React Query 관련 라이브러리",
+};
 
 const Main = () => {
-  const num = 3;
   const navigate = useNavigate();
+  const location = useLocation();
+  const { projectId } = useParams<{ projectId: string }>(); 
+  const { saveStepData } = useProjectForm();
+  
+  const isModify = !!projectId && location.pathname.startsWith("/main-md-4/");
+
+  const [selectedStackIds, setSelectedStackIds] = useState<string[]>([]);
+  const [selectedDeps, setSelectedDeps] = useState<ServerDependency[]>([]);
+  const [searchKeyword, setSearchKeyword] = useState<string>("");
+  const [collapsedCategories, setCollapsedCategories] = useState<string[]>([]);
+
+  // 3단계까지 선택된 스택 ID를 세션에서 먼저 복원 (의존성 API 호출에 필요)
+  useEffect(() => {
+    const savedForm = sessionStorage.getItem("projectForm");
+    if (savedForm) {
+      const parsed = JSON.parse(savedForm);
+      const stackIdsFromSession: string[] = parsed.stackIds || [];
+      setSelectedStackIds(stackIdsFromSession);
+    }
+  }, []);
+
+  // ✅ stackIds는 API 필수 파라미터라, 세션에서 selectedStackIds가 복원된 뒤에만 조회 가능
+  const { data: serverData, isError: isDepsError, error: depsError } = useQuery({
+    queryKey: ["projectDependencies", selectedStackIds],
+    queryFn: async () => {
+      console.log(`%c📡 [GET] 의존성 목록 요청 시작 -> /catalog/dependencies?stackIds=${selectedStackIds.join(",")}`, "color: #00d2ff; font-weight: bold;");
+      const res = await getProjectDependencies(selectedStackIds);
+      console.log("%c✅ [GET] 의존성 목록 수신 성공:", "color: #00ff87; font-weight: bold;", res);
+      return res;
+    },
+    enabled: selectedStackIds.length > 0,
+    retry: 1,
+  });
+
+  useEffect(() => {
+    if (isDepsError) {
+      console.error("%c❌ [GET] 의존성 목록 요청 실패:", "color: #ff4d4d; font-weight: bold;", depsError);
+    }
+  }, [isDepsError, depsError]);
+
+  const allDependencies: ServerDependency[] = serverData?.data?.dependencies ?? [];
+
+  // 스택 복원이 끝나고 의존성 목록이 도착한 뒤에 이전에 선택했던 의존성 복원
+  useEffect(() => {
+    if (allDependencies.length === 0) return;
+
+    const savedForm = sessionStorage.getItem("projectForm");
+    if (savedForm) {
+      const parsed = JSON.parse(savedForm);
+      const dependencyIdsFromSession: string[] = parsed.dependencyIds || [];
+      if (dependencyIdsFromSession.length > 0) {
+        const restored = allDependencies.filter((dep) => dependencyIdsFromSession.includes(dep.dependencyId));
+        setSelectedDeps(restored);
+      }
+    }
+  }, [allDependencies]);
+
+  const handleToggleCategory = (categoryId: string) => {
+    if (collapsedCategories.includes(categoryId)) {
+      setCollapsedCategories(collapsedCategories.filter((id) => id !== categoryId));
+    } else {
+      setCollapsedCategories([...collapsedCategories, categoryId]);
+    }
+  };
+
+  const projectMutation = useMutation({
+    mutationFn: async (payload: ProjectPayload) => {
+      console.log("%c🚀 [POST] 서버 전송 시작 -> 엔드포인트: /projects", "color: #ff007f; font-weight: bold;");
+      console.log("%c📦 REQUEST BODY (Payload):", "color: #ff007f;", payload);
+      return await createProject(payload);
+    },
+    onSuccess: (response) => {
+      console.log("%c🎉 [POST] RESPONSE 성공 데이터 수신 완료:", "color: #00ff87; font-weight: bold;", response);
+      alert("🎉 프로젝트가 성공적으로 생성되었습니다!");
+      sessionStorage.removeItem("projectForm");
+      
+      navigate(isModify ? `/project-detail/${projectId}` : "/build-progress");
+    },
+    onError: (error) => {
+      console.error("%c❌ [POST] 프로젝트 생성 실패:", "color: #ff4d4d; font-weight: bold;", error);
+      alert("⚠️ 프로젝트 생성 중 서버 오류가 발생했습니다.");
+    }
+  });
+
+  const filteredDeps = allDependencies.filter((dep) => {
+    const isRelatedToStack = selectedStackIds.includes(dep.stackId);
+    const matchesSearch = dep.name.toLowerCase().includes(searchKeyword.toLowerCase());
+    return isRelatedToStack && matchesSearch;
+  });
+
+  const groupedCategories = selectedStackIds.map((stackId) => {
+    return {
+      stackId,
+      categoryName: stackTitleMap[stackId] || `선택한 스택 관련 의존성`,
+      dependencies: filteredDeps.filter((dep) => dep.stackId === stackId),
+    };
+  }).filter((group) => group.dependencies.length > 0);
+
+  const handleSelectDep = (dep: ServerDependency) => {
+    if (selectedDeps.some((item) => item.dependencyId === dep.dependencyId)) {
+      handleRemoveDep(dep.dependencyId);
+    } else {
+      setSelectedDeps([...selectedDeps, dep]);
+    }
+  };
+
+  const handleRemoveDep = (dependencyId: string) => {
+    setSelectedDeps(selectedDeps.filter((item) => item.dependencyId !== dependencyId));
+  };
+
+  const handleCompleteForm = () => {
+    const finalDepIds = selectedDeps.map((dep) => dep.dependencyId);
+    saveStepData({ dependencyIds: finalDepIds });
+
+    const savedForm = sessionStorage.getItem("projectForm");
+    if (!savedForm) {
+      alert("선택된 프로젝트 구성 정보가 없습니다.");
+      return;
+    }
+
+    const parsedData = JSON.parse(savedForm);
+
+    const payload: ProjectPayload = {
+      projectName: parsedData.projectName || "새로운 프로젝트",
+      description: parsedData.description || "프로젝트 한 줄 설명",
+      fieldIds: parsedData.fieldIds || [],
+      stackIds: parsedData.stackIds || [], 
+      dependencyIds: finalDepIds,
+    };
+
+    console.log("🚀 서버로 보낼 최종 데이터 규격:", payload);
+    projectMutation.mutate(payload);
+  };
 
   return (
     <>
       <HeaderV2 text="로그아웃" page="프로젝트 빌더" />
       <Body>
         <Main_top>
-          <Process num={1} text="프로젝트 생성" use={false}/>
-          <img src={Arrow} width={16} height={16} />
-          <Process num={2} text="개발 분야 선택" use={false}/>
-          <img src={Arrow} width={16} height={16} />
-          <Process num={3} text="기술 스택 선택" use={false}/>
-          <img src={Arrow} width={16} height={16} />
-          <Process num={4} text="의존성 선택" use={true}/>
+          {!isModify && (
+            <>
+              <Process num={1} text="프로젝트 생성" use={false} />
+              <img src={Arrow} width={16} height={16} alt="" />
+            </>
+          )}
+          <Process num={isModify ? 1 : 2} text="개발 분야 선택" use={false} />
+          <img src={Arrow} width={16} height={16} alt="" />
+          <Process num={isModify ? 2 : 3} text="기술 스택 선택" use={false} />
+          <img src={Arrow} width={16} height={16} alt="" />
+          <Process num={isModify ? 3 : 4} text="의존성 선택" use={true} />
         </Main_top>
+        
         <Main_section>
           <Title_box>
             <Sec_title>프로젝트 세부 라이브러리 및 의존성 구성</Sec_title>
@@ -36,133 +184,83 @@ const Main = () => {
 
           <Search_container>
             <Search_bar>
-              <Search_input placeholder="스택명을 찾아보세요!"></Search_input>
+              <Search_input 
+                placeholder="라이브러리명을 찾아보세요!"
+                value={searchKeyword}
+                onChange={(e) => setSearchKeyword(e.target.value)}
+              />
               <img src={Search_img} alt="" />
             </Search_bar>
+            
             <Choice_tag>
-              <Choice_num>{num}개 선택됨</Choice_num>
-              <Line></Line>
-              <Choice_option>
-                FrontEnd
-                <img src={Cancel} alt="" />
-              </Choice_option>
-              <Choice_option>
-                FrontEnd
-                <img src={Cancel} alt="" />
-              </Choice_option>
-              <Choice_option>
-                FrontEnd
-                <img src={Cancel} alt="" />
-              </Choice_option>
+              <Choice_num>{selectedDeps.length}개 선택됨</Choice_num>
+              {selectedDeps.length > 0 && <Line />}
+              {selectedDeps.map((dep) => (
+                <Choice_option key={dep.dependencyId}>
+                  {dep.name}
+                  <img 
+                    src={Cancel} 
+                    alt="삭제" 
+                    onClick={() => handleRemoveDep(dep.dependencyId)}
+                    style={{ cursor: "pointer" }}
+                  />
+                </Choice_option>
+              ))}
             </Choice_tag>
           </Search_container>
 
           <Choice_box>
-            <Skill_container>
-              <Skill_category>
-                카테고리명
-                <img src={Fold} width={16} height={16} />
-              </Skill_category>
-              <Skill_box>
-                <Skill
-                  title="Axios"
-                  text="서버 통신을 위한 고신뢰성 Promise 기반 HTTP 클라이언트"
-                ></Skill>
-                <Skill
-                  title="Axios"
-                  text="서버 통신을 위한 고신뢰성 Promise 기반 HTTP 클라이언트"
-                ></Skill>
-                <Skill
-                  title="Axios"
-                  text="서버 통신을 위한 고신뢰성 Promise 기반 HTTP 클라이언트"
-                ></Skill>
-                <Skill
-                  title="Axios"
-                  text="서버 통신을 위한 고신뢰성 Promise 기반 HTTP 클라이언트"
-                ></Skill>
-                <Skill
-                  title="Axios"
-                  text="서버 통신을 위한 고신뢰성 Promise 기반 HTTP 클라이언트"
-                ></Skill>
-              </Skill_box>
-            </Skill_container>
-            <Skill_container>
-              <Skill_category>
-                카테고리명
-                <img src={Fold} width={16} height={16} />
-              </Skill_category>
-              <Skill_box>
-                <Skill
-                  title="Axios"
-                  text="서버 통신을 위한 고신뢰성 Promise 기반 HTTP 클라이언트"
-                ></Skill>
-                <Skill
-                  title="Axios"
-                  text="서버 통신을 위한 고신뢰성 Promise 기반 HTTP 클라이언트"
-                ></Skill>
-                <Skill
-                  title="Axios"
-                  text="서버 통신을 위한 고신뢰성 Promise 기반 HTTP 클라이언트"
-                ></Skill>
-                <Skill
-                  title="Axios"
-                  text="서버 통신을 위한 고신뢰성 Promise 기반 HTTP 클라이언트"
-                ></Skill>
-                <Skill
-                  title="Axios"
-                  text="서버 통신을 위한 고신뢰성 Promise 기반 HTTP 클라이언트"
-                ></Skill>
-              </Skill_box>
-            </Skill_container>
-            <Skill_container>
-              <Skill_category>
-                카테고리명
-                <img src={Fold} width={16} height={16} />
-              </Skill_category>
-              <Skill_box>
-                <Skill
-                  title="Axios"
-                  text="서버 통신을 위한 고신뢰성 Promise 기반 HTTP 클라이언트"
-                ></Skill>
-                <Skill
-                  title="Axios"
-                  text="서버 통신을 위한 고신뢰성 Promise 기반 HTTP 클라이언트"
-                ></Skill>
-                <Skill
-                  title="Axios"
-                  text="서버 통신을 위한 고신뢰성 Promise 기반 HTTP 클라이언트"
-                ></Skill>
-                <Skill
-                  title="Axios"
-                  text="서버 통신을 위한 고신뢰성 Promise 기반 HTTP 클라이언트"
-                ></Skill>
-                <Skill
-                  title="Axios"
-                  text="서버 통신을 위한 고신뢰성 Promise 기반 HTTP 클라이언트"
-                ></Skill>
-              </Skill_box>
-            </Skill_container>
-            <Choice_text>
-              만들고 싶은 서비스에 필요한 개발 분야를 선택해주세요. 현재 선택된
-              분야를 기준으로 다음 단계에서 기술 스택 추천이 제공됩니다.
-            </Choice_text>
+            {groupedCategories.length > 0 ? (
+              groupedCategories.map((category) => {
+                const isCollapsed = collapsedCategories.includes(category.stackId);
+
+                return (
+                  <Skill_container key={category.stackId}>
+                    <Skill_category onClick={() => handleToggleCategory(category.stackId)} style={{ cursor: "pointer" }}>
+                      {category.categoryName}
+                      <FoldIcon src={Fold} width={16} height={16} alt="토글" isCollapsed={isCollapsed} />
+                    </Skill_category>
+                    
+                    {!isCollapsed && (
+                      <Skill_box>
+                        {category.dependencies.map((dep) => {
+                          const isSelected = selectedDeps.some(item => item.dependencyId === dep.dependencyId);
+                          return (
+                            <div 
+                              key={dep.dependencyId} 
+                              onClick={() => handleSelectDep(dep)}
+                              style={{ 
+                                cursor: "pointer",
+                                borderRadius: "12px",
+                                position: "relative",
+                                outline: isSelected ? `2px solid ${Colors.brand.default}` : "none",
+                                transition: "all 0.1s ease"
+                              }}
+                            >
+                              <Skill title={`${dep.name} (${dep.version})`} text={dep.description} isSelected={isSelected} />
+                              {dep.isRecommended && <RecommendBadge>추천</RecommendBadge>}
+                            </div>
+                          );
+                        })}
+                      </Skill_box>
+                    )}
+                  </Skill_container>
+                );
+              })
+            ) : (
+              <NoDataText>3단계에서 선택한 기술 스택이 없거나 조건에 맞는 데이터가 없습니다.</NoDataText>
+            )}
+            <Choice_text>선택한 의존성은 빌드 시스템 파일에 자동 주입됩니다.</Choice_text>
           </Choice_box>
         </Main_section>
+        
         <Btn_box>
-          <Before
-            onClick={() => {
-              navigate("/main-3");
-            }}
-          >
+          <Before onClick={() => navigate(isModify ? `/main-md-3/${projectId}` : "/main-3")}>
             <img src={Arrow} alt="" />
             이전
           </Before>
-
-          <Next
-            onClick={() => {
-              navigate("/build-progress");
-            }}
-          >
+          
+          <Next onClick={handleCompleteForm} style={{ cursor: "pointer" }}>
             프로젝트 생성
           </Next>
         </Btn_box>
@@ -171,15 +269,17 @@ const Main = () => {
   );
 };
 
+
 const Body = styled.div`
   width: 100%;
-  height: fit-content;
+  min-height: calc(100vh - 64px);
   background-color: ${Colors.background.base};
   padding: 24px 270px 117px 270px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 48px;
+  box-sizing: border-box;
 `;
 
 const Main_top = styled.div`
@@ -365,6 +465,30 @@ const Choice_tag = styled.div`
 const Choice_text = styled.div`
   color: ${Colors.text.disabled};
   font-size: 14px;
+`;
+
+const NoDataText = styled.div`
+  color: ${Colors.text.disabled};
+  text-align: center;
+  padding: 147px 0;
+  font-size: 16px;
+`;
+
+const RecommendBadge = styled.div`
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background-color: ${Colors.brand.default};
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 4px;
+`;
+
+const FoldIcon = styled.img<{ isCollapsed: boolean }>`
+  transition: transform 0.2s ease;
+  transform: ${({ isCollapsed }) => (isCollapsed ? "rotate(-90deg)" : "rotate(0deg)")};
 `;
 
 export default Main;
