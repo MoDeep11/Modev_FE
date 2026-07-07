@@ -1,38 +1,132 @@
-import { useState } from "react"; // useState 추가
+import { useState, useEffect } from "react";
 import HeaderV2 from "../../layouts/HeaderV2";
 import styled from "@emotion/styled";
 import { Colors } from "../../styles/color";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Arrow from "../../assets/Arrow.svg";
 import Process from "../../components/main_com/TopProcess";
+import { useProjectForm } from "../../hooks/useProjectForm";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import {
+  getProjectDetail,
+  updateProjectMetadata,
+} from "../../apis/project/index";
 
 const Main = () => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const { projectId } = useParams<{ projectId: string }>();
 
-  // 현재 경로가 '/main-modify' 인지 확인
-  const isModify = location.pathname === "/main-modify";
+  const { saveStepData } = useProjectForm();
+  const isModify = !!projectId && location.pathname.startsWith("/main-modify/");
 
-  const [projectName, setProjectName] = useState(
-    isModify ? "기존 프로젝트 이름" : "",
-  );
-  const [projectDesc, setProjectDesc] = useState(
-    isModify ? "기존 프로젝트 상세 설명입니다." : "",
-  );
+  const [projectName, setProjectName] = useState("");
+  const [projectDesc, setProjectDesc] = useState("");
+
+  const {
+    data: projectResponse,
+    isError: isProjectError,
+    error: projectError,
+  } = useQuery({
+    queryKey: ["projectDetail", projectId],
+    queryFn: async () => {
+      console.log(
+        `%c📡 [GET] 프로젝트 데이터 요청 시작 -> ID: ${projectId}`,
+        "color: #00d2ff; font-weight: bold;",
+      );
+      const res = await getProjectDetail(projectId!);
+      console.log(
+        "%c✅ [GET] 서버 연결 성공! 수신 데이터:",
+        "color: #00ff87; font-weight: bold;",
+        res,
+      );
+      return res;
+    },
+    enabled: isModify,
+  });
+
+  useEffect(() => {
+    if (isProjectError) {
+      console.error(
+        "%c❌ [GET] 프로젝트 데이터 요청 실패:",
+        "color: #ff4d4d; font-weight: bold;",
+        projectError,
+      );
+    }
+  }, [isProjectError, projectError]);
+
+  useEffect(() => {
+    if (isModify && projectResponse?.success && projectResponse.data) {
+      console.log(
+        "%c📥 전체 데이터 수신 완료! 1페이지 메타데이터 바인딩:",
+        "color: #b970ff;",
+        projectResponse.data,
+      );
+      setProjectName(projectResponse.data.projectName);
+      setProjectDesc(projectResponse.data.description);
+    }
+  }, [isModify, projectResponse]);
+
+  const updateMetadataMutation = useMutation({
+    mutationFn: async (payload: {
+      projectName: string;
+      description: string;
+    }) => {
+      console.log(
+        `%c🚀 [PATCH] 서버 전송 시작 -> 엔드포인트: /projects/${projectId}/metadata`,
+        "color: #ff007f; font-weight: bold;",
+      );
+      console.log("%c📦 REQUEST BODY (Payload):", "color: #ff007f;", payload);
+      return await updateProjectMetadata(projectId!, payload);
+    },
+    onSuccess: (res) => {
+      console.log(
+        "%c🎉 [PATCH] RESPONSE 성공 데이터 수신 완료:",
+        "color: #00ff87; font-weight: bold;",
+        res,
+      );
+
+      alert("🎉 프로젝트 메타데이터 수정 요청 성공!");
+
+      navigate("/project-detail");
+    },
+    onError: (error) => {
+      console.error(
+        "%c❌ [PATCH] 최종 수정 데이터 전송 실패:",
+        "color: #ff4d4d; font-weight: bold;",
+        error,
+      );
+      alert("⚠️ 메타데이터 수정 중 서버 오류가 발생했습니다.");
+    },
+  });
+  const handleNextStep = () => {
+    if (isModify) {
+      updateMetadataMutation.mutate({
+        projectName: projectName,
+        description: projectDesc,
+      });
+    } else {
+      saveStepData({
+        projectName: projectName,
+        description: projectDesc,
+      });
+      navigate("/main-2");
+    }
+  };
 
   return (
     <>
       <HeaderV2 text="로그아웃" page="프로젝트 빌더" />
       <Body>
-        <Main_top isModify={isModify}>
+        <Main_top $isModify={isModify}>
           <Process num={1} text="프로젝트 생성" use={true} />
-          <img src={Arrow} width={16} height={16} />
+          <img src={Arrow} width={16} height={16} alt="" />
           <Process num={2} text="개발 분야 선택" use={false} />
-          <img src={Arrow} width={16} height={16} />
+          <img src={Arrow} width={16} height={16} alt="" />
           <Process num={3} text="기술 스택 선택" use={false} />
-          <img src={Arrow} width={16} height={16} />
+          <img src={Arrow} width={16} height={16} alt="" />
           <Process num={4} text="의존성 선택" use={false} />
         </Main_top>
+
         <Main_section>
           <Title_box>
             <Sec_title>
@@ -48,7 +142,6 @@ const Main = () => {
             <Pr_box>
               <Name_box>
                 <Pr_name_text>프로젝트 식별 이름</Pr_name_text>
-                {/* value와 onChange를 연결하여 값이 직접 들어가고 수정 가능하게 변경 */}
                 <Pr_name
                   placeholder="새 프로젝트 이름"
                   value={projectName}
@@ -57,7 +150,6 @@ const Main = () => {
               </Name_box>
               <Explain_box>
                 <Pr_ex_text>한 줄 묘사(프로젝트 상세)</Pr_ex_text>
-                {/* value와 onChange를 연결하여 값이 직접 들어가고 수정 가능하게 변경 */}
                 <Pr_ex
                   placeholder="설명을 적어주세요."
                   value={projectDesc}
@@ -72,14 +164,14 @@ const Main = () => {
             </Choice_text>
           </Choice_box>
         </Main_section>
+
         {isModify && (
           <Before onClick={() => navigate("/project-detail")}>취소</Before>
         )}
-        <Next
-          onClick={() => navigate(isModify ? "/project-detail" : "/main-2")}
-        >
+
+        <Next onClick={handleNextStep}>
           {isModify ? "수정완료" : "다음"}
-          {!isModify && <img src={Arrow} />}
+          {!isModify && <img src={Arrow} alt="" />}
         </Next>
       </Body>
     </>
@@ -88,23 +180,25 @@ const Main = () => {
 
 const Body = styled.div`
   width: 100%;
-  height: calc(100vh - 64px);
+  min-height: calc(100vh - 64px);
+  height: auto;
+  box-sizing: border-box;
   background-color: ${Colors.background.base};
   padding: 24px 270px 117px 270px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 48px;
+  position: relative;
 `;
 
-// props를 받아와서 isModal이 true일 때 opacity를 0%로 조절 (부드러운 전환을 위해 transition 추가)
-const Main_top = styled.div`
+const Main_top = styled.div<{ $isModify: boolean }>`
   display: flex;
   margin-bottom: 24px;
   align-items: center;
   padding: 0px 6px;
   gap: 6px;
-  opacity: ${(props) => (props.isModify ? 0 : 1)};
+  opacity: ${({ $isModify }) => ($isModify ? 0 : 1)};
   transition: opacity 0.2s ease-in-out;
 `;
 
@@ -148,9 +242,7 @@ const Before = styled.button`
   position: absolute;
   bottom: 102px;
   left: 270px;
-  img {
-    rotate: calc(180deg);
-  }
+  cursor: pointer;
 `;
 
 const Title_box = styled.div`

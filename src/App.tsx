@@ -5,7 +5,6 @@ import CheckYourEmail from "./pages/signup/CheckYourEmail";
 import EmailInput from "./pages/signup/EmailInput";
 import BuildProgress from "./pages/BuildProgress";
 import MyProject from "./pages/MyProject";
-import ProjectDatailCheck from "./pages/ProjectDatail";
 import Main from "./pages/main_page/MainPage";
 import Main_2 from "./pages/main_page/MainPage_2";
 import Main_3 from "./pages/main_page/MainPage_3";
@@ -22,16 +21,15 @@ function App() {
       <Route path="/checkEmail" element={<CheckYourEmail />} />
       <Route path="/build-progress" element={<BuildProgress />} />
       <Route path="/myproject" element={<MyProject />} />
-      <Route path="/project-detail/:id" element={<ProjectDatailCheck />} />
-      <Route path="/new-project-detail/:id" element={<NewProjectDatail />} />
-      <Route path="/main" element={<Main />} />
-      <Route path="/main-2" element={<Main_2 />} />
-      <Route path="/main-3" element={<Main_3 />} />
-      <Route path="/main-4" element={<Main_4 />} />
-      <Route path="/main-modify" element={<Main />} />
-      <Route path="/main-md-2" element={<Main_2 />} />
-      <Route path="/main-md-3" element={<Main_3 />} />
-      <Route path="/main-md-4" element={<Main_4 />} />
+      <Route path="/project-detail" element={<NewProjectDatail/>} />
+  <Route path="/main" element={<Main />} />
+  <Route path="/main-2" element={<Main_2 />} />
+  <Route path="/main-3" element={<Main_3 />} />
+  <Route path="/main-4" element={<Main_4 />} />
+  <Route path="/main-modify/:projectId" element={<Main />} />
+  <Route path="/main-md-2/:projectId" element={<Main_2 />} />
+  <Route path="/main-md-3/:projectId" element={<Main_3 />} />
+  <Route path="/main-md-4/:projectId" element={<Main_4 />} />
     </Routes>
   );
 }

@@ -1,26 +1,18 @@
 import styled from "styled-components";
 import DevIcon from "../../assets/DevIcon.svg";
 import { Colors } from "../../styles/color";
-import { useState } from "react";
 
 interface DevBlockProps {
   title: string;
   text: string;
+  isSelected?: boolean; 
 }
 
-export default function DevBlock({ title, text }: DevBlockProps) {
-  const [isSelect, setIsSelect] = useState(false);
-
+export default function DevBlock({ title, text, isSelected = false }: DevBlockProps) {
   return (
-    <Wrapper
-      $isSelect={isSelect}
-      onClick={() => {
-        console.log("click", isSelect);
-        setIsSelect(!isSelect);
-      }}
-    >
+    <Wrapper $isSelect={isSelected}>
       <TopContainer>
-        <Img src={DevIcon}></Img>
+        <Img src={DevIcon} alt="icon" />
         <Title>{title}</Title>
       </TopContainer>
       <Text>{text}</Text>
