@@ -6,7 +6,7 @@ import type {
 } from "./type";
 
 export const getProjectStatus = async (
-  projectId: number,
+  projectId: string,
 ): Promise<GetProjectStatusResponse> => {
   const response = await api.get(`/projects/structures/${projectId}`);
   return response.data.data;
