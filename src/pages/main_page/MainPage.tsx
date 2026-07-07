@@ -5,68 +5,104 @@ import { Colors } from "../../styles/color";
 import { useNavigate, useParams } from "react-router-dom";
 import Arrow from "../../assets/Arrow.svg";
 import Process from "../../components/main_com/TopProcess";
-import { useProjectForm } from "../../hooks/useProjectForm"; 
+import { useProjectForm } from "../../hooks/useProjectForm";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { getProjectDetail, updateProjectMetadata } from "../../apis/project/index";
+import {
+  getProjectDetail,
+  updateProjectMetadata,
+} from "../../apis/project/index";
 
 const Main = () => {
   const navigate = useNavigate();
-  const { projectId } = useParams<{ projectId: string }>(); 
+  const { projectId } = useParams<{ projectId: string }>();
 
   const { saveStepData } = useProjectForm();
-  const isModify = !!projectId; 
+  const isModify = !!projectId && location.pathname.startsWith("/main-modify/");
 
   const [projectName, setProjectName] = useState("");
   const [projectDesc, setProjectDesc] = useState("");
 
-  const { data: projectResponse, isError: isProjectError, error: projectError } = useQuery({
+  const {
+    data: projectResponse,
+    isError: isProjectError,
+    error: projectError,
+  } = useQuery({
     queryKey: ["projectDetail", projectId],
     queryFn: async () => {
-      console.log(`%c📡 [GET] 프로젝트 데이터 요청 시작 -> ID: ${projectId}`, "color: #00d2ff; font-weight: bold;");
+      console.log(
+        `%c📡 [GET] 프로젝트 데이터 요청 시작 -> ID: ${projectId}`,
+        "color: #00d2ff; font-weight: bold;",
+      );
       const res = await getProjectDetail(projectId!);
-      console.log("%c✅ [GET] 서버 연결 성공! 수신 데이터:", "color: #00ff87; font-weight: bold;", res);
+      console.log(
+        "%c✅ [GET] 서버 연결 성공! 수신 데이터:",
+        "color: #00ff87; font-weight: bold;",
+        res,
+      );
       return res;
     },
-    enabled: isModify, 
+    enabled: isModify,
   });
 
   useEffect(() => {
     if (isProjectError) {
-      console.error("%c❌ [GET] 프로젝트 데이터 요청 실패:", "color: #ff4d4d; font-weight: bold;", projectError);
+      console.error(
+        "%c❌ [GET] 프로젝트 데이터 요청 실패:",
+        "color: #ff4d4d; font-weight: bold;",
+        projectError,
+      );
     }
   }, [isProjectError, projectError]);
 
   useEffect(() => {
     if (isModify && projectResponse?.success && projectResponse.data) {
-      console.log("%c📥 전체 데이터 수신 완료! 1페이지 메타데이터 바인딩:", "color: #b970ff;", projectResponse.data);
+      console.log(
+        "%c📥 전체 데이터 수신 완료! 1페이지 메타데이터 바인딩:",
+        "color: #b970ff;",
+        projectResponse.data,
+      );
       setProjectName(projectResponse.data.projectName);
       setProjectDesc(projectResponse.data.description);
     }
   }, [isModify, projectResponse]);
 
   const updateMetadataMutation = useMutation({
-    mutationFn: async (payload: { projectName: string; description: string }) => {
-      console.log(`%c🚀 [PATCH] 서버 전송 시작 -> 엔드포인트: /projects/${projectId}/metadata`, "color: #ff007f; font-weight: bold;");
+    mutationFn: async (payload: {
+      projectName: string;
+      description: string;
+    }) => {
+      console.log(
+        `%c🚀 [PATCH] 서버 전송 시작 -> 엔드포인트: /projects/${projectId}/metadata`,
+        "color: #ff007f; font-weight: bold;",
+      );
       console.log("%c📦 REQUEST BODY (Payload):", "color: #ff007f;", payload);
       return await updateProjectMetadata(projectId!, payload);
     },
     onSuccess: (res) => {
-      console.log("%c🎉 [PATCH] RESPONSE 성공 데이터 수신 완료:", "color: #00ff87; font-weight: bold;", res);
-      
+      console.log(
+        "%c🎉 [PATCH] RESPONSE 성공 데이터 수신 완료:",
+        "color: #00ff87; font-weight: bold;",
+        res,
+      );
+
       alert("🎉 프로젝트 메타데이터 수정 요청 성공!");
-      
-      navigate("/project-detail"); 
+
+      navigate("/project-detail");
     },
     onError: (error) => {
-      console.error("%c❌ [PATCH] 최종 수정 데이터 전송 실패:", "color: #ff4d4d; font-weight: bold;", error);
+      console.error(
+        "%c❌ [PATCH] 최종 수정 데이터 전송 실패:",
+        "color: #ff4d4d; font-weight: bold;",
+        error,
+      );
       alert("⚠️ 메타데이터 수정 중 서버 오류가 발생했습니다.");
-    }
+    },
   });
   const handleNextStep = () => {
     if (isModify) {
       updateMetadataMutation.mutate({
-        projectName: projectName, 
-        description: projectDesc,  
+        projectName: projectName,
+        description: projectDesc,
       });
     } else {
       saveStepData({
@@ -90,7 +126,7 @@ const Main = () => {
           <img src={Arrow} width={16} height={16} alt="" />
           <Process num={4} text="의존성 선택" use={false} />
         </Main_top>
-        
+
         <Main_section>
           <Title_box>
             <Sec_title>
@@ -128,11 +164,11 @@ const Main = () => {
             </Choice_text>
           </Choice_box>
         </Main_section>
-        
+
         {isModify && (
           <Before onClick={() => navigate("/project-detail")}>취소</Before>
         )}
-        
+
         <Next onClick={handleNextStep}>
           {isModify ? "수정완료" : "다음"}
           {!isModify && <img src={Arrow} alt="" />}
@@ -208,7 +244,6 @@ const Before = styled.button`
   left: 270px;
   cursor: pointer;
 `;
-
 
 const Title_box = styled.div`
   display: flex;

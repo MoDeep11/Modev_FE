@@ -26,13 +26,26 @@ export const getDevFields = async (): Promise<FieldsResponse> => {
   return response.data;
 };
 
-export const getDevStacks = async (): Promise<StacksResponse> => {
-  const response = await api.get<StacksResponse>("/projects/stacks");
+export const getDevStacks = async (fieldIds: string[], keyword?: string): Promise<StacksResponse> => {
+  const response = await api.get<StacksResponse>("/catalog/stacks", { // ✅ /projects/stacks -> /catalog/stacks (명세서 기준)
+    params: {
+      fieldIds: fieldIds.join(","), // ✅ 배열이 아니라 "domain_fe,domain_be" 콤마 구분 문자열로 전달 (명세서 기준)
+      ...(keyword ? { keyword } : {}),
+    },
+  });
   return response.data;
 };
 
-export const getProjectDependencies = async (): Promise<DependenciesResponse> => {
-  const response = await api.get<DependenciesResponse>("/projects/dependencies");
+export const getProjectDependencies = async (
+  stackIds: string[],
+  keyword?: string
+): Promise<DependenciesResponse> => {
+  const response = await api.get<DependenciesResponse>("/catalog/dependencies", { // ✅ /projects/dependencies -> /catalog/dependencies (명세서 기준)
+    params: {
+      stackIds: stackIds.join(","), // ✅ 필수 파라미터, 콤마 구분 문자열로 전달 (명세서 기준)
+      ...(keyword ? { keyword } : {}),
+    },
+  });
   return response.data;
 };
 

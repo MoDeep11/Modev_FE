@@ -42,22 +42,6 @@ const Main = () => {
     }
   };
 
-  const { data: serverData, isError: isStacksError, error: stacksError } = useQuery({
-    queryKey: ["devStacks"],
-    queryFn: async () => {
-      console.log("%c📡 [GET] 기술 스택 목록 요청 시작 -> /projects/stacks", "color: #00d2ff; font-weight: bold;");
-      const res = await getDevStacks();
-      console.log("%c✅ [GET] 기술 스택 목록 수신 성공:", "color: #00ff87; font-weight: bold;", res);
-      return res;
-    },
-  });
-
-  useEffect(() => {
-    if (isStacksError) {
-      console.error("%c❌ [GET] 기술 스택 목록 요청 실패:", "color: #ff4d4d; font-weight: bold;", stacksError);
-    }
-  }, [isStacksError, stacksError]);
-
   const { data: projectResponse, isError: isProjectError, error: projectError } = useQuery({
     queryKey: ["projectDetail", projectId],
     queryFn: async () => {
@@ -75,8 +59,6 @@ const Main = () => {
     }
   }, [isProjectError, projectError]);
 
-  // ⚠️ getProject()가 돌려주는 fields는 "Backend" 같은 이름이라, fieldId(domain_be 등) 형식이 필요한
-  // 이 페이지에서 쓰려면 이름 -> fieldId 매핑이 필요함. 그래서 수정 모드에서만 분야 목록도 같이 조회.
   const { data: fieldsData } = useQuery({
     queryKey: ["devFields"],
     queryFn: async () => {
@@ -88,11 +70,7 @@ const Main = () => {
     enabled: isModify,
   });
 
-  const allStacks: ServerStack[] = serverData?.data?.stacks ?? [];
-
   useEffect(() => {
-    const savedForm = sessionStorage.getItem("projectForm");
-    
     if (isModify) {
       if (projectResponse) {
         const fieldNames = projectResponse.fields || [];
@@ -104,19 +82,52 @@ const Main = () => {
           .map((name) => nameToFieldId[name])
           .filter((id): id is string => Boolean(id));
         setAllowedFieldIds(fieldsFromProject);
+      }
+    } else {
+      const savedForm = sessionStorage.getItem("projectForm");
+      if (savedForm) {
+        const parsed = JSON.parse(savedForm);
+        const fieldIdsFromSession: string[] = parsed.fieldIds || [];
+        setAllowedFieldIds(fieldIdsFromSession);
+      }
+    }
+  }, [isModify, projectResponse, fieldsData]);
 
+  const { data: serverData, isError: isStacksError, error: stacksError } = useQuery({
+    queryKey: ["devStacks", allowedFieldIds],
+    queryFn: async () => {
+      console.log(`%c📡 [GET] 기술 스택 목록 요청 시작 -> /catalog/stacks?fieldIds=${allowedFieldIds.join(",")}`, "color: #00d2ff; font-weight: bold;");
+      const res = await getDevStacks(allowedFieldIds);
+      console.log("%c✅ [GET] 기술 스택 목록 수신 성공:", "color: #00ff87; font-weight: bold;", res);
+      return res;
+    },
+    enabled: allowedFieldIds.length > 0,
+    retry: 1, 
+  });
+
+  useEffect(() => {
+    if (isStacksError) {
+      console.error("%c❌ [GET] 기술 스택 목록 요청 실패:", "color: #ff4d4d; font-weight: bold;", stacksError);
+    }
+  }, [isStacksError, stacksError]);
+
+  const allStacks: ServerStack[] = serverData?.data?.stacks ?? [];
+
+  useEffect(() => {
+    if (allStacks.length === 0) return;
+
+    if (isModify) {
+      if (projectResponse) {
         const serverStacks = projectResponse.stacks || [];
         const restoredStackIds = serverStacks.map((s) => s.stackId);
-        
         const restored = allStacks.filter((stack) => restoredStackIds.includes(stack.stackId));
         console.log("%c📥 수정 모드: 서버에서 받은 선택 스택 복원:", "color: #b970ff;", restored);
         setSelectedStacks(restored);
       }
     } else {
+      const savedForm = sessionStorage.getItem("projectForm");
       if (savedForm) {
         const parsed = JSON.parse(savedForm);
-        const fieldIdsFromSession: string[] = parsed.fieldIds || [];
-        setAllowedFieldIds(fieldIdsFromSession);
         const stackIdsFromSession: string[] = parsed.stackIds || [];
         if (stackIdsFromSession.length > 0) {
           const restored = allStacks.filter((stack) => stackIdsFromSession.includes(stack.stackId));
@@ -124,7 +135,7 @@ const Main = () => {
         }
       }
     }
-  }, [serverData, projectResponse, isModify, fieldsData]); 
+  }, [allStacks, projectResponse, isModify]); 
 
   const filteredStacks = allStacks.filter((stack) => {
     const isAllowedField = allowedFieldIds.includes(stack.fieldId);

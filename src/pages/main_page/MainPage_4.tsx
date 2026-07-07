@@ -43,17 +43,17 @@ const Main = () => {
     }
   }, []);
 
-  // ⚠️ 명세서(이미지)에는 GET /catalog/dependencies?stackIds=... 로 서버에서 필터링하는 것처럼 나와있었지만
-  // 실제 구현된 함수는 getProjectDependencies() 로, 파라미터 없이 /projects/dependencies 전체 목록을 받아옴.
-  // 그래서 스택별 필터링은 기존처럼 클라이언트에서 처리함.
+  // ✅ stackIds는 API 필수 파라미터라, 세션에서 selectedStackIds가 복원된 뒤에만 조회 가능
   const { data: serverData, isError: isDepsError, error: depsError } = useQuery({
-    queryKey: ["projectDependencies"],
+    queryKey: ["projectDependencies", selectedStackIds],
     queryFn: async () => {
-      console.log("%c📡 [GET] 의존성 목록 요청 시작 -> /projects/dependencies", "color: #00d2ff; font-weight: bold;");
-      const res = await getProjectDependencies();
+      console.log(`%c📡 [GET] 의존성 목록 요청 시작 -> /catalog/dependencies?stackIds=${selectedStackIds.join(",")}`, "color: #00d2ff; font-weight: bold;");
+      const res = await getProjectDependencies(selectedStackIds);
       console.log("%c✅ [GET] 의존성 목록 수신 성공:", "color: #00ff87; font-weight: bold;", res);
       return res;
     },
+    enabled: selectedStackIds.length > 0,
+    retry: 1,
   });
 
   useEffect(() => {
