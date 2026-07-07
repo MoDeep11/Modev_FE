@@ -12,6 +12,7 @@ import Main_3 from "./pages/main_page/MainPage_3";
 import Main_4 from "./pages/main_page/MainPage_4";
 import NewProjectDatail from "./pages/newProjectDetail";
 import { Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./layouts/ProtectedRoute";
 
 function App() {
   return (
@@ -20,18 +21,102 @@ function App() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/emailInput" element={<EmailInput />} />
       <Route path="/checkEmail" element={<CheckYourEmail />} />
-      <Route path="/build-progress" element={<BuildProgress />} />
-      <Route path="/myproject" element={<MyProject />} />
-      <Route path="/project-detail/:id" element={<ProjectDatailCheck />} />
-      <Route path="/new-project-detail/:id" element={<NewProjectDatail />} />
-      <Route path="/main" element={<Main />} />
-      <Route path="/main-2" element={<Main_2 />} />
-      <Route path="/main-3" element={<Main_3 />} />
-      <Route path="/main-4" element={<Main_4 />} />
-      <Route path="/main-modify" element={<Main />} />
-      <Route path="/main-md-2" element={<Main_2 />} />
-      <Route path="/main-md-3" element={<Main_3 />} />
-      <Route path="/main-md-4" element={<Main_4 />} />
+      <Route
+        path="/build-progress"
+        element={
+          <ProtectedRoute>
+            <BuildProgress />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/myproject"
+        element={
+          <ProtectedRoute>
+            <MyProject />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/project-detail/:id"
+        element={
+          <ProtectedRoute>
+            <ProjectDatailCheck />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/new-project-detail/:id"
+        element={
+          <ProtectedRoute>
+            <NewProjectDatail />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/main"
+        element={
+          <ProtectedRoute>
+            <Main />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/main-2"
+        element={
+          <ProtectedRoute>
+            <Main_2 />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/main-3"
+        element={
+          <ProtectedRoute>
+            <Main_3 />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/main-4"
+        element={
+          <ProtectedRoute>
+            <Main_4 />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/main-modify"
+        element={
+          <ProtectedRoute>
+            <Main />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/main-md-2"
+        element={
+          <ProtectedRoute>
+            <Main_2 />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/main-md-3"
+        element={
+          <ProtectedRoute>
+            <Main_3 />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/main-md-4"
+        element={
+          <ProtectedRoute>
+            <Main_4 />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }
