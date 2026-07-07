@@ -6,8 +6,9 @@ import { useParams } from "react-router-dom";
 import HeaderV2 from "../layouts/HeaderV2";
 import DownloadFile from "../components/newproject/DownloadFile";
 import DeleteProject from "../components/Button/DeleteProject";
-import FileTrees from "../components/ProjectDetail/FileTree";
+import FileTree from "../components/common/FileTree";
 import { useProject, useFileContent } from "../hooks/useProject";
+import { useProjectStatus } from "../hooks/newproject";
 
 type Tab = "fields" | "stacks" | "dependencies";
 
@@ -15,6 +16,10 @@ export default function ProjectDetailCheck() {
   const { id } = useParams<{ id: string }>();
   const [selectedFile, setSelectedFile] = useState("");
   const [activeTab, setActiveTab] = useState<Tab>("fields");
+
+  const { data: structure } = useProjectStatus(id ?? "");
+
+  const tree = structure?.result?.fileTree ?? [];
 
   useEffect(() => {
     setSelectedFile("");
@@ -67,6 +72,9 @@ export default function ProjectDetailCheck() {
     ));
   };
 
+  console.log(project);
+  console.log(project.fileTree);
+
   return (
     <WrapperAll>
       <HeaderV2 text="로그아웃" page="내 프로젝트" />
@@ -107,10 +115,15 @@ export default function ProjectDetailCheck() {
 
           <BottomWrapper>
             <FolderWrapper>
-              <FileTrees
-                nodes={project.fileTree ?? []}
-                onFileClick={setSelectedFile}
-              />
+              {tree.length > 0 ? (
+                <FileTree nodes={tree} onFileClick={setSelectedFile} />
+              ) : (
+                <p style={{ color: "white" }}>
+                  {project.fileTree?.status === "NOT_CREATED"
+                    ? "구조가 아직 생성되지 않았습니다."
+                    : "파일이 없습니다."}
+                </p>
+              )}
             </FolderWrapper>
 
             <CodeWrapper>

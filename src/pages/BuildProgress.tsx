@@ -3,7 +3,7 @@ import HeaderV2 from "../layouts/HeaderV2";
 import { Colors } from "../styles/color";
 import ProgressBar from "../components/Build/progressBar";
 import under from "../assets/under.svg";
-import FileTree from "../components/newproject/FileTree";
+import FileTree from "../components/common/FileTree";
 import { useParams } from "react-router-dom";
 import { useProjectStatus } from "../hooks/newproject";
 import { useEffect, useState } from "react";

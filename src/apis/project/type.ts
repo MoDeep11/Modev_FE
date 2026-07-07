@@ -34,11 +34,10 @@ export interface ProjectDetail {
   fields: ProjectField[];
   stacks: Stack[];
   dependencies: Dependency[];
-  fileTree: FileTreeNode[];
+  fileTree: ProjectFileTree;
   createdAt: string;
   updatedAt: string;
 }
-
 export interface FileContent {
   filePath: string;
   content: string;
@@ -122,4 +121,13 @@ export interface ProjectMetadataResponse {
     description: string;
   };
   error: string | null;
+}
+
+export interface ProjectFileTree {
+  projectId: string;
+  status: "NOT_CREATED" | "PENDING" | "IN_PROGRESS" | "COMPLETED" | "FAILED";
+
+  result: {
+    fileTree: FileTreeNode[];
+  } | null;
 }
