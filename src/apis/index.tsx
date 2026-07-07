@@ -18,6 +18,13 @@ api.interceptors.request.use((config) => {
     "/auth/email/verify",
     "/auth/email/send",
     "/auth/token/refresh",
+    "/new-project-detail/:id",
+    "/",
+    "/projectDetail/:id",
+    "/newProjectDetail/:id",
+    "/build-progress",
+    "/login",
+    "/signup",
   ];
 
   if (skipUrls.some((url) => config.url?.includes(url))) return config;

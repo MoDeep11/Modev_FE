@@ -21,99 +21,23 @@ function App() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/emailInput" element={<EmailInput />} />
       <Route path="/checkEmail" element={<CheckYourEmail />} />
-      <Route
-        path="/build-progress"
-        element={
-          <ProtectedRoute>
-            <BuildProgress />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/build-progress" element={<BuildProgress />} />
+      <Route path="/project-detail/:id" element={<ProjectDatailCheck />} />
+      <Route path="/new-project-detail/:id" element={<NewProjectDatail />} />
+      <Route path="/main" element={<Main />} />
+      <Route path="/main-2" element={<Main_2 />} />
+      <Route path="/main-3" element={<Main_3 />} />
+      <Route path="/main-4" element={<Main_4 />} />
+      <Route path="/main-modify" element={<Main />} />
+      <Route path="/main-md-2" element={<Main_2 />} />
+      <Route path="/main-md-3" element={<Main_3 />} />
+      <Route path="/main-md-4" element={<Main_4 />} />
+
       <Route
         path="/myproject"
         element={
           <ProtectedRoute>
             <MyProject />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/project-detail/:id"
-        element={
-          <ProtectedRoute>
-            <ProjectDatailCheck />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/new-project-detail/:id"
-        element={
-          <ProtectedRoute>
-            <NewProjectDatail />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/main"
-        element={
-          <ProtectedRoute>
-            <Main />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/main-2"
-        element={
-          <ProtectedRoute>
-            <Main_2 />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/main-3"
-        element={
-          <ProtectedRoute>
-            <Main_3 />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/main-4"
-        element={
-          <ProtectedRoute>
-            <Main_4 />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/main-modify"
-        element={
-          <ProtectedRoute>
-            <Main />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/main-md-2"
-        element={
-          <ProtectedRoute>
-            <Main_2 />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/main-md-3"
-        element={
-          <ProtectedRoute>
-            <Main_3 />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/main-md-4"
-        element={
-          <ProtectedRoute>
-            <Main_4 />
           </ProtectedRoute>
         }
       />
