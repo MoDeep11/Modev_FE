@@ -11,11 +11,17 @@ import { useEffect, useState } from "react";
 export default function BuildProgress() {
   const { projectId } = useParams<{ projectId: string }>();
   const [selectedFile, setSelectedFile] = useState("");
+  const [projectForm, setProjectForm] = useState<any>({});
 
   console.log("🔍 BuildProgress projectId:", projectId);
 
   useEffect(() => {
     setSelectedFile("");
+    // sessionStorage에서 프로젝트 폼 데이터 가져오기
+    const savedForm = sessionStorage.getItem("projectForm");
+    if (savedForm) {
+      setProjectForm(JSON.parse(savedForm));
+    }
   }, [projectId]);
 
   const { data: projectData } = useProjectStatus(projectId || "");
@@ -30,8 +36,13 @@ export default function BuildProgress() {
           <Wrapper>
             <TopContainer>
               <Project>
-                <ProjectTitle>프로젝트명</ProjectTitle>
-                <ProjectDetail>프로젝트 설명이 들어가~입니다</ProjectDetail>
+                <ProjectTitle>
+                  {projectForm.projectName || "프로젝트명"}
+                </ProjectTitle>
+                <ProjectDetail>
+                  {projectForm.description || "프로젝트 설명이 들어가~입니다"}
+                </ProjectDetail>
+                <ProjectIdDisplay>ID: {projectId}</ProjectIdDisplay>
               </Project>
 
               <TopRightContainer>
@@ -42,12 +53,43 @@ export default function BuildProgress() {
                 </TabItemContainer>
 
                 <SkillItemContainer>
-                  <SkillItem>Frontend</SkillItem>
-                  <SkillItem>Frontend</SkillItem>
-                  <SkillItem>Frontend</SkillItem>
-                  <SkillItem>Frontend</SkillItem>
-                  <SkillItem>Frontend</SkillItem>
+                  {projectForm.fieldIds?.length > 0 ? (
+                    projectForm.fieldIds.map((fieldId: string) => (
+                      <SkillItem key={fieldId}>{fieldId}</SkillItem>
+                    ))
+                  ) : (
+                    <>
+                      <SkillItem>Frontend</SkillItem>
+                      <SkillItem>Backend</SkillItem>
+                    </>
+                  )}
                 </SkillItemContainer>
+
+                <div style={{ marginTop: "8px" }}>
+                  <TabItemText>기술스택</TabItemText>
+                  <SkillItemContainer style={{ marginTop: "4px" }}>
+                    {projectForm.stackIds?.length > 0 ? (
+                      projectForm.stackIds.map((stackId: string) => (
+                        <SkillItem key={stackId}>{stackId}</SkillItem>
+                      ))
+                    ) : (
+                      <SkillItem>선택 안됨</SkillItem>
+                    )}
+                  </SkillItemContainer>
+                </div>
+
+                <div style={{ marginTop: "8px" }}>
+                  <TabItemText>의존성</TabItemText>
+                  <SkillItemContainer style={{ marginTop: "4px" }}>
+                    {projectForm.dependencyIds?.length > 0 ? (
+                      projectForm.dependencyIds.map((depId: string) => (
+                        <SkillItem key={depId}>{depId}</SkillItem>
+                      ))
+                    ) : (
+                      <SkillItem>선택 안됨</SkillItem>
+                    )}
+                  </SkillItemContainer>
+                </div>
               </TopRightContainer>
             </TopContainer>
 
@@ -127,6 +169,22 @@ const Wrapper = styled.div`
 `;
 
 const Project = styled.div``;
+
+const ProjectIdDisplay = styled.p`
+  color: ${Colors.text.secondary};
+  font-family: Inter;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px;
+  margin-top: 4px;
+`;
+
+const TabItemText = styled.p`
+  font-size: 12px;
+  color: ${Colors.text.disabled};
+  margin: 0;
+`;
 
 const ProgressBarBottom = styled.div`
   display: flex;

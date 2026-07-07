@@ -18,20 +18,29 @@ export const useProjectForm = (projectId?: string) => {
   const saveStepData = (stepData: Partial<ProjectPayload>) => {
     const savedForm = sessionStorage.getItem(SESSION_KEY);
     const currentForm = savedForm ? JSON.parse(savedForm) : {};
-    
+
     const updatedForm = { ...currentForm, ...stepData };
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(updatedForm));
   };
 
   const createMutation = useMutation({
     mutationFn: createProject,
-    onSuccess: () => {
-      toast.success("프로젝트 설계 시작");
-      sessionStorage.removeItem(SESSION_KEY); 
-      navigate("/main"); 
+    onSuccess: (data) => {
+      console.log("📡 Create response:", data);
+      const projectId = data?.data?.projectId;
+      console.log("🆔 Extracted projectId:", projectId);
+      toast.success(`프로젝트가 성공적으로 생성되었습니다! ID: ${projectId}`);
+      sessionStorage.removeItem(SESSION_KEY);
+      // projectId와 함께 BuildProgress로 이동
+      if (projectId) {
+        navigate(`/build-progress/${projectId}`);
+      }
     },
     onError: (error: AxiosError<ErrorResponse>) => {
-      toast.error(error.response?.data?.message || "프로젝트 생성 중 오류가 발생했습니다.");
+      toast.error(
+        error.response?.data?.message ||
+          "프로젝트 생성 중 오류가 발생했습니다.",
+      );
     },
   });
 
@@ -39,18 +48,21 @@ export const useProjectForm = (projectId?: string) => {
     mutationFn: updateProject,
     onSuccess: () => {
       toast.success("프로젝트 수정이 완료");
-      sessionStorage.removeItem(SESSION_KEY); 
-      navigate("/project-detail"); 
+      sessionStorage.removeItem(SESSION_KEY);
+      navigate("/project-detail");
     },
     onError: (error: AxiosError<ErrorResponse>) => {
-      toast.error(error.response?.data?.message || "프로젝트 수정 중 오류가 발생했습니다.");
+      toast.error(
+        error.response?.data?.message ||
+          "프로젝트 수정 중 오류가 발생했습니다.",
+      );
     },
   });
 
   const submitFinalProject = (step4Data: Partial<ProjectPayload>) => {
     const savedForm = sessionStorage.getItem(SESSION_KEY);
     const currentForm = savedForm ? JSON.parse(savedForm) : {};
-    
+
     const finalForm = { ...currentForm, ...step4Data } as ProjectPayload;
 
     if (isModify && projectId) {
