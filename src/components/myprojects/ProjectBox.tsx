@@ -1,9 +1,11 @@
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 import { Colors } from "../../styles/color";
 
 const MAX_VISIBLE_SKILLS = 3;
 
 interface ProjectBoxProps {
+  projectId: string;
   title: string;
   text: string;
   createdAt: string;
@@ -12,17 +14,23 @@ interface ProjectBoxProps {
 }
 
 export default function ProjectBox({
+  projectId,
   title,
   text,
   createdAt,
   lastModifiedAt,
   stacks,
 }: ProjectBoxProps) {
+  const navigate = useNavigate();
   const visibleStacks = stacks.slice(0, MAX_VISIBLE_SKILLS);
   const hiddenCount = stacks.length - MAX_VISIBLE_SKILLS;
 
+  const handleClick = () => {
+    navigate(`/project-detail/${projectId}`);
+  };
+
   return (
-    <Wrapper>
+    <Wrapper onClick={handleClick}>
       <TopWrapper>
         <ProjectName>{title}</ProjectName>
         <ProjectDetail>{text}</ProjectDetail>
@@ -134,4 +142,13 @@ const Wrapper = styled.div`
   border-radius: 12px;
   display: flex;
   flex-direction: column;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+
+  &:hover {
+    border-color: ${Colors.border.strong};
+    transform: translateY(-2px);
+  }
 `;

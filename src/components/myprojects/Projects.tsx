@@ -12,6 +12,7 @@ export default function ProjectGrid({ projects }: Props) {
       {projects.map((project) => (
         <ProjectBox
           key={project.projectId}
+          projectId={project.projectId}
           title={project.projectName}
           text={project.description}
           createdAt={project.createdAt}
