@@ -39,9 +39,8 @@ export const getDevStacks = async (
   keyword?: string,
 ): Promise<StacksResponse> => {
   const response = await api.get<StacksResponse>("/catalog/stacks", {
-    // ✅ /projects/stacks -> /catalog/stacks (명세서 기준)
     params: {
-      fieldIds: fieldIds.join(","), // ✅ 배열이 아니라 "domain_fe,domain_be" 콤마 구분 문자열로 전달 (명세서 기준)
+      fieldIds: fieldIds.join(","),
       ...(keyword ? { keyword } : {}),
     },
   });
@@ -86,16 +85,16 @@ export const updateProjectMetadata = async (
 };
 
 export const getProject = async (projectId: string): Promise<ProjectDetail> => {
-  const response = await api.get<ProjectDetail>(`/projects/${projectId}`);
-  return response.data;
+  const response = await api.get<any>(`/projects/${projectId}`);
+  return response.data?.data ?? response.data;
 };
 
 export const getFileContent = async (
   projectId: string,
   filePath: string,
 ): Promise<FileContent> => {
-  const response = await api.get<FileContent>(`/projects/${projectId}/files`, {
+  const response = await api.get<any>(`/projects/${projectId}/files`, {
     params: { filePath },
   });
-  return response.data;
+  return response.data?.data ?? response.data;
 };

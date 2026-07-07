@@ -9,8 +9,14 @@ export default function DownloadFile() {
   const { id } = useParams<{ id: string }>();
 
   const downloadFunc = () => {
-    if (!id) return toast.error("오류가 발생했습니다");
-    download({ projectId: Number(id) });
+    if (!id) {
+      toast.error("프로젝트를 찾을 수 없습니다.");
+      return;
+    }
+
+    download({
+      projectId: id,
+    });
   };
 
   return (
