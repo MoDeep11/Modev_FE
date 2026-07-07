@@ -2,25 +2,20 @@ import styled from "styled-components";
 import plus from "../../assets/plus.svg";
 import check from "../../assets/check.svg";
 import { Colors } from "../../styles/color";
-import { useState } from "react";
 
 interface SkillBlockProps {
   title: string;
   text: string;
+  isSelected?: boolean; // 💡 부모(Mainpage_3)에게 선택 상태를 주입받습니다.
 }
 
-export default function SkillBlock({ title, text }: SkillBlockProps) {
-  const [isSelect, setIsSelect] = useState(false);
-
+// 🎯 내부 useState를 제거하고, 부모가 넘겨주는 isSelected를 기준으로 렌더링합니다.
+export default function SkillBlock({ title, text, isSelected = false }: SkillBlockProps) {
   return (
-    <Wrapper
-      $isSelect={isSelect}
-      onClick={() => {
-        setIsSelect(!isSelect);
-      }}
-    >
+    <Wrapper $isSelect={isSelected}>
       <TopContainer>
-        <Img src={isSelect ? check : plus} />
+        {/* 💡 선택 상태에 따라 plus / check 아이콘이 스위칭됩니다. */}
+        <Img src={isSelected ? check : plus} alt="status" />
         <Title>{title}</Title>
       </TopContainer>
       <Text>{text}</Text>
