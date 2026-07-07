@@ -3,13 +3,28 @@ import HeaderV2 from "../layouts/HeaderV2";
 import { Colors } from "../styles/color";
 import ProgressBar from "../components/Build/progressBar";
 import under from "../assets/under.svg";
-import Folders from "../components/Build/Folders";
+import FileTree from "../components/newproject/FileTree";
+import { useParams } from "react-router-dom";
+import { useProjectStatus } from "../hooks/newproject";
+import { useEffect, useState } from "react";
 
 export default function BuildProgress() {
+  const { projectId } = useParams<{ projectId: string }>();
+  const [selectedFile, setSelectedFile] = useState("");
+
+  console.log("🔍 BuildProgress projectId:", projectId);
+
+  useEffect(() => {
+    setSelectedFile("");
+  }, [projectId]);
+
+  const { data: projectData } = useProjectStatus(projectId || "");
+  const fileTree = projectData?.result?.fileTree ?? [];
+  const status = projectData?.status ?? "PENDING";
   return (
     <>
       <WrapperAll>
-        <HeaderV2 text="로그아웃" page="프로젝트 빌더"/>
+        <HeaderV2 text="로그아웃" page="프로젝트 빌더" />
 
         <WrapperContainer>
           <Wrapper>
@@ -37,11 +52,26 @@ export default function BuildProgress() {
             </TopContainer>
 
             <Progress>
-              <ProgressBar current={64} />
+              <ProgressBar
+                current={
+                  status === "COMPLETED"
+                    ? 100
+                    : status === "IN_PROGRESS"
+                      ? 64
+                      : 0
+                }
+              />
 
               <ProgressBarBottom>
                 <StatusDescription>
-                  🚀 [SYSTEM] Starting project bootstrapping engine...
+                  {status === "PENDING" &&
+                    "🚀 [SYSTEM] Starting project bootstrapping engine..."}
+                  {status === "IN_PROGRESS" &&
+                    "⚙️ [SYSTEM] Project generation in progress..."}
+                  {status === "COMPLETED" &&
+                    "✅ [SYSTEM] Project generation completed!"}
+                  {status === "FAILED" &&
+                    "❌ [SYSTEM] Project generation failed!"}
                 </StatusDescription>
 
                 <Detail>
@@ -57,12 +87,17 @@ export default function BuildProgress() {
 
             <BottomWrapper>
               <FolderWrapper>
-                <Folders file="topFolder" text="/ my-dsm-project" depth={0} />
-                <Folders file="folder" text="frontend/" depth={1} />
-                <Folders file="file" text="package.json" depth={2} />
-                <Folders file="folder" text="backend/" depth={1} />
-                <Folders file="writeFile" text="env.example" depth={2} />
-                <Folders file="writeFile" text="README.md" depth={2} />
+                {fileTree.length > 0 ? (
+                  <FileTree nodes={fileTree} onFileClick={setSelectedFile} />
+                ) : (
+                  <p style={{ color: "white", fontSize: "14px" }}>
+                    {status === "PENDING" || status === "IN_PROGRESS"
+                      ? "생성 중..."
+                      : status === "FAILED"
+                        ? "생성 실패"
+                        : "파일이 없습니다."}
+                  </p>
+                )}
               </FolderWrapper>
 
               <CodeWrapper>

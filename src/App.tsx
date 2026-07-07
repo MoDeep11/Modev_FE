@@ -21,9 +21,10 @@ function App() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/emailInput" element={<EmailInput />} />
       <Route path="/checkEmail" element={<CheckYourEmail />} />
-      <Route path="/build-progress" element={<BuildProgress />} />
+      <Route path="/build-progress/:projectId" element={<BuildProgress />} />
       <Route path="/project-detail/:id" element={<ProjectDatailCheck />} />
       <Route path="/new-project-detail/:id" element={<NewProjectDatail />} />
+
       <Route path="/main" element={<Main />} />
       <Route path="/main-2" element={<Main_2 />} />
       <Route path="/main-3" element={<Main_3 />} />
