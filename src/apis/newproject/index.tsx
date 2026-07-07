@@ -21,3 +21,9 @@ export const getFileContent = async ({
   });
   return response.data.data;
 };
+
+export const connectProjectStream = (projectId: string) => {
+  return new EventSource(
+    `${import.meta.env.VITE_BASE_URL}/projects/structures/${projectId}/stream`,
+  );
+};

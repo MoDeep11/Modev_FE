@@ -2,6 +2,22 @@ import axios from "axios";
 
 const BaseURL: string = import.meta.env.VITE_BASE_URL;
 
+// 🔧 request/response 인터셉터에서 공통으로 쓰도록 바깥으로 분리
+const skipUrls = [
+  "/auth/login",
+  "/auth/signup",
+  "/auth/email/verify",
+  "/auth/email/send",
+  "/auth/token/refresh",
+  "/projects/structures", // 프로젝트 생성/조회/스트림 관련 API (토큰 불필요)
+  "/projects/status",
+  "/projects/detail",
+  "/projects/file",
+];
+
+const isSkipUrl = (url?: string) =>
+  !!url && skipUrls.some((skipUrl) => url.includes(skipUrl));
+
 export const api = axios.create({
   baseURL: BaseURL,
   timeout: 5000,
@@ -12,15 +28,8 @@ export const api = axios.create({
 let currentRefreshPromise: Promise<string> | null = null;
 
 api.interceptors.request.use((config) => {
-  const skipUrls = [
-    "/auth/login",
-    "/auth/signup",
-    "/auth/email/verify",
-    "/auth/email/send",
-    "/auth/token/refresh",
-  ];
-
-  if (skipUrls.some((url) => config.url?.includes(url))) return config;
+  // 토큰이 필요 없는 API는 Authorization을 붙이지 않음
+  if (isSkipUrl(config.url)) return config;
 
   const accessToken = localStorage.getItem("accessToken");
   if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
@@ -31,6 +40,12 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const config = error.config;
+
+    // 🔧 핵심 수정: 토큰이 필요 없는 공개 API는 401이 떠도
+    // refresh-token 로직(로그인 페이지 강제 이동)을 타지 않고 그대로 에러를 반환
+    if (isSkipUrl(config?.url)) {
+      return Promise.reject(error);
+    }
 
     if (error.response?.status === 401 && !config._retry) {
       config._retry = true;
