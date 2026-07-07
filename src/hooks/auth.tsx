@@ -29,10 +29,7 @@ export const useSendEmail = () => {
         toast.error("이미 인증된 계정입니다");
       else if (errorCode === "RESEND_RATE_LIMIT")
         toast.error("재발송 횟수가 초과되었습니다");
-      else
-        toast.error(
-          "이메일 재전송 중 오류가 발생했습니다.",
-        );
+      else toast.error("이메일 재전송 중 오류가 발생했습니다.");
     },
   });
 };
@@ -42,12 +39,18 @@ const getErrorCode = (error: AxiosError<ErrorResponse>) =>
 
 export const useCheckEmail = () => {
   const navigate = useNavigate();
+
   return useMutation({
     mutationFn: emailCheck,
 
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       toast.success("이메일이 인증되었습니다!");
-      navigate("/login");
+
+      navigate("/signup", {
+        state: {
+          email: variables.email,
+        },
+      });
     },
 
     onError: (error: AxiosError<ErrorResponse>) => {

@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 export default function Signup() {
   const navigate = useNavigate();
   const location = useLocation();
-  const email = location.state?.userEmail || "";
+  const email = location.state?.email || "";
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
 
@@ -17,7 +17,7 @@ export default function Signup() {
 
   const PasswordInput = (e) => setPassword(e.target.value);
   const CheckPasswordInput = (e) => setPasswordConfirm(e.target.value);
-
+  
   useEffect(() => {
     if (!email) {
       toast.error("이메일을 먼저 입력해주세요");

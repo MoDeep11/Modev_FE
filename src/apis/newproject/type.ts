@@ -13,7 +13,7 @@ export interface GetProjectStatusResponse {
 }
 
 export interface GetFileContentProps {
-  projectId: number;
+  projectId: string;
   filePath: string;
 }
 

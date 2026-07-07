@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getProjectStatus, getFileContent } from "../apis/newproject";
 
-export const useProjectStatus = (projectId: number) => {
+export const useProjectStatus = (projectId: string) => {
   return useQuery({
     queryKey: ["projectStatus", projectId],
     queryFn: () => getProjectStatus(projectId),
