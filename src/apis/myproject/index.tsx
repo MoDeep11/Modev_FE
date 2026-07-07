@@ -8,16 +8,17 @@ import type {
 export const getMyProjects = async (
   params?: GetProjectsParams,
 ): Promise<GetProjectsResponse> => {
-  const response = await api.get<GetProjectsResponse>(`/projects`, {
+  const response = await api.get("/projects", {
     params: {
       ...params,
       keyword: params?.keyword?.trim() || undefined,
     },
   });
+
   return response.data;
 };
 
 export const deleteProject = async ({ projectId }: DeleteProjectProps) => {
-  const response = await api.delete(`/projects/${projectId}`);
-  return response;
+  const { data } = await api.delete(`/projects/${projectId}`);
+  return data;
 };
