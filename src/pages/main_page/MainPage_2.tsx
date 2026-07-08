@@ -96,7 +96,7 @@ const Main = () => {
               <img src={Arrow} width={16} height={16} alt="" />
             </>
           )}
-          <Process num={isModify ? 1 : 2} text="開發 분야 선택" use={true} />
+          <Process num={isModify ? 1 : 2} text="개발 분야 선택" use={true} />
           <img src={Arrow} width={16} height={16} alt="" />
           <Process num={isModify ? 2 : 3} text="기술 스택 선택" use={false} />
           <img src={Arrow} width={16} height={16} alt="" />
@@ -158,7 +158,12 @@ const Main = () => {
           </Choice_box>
         </Main_section>
 
-        <Btn_box style={{ justifyContent: "flex-end" }}>
+        <Btn_box style={isModify ? { justifyContent: "flex-end" } : undefined}>
+          {!isModify && (
+            <Before onClick={() => navigate("/main-1")}>
+              <img src={Arrow} alt="" /> 이전
+            </Before>
+          )}
           <Next onClick={handleNextStep}>
             다음 단계 <img src={Arrow} alt="" />
           </Next>
@@ -211,6 +216,24 @@ const Next = styled.div`
   font-weight: 600;
   gap: 10px;
   cursor: pointer;
+`;
+const Before = styled.div`
+  width: 118px;
+  height: 40px;
+  color: #fff;
+  background-color: #000;
+  border: 1px solid #4a4a6a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  gap: 10px;
+  cursor: pointer;
+  img {
+    rotate: calc(180deg);
+  }
 `;
 const Title_box = styled.div`
   display: flex;
