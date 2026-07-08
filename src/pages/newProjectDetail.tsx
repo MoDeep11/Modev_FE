@@ -30,7 +30,10 @@ export default function NewProjectDatail() {
   return (
     <>
       <WrapperAll>
-        <HeaderV2 text="로그아웃" page="내 프로젝트" />
+        <HeaderV2
+          text={localStorage.getItem("accessToken") ? "로그아웃" : "로그인"}
+          page="프로젝트 빌더"
+        />
 
         <WrapperContainer>
           <Wrapper>

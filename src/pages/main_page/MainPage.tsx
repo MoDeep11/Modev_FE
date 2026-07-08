@@ -115,7 +115,9 @@ const Main = () => {
 
   return (
     <>
-      <HeaderV2 text="로그아웃" page="프로젝트 빌더" />
+      <HeaderV2
+        text={localStorage.getItem("accessToken") ? "로그아웃" : "로그인"}
+        page="프로젝트 빌더"
       <Body>
         <Main_top $isModify={isModify}>
           <Process num={1} text="프로젝트 생성" use={true} />
