@@ -5,18 +5,18 @@ import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 export default function DownloadFile() {
+  console.log("DownloadFile 렌더링됨");
   const { mutate: download, isPending } = useDownloadZip();
   const { id } = useParams<{ id: string }>();
 
   const downloadFunc = () => {
+    console.log("클릭됨, id:", id); // 이게 안 찍히면 onClick 자체가 안 붙은 것
     if (!id) {
-      toast.error("프로젝트를 찾을 수 없습니다.");
+      toast.error("오류가 발생했습니다.");
       return;
     }
-
-    download({
-      projectId: id,
-    });
+    console.log("download 호출 직전");
+    download({ projectId: id });
   };
 
   return (

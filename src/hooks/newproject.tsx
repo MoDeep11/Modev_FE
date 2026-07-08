@@ -9,10 +9,10 @@ export const useProjectStatus = (projectId: string) => {
   });
 };
 
-export const useFileContent = (projectId: number, filePath: string) => {
+export const useFileContent = (projectId: string, filePath: string) => {
   return useQuery({
     queryKey: ["fileContent", projectId, filePath],
     queryFn: () => getFileContent({ projectId, filePath }),
-    enabled: Number.isFinite(projectId) && projectId > 0 && !!filePath,
+    enabled: !!projectId && !!filePath,
   });
 };

@@ -28,7 +28,7 @@ function App() {
       <Route path="/main-2" element={<Main_2 />} />
       <Route path="/main-3" element={<Main_3 />} />
       <Route path="/main-4" element={<Main_4 />} />
-      <Route path="/main-modify" element={<Main />} />
+      <Route path="/main-modify/:id" element={<Main />} />
       <Route path="/main-md-2" element={<Main_2 />} />
       <Route path="/main-md-3" element={<Main_3 />} />
       <Route path="/main-md-4" element={<Main_4 />} />

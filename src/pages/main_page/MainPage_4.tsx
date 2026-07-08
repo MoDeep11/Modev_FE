@@ -10,16 +10,16 @@ import Process from "../../components/main_com/TopProcess";
 import Skill from "../../components/choice/SkillBlock";
 import Search_img from "../../assets/search.svg";
 import { useProjectForm } from "../../hooks/useProjectForm";
-<<<<<<< HEAD
 import { useMutation, useQuery } from "@tanstack/react-query";
+
 import {
   createProject,
+  updateProject,
+  getProjectDetail,
   getProjectDependencies,
+  generateAIStructure,
 } from "../../apis/project/index";
-=======
-import { useMutation, useQuery } from "@tanstack/react-query"; 
-import { createProject, updateProject, getProjectDetail, getProjectDependencies, generateAIStructure } from "../../apis/project/index"; 
->>>>>>> origin/develop
+
 import type { ProjectPayload, ServerDependency } from "../../apis/project/type";
 
 const stackTitleMap: Record<string, string> = {
@@ -49,17 +49,12 @@ const Main = () => {
     }
   }, []);
 
-<<<<<<< HEAD
   // ✅ stackIds는 API 필수 파라미터라, 세션에서 selectedStackIds가 복원된 뒤에만 조회 가능
   const {
     data: serverData,
     isError: isDepsError,
     error: depsError,
   } = useQuery({
-=======
-  // 1. 의존성 목록 가져오기
-  const { data: serverData, isError: isDepsError, error: depsError } = useQuery({
->>>>>>> origin/develop
     queryKey: ["projectDependencies", selectedStackIds],
     queryFn: async () => {
       console.log(
@@ -77,7 +72,6 @@ const Main = () => {
     enabled: selectedStackIds.length > 0,
   });
 
-<<<<<<< HEAD
   useEffect(() => {
     if (isDepsError) {
       console.error(
@@ -87,7 +81,7 @@ const Main = () => {
       );
     }
   }, [isDepsError, depsError]);
-=======
+
   // 2. 수정 모드 데이터 로드하기
   const { data: projectResponse } = useQuery({
     queryKey: ["projectDetail", projectId],
@@ -97,20 +91,29 @@ const Main = () => {
     },
     enabled: isModify && !!projectId,
   });
->>>>>>> origin/develop
 
   const allDependencies: ServerDependency[] =
     serverData?.data?.dependencies ?? [];
 
   // 3. 기존 의존성 복원 처리
   useEffect(() => {
-    if (isModify && projectResponse?.data?.dependencies && allDependencies.length > 0) {
+    if (
+      isModify &&
+      projectResponse?.data?.dependencies &&
+      allDependencies.length > 0
+    ) {
       const savedDeps = projectResponse.data.dependencies;
-      const restored = allDependencies.filter((d) => 
-        savedDeps.some((sd: any) => sd.dependencyId === d.dependencyId || sd.name === d.name)
+      const restored = allDependencies.filter((d) =>
+        savedDeps.some(
+          (sd: any) => sd.dependencyId === d.dependencyId || sd.name === d.name,
+        ),
       );
       setSelectedDeps(restored);
-      console.log("%c🔄 [수정 모드] 기존 선택 의존성 복원 완료:", "color: #ff9f43; font-weight: bold;", restored);
+      console.log(
+        "%c🔄 [수정 모드] 기존 선택 의존성 복원 완료:",
+        "color: #ff9f43; font-weight: bold;",
+        restored,
+      );
     }
   }, [isModify, projectResponse, allDependencies]);
 
@@ -129,12 +132,6 @@ const Main = () => {
     }
   }, [allDependencies, isModify]);
 
-  useEffect(() => {
-    if (isDepsError) {
-      console.error("%c❌ [GET] 의존성 목록 요청 실패:", "color: #ff4d4d; font-weight: bold;", depsError);
-    }
-  }, [isDepsError, depsError]);
-
   const handleToggleCategory = (categoryId: string) => {
     if (collapsedCategories.includes(categoryId)) {
       setCollapsedCategories(
@@ -148,51 +145,28 @@ const Main = () => {
   // 신규 생성 또는 업데이트 연동 Mutation 처리
   const projectMutation = useMutation({
     mutationFn: async (payload: ProjectPayload) => {
-<<<<<<< HEAD
-      console.log(
-        "%c🚀 [POST] 서버 전송 시작 -> 엔드포인트: /projects",
-        "color: #ff007f; font-weight: bold;",
-      );
-      console.log("%c📦 REQUEST BODY (Payload):", "color: #ff007f;", payload);
-      return await createProject(payload);
-    },
-    onSuccess: (response) => {
-      console.log(
-        "%c🎉 [POST] RESPONSE 성공 데이터 수신 완료:",
-        "color: #00ff87; font-weight: bold;",
-        response,
-      );
-      const generatedProjectId = response?.data?.projectId;
-      alert("🎉 프로젝트가 성공적으로 생성되었습니다!");
-      sessionStorage.removeItem("projectForm");
-
-      if (isModify) {
-        navigate(`/project-detail/${projectId}`);
-      } else {
-        navigate(`/build-progress/${generatedProjectId}`);
-      }
-    },
-    onError: (error) => {
-      console.error(
-        "%c❌ [POST] 프로젝트 생성 실패:",
-        "color: #ff4d4d; font-weight: bold;",
-        error,
-      );
-      alert("⚠️ 프로젝트 생성 중 서버 오류가 발생했습니다.");
-    },
-=======
       if (isModify && projectId) {
-        console.log("%c🚀 [PUT] 서버 수정 요청 시작 -> /projects/" + projectId, "color: #ff007f; font-weight: bold;");
+        console.log(
+          "%c🚀 [PUT] 서버 수정 요청 시작 -> /projects/" + projectId,
+          "color: #ff007f; font-weight: bold;",
+        );
         return await updateProject({ projectId, data: payload });
       } else {
-        console.log("%c🚀 [POST] 서버 생성 요청 시작 -> /projects", "color: #ff007f; font-weight: bold;");
+        console.log(
+          "%c🚀 [POST] 서버 생성 요청 시작 -> /projects",
+          "color: #ff007f; font-weight: bold;",
+        );
         return await createProject(payload);
       }
     },
     onSuccess: async (response) => {
-      console.log("%c🎉 성공 데이터 수신 완료:", "color: #00ff87; font-weight: bold;", response);
-      
-      const activeProjectId = projectId || response?.data?.projectId || response?.projectId;
+      console.log(
+        "%c🎉 성공 데이터 수신 완료:",
+        "color: #00ff87; font-weight: bold;",
+        response,
+      );
+
+      const activeProjectId = projectId || response?.data?.projectId;
 
       if (!activeProjectId) {
         alert("⚠️ 프로젝트 ID를 특정할 수 없습니다.");
@@ -202,23 +176,34 @@ const Main = () => {
       sessionStorage.setItem("currentProjectId", String(activeProjectId));
 
       try {
-        console.log(`📡 AI 구조 빌드 연쇄 요청 시작 (/projects/structures -> id: ${activeProjectId})`);
+        console.log(
+          `📡 AI 구조 빌드 연쇄 요청 시작 (/projects/structures -> id: ${activeProjectId})`,
+        );
         await generateAIStructure(String(activeProjectId));
-        
-        alert(isModify ? "🎉 프로젝트가 성공적으로 수정되었습니다!" : "🎉 프로젝트가 성공적으로 생성되었습니다!");
+
+        alert(
+          isModify
+            ? "🎉 프로젝트가 성공적으로 수정되었습니다!"
+            : "🎉 프로젝트가 성공적으로 생성되었습니다!",
+        );
         sessionStorage.removeItem("projectForm");
-        
-        navigate(isModify ? `/project-detail/${activeProjectId}` : "/build-progress");
+
+        navigate(
+          isModify
+            ? `/project-detail/${activeProjectId}`
+            : `/build-progress/${activeProjectId}`,
+        );
       } catch (error) {
         console.error("❌ AI 구조 생성 API 에러:", error);
-        alert("⚠️ 프로젝트 메타 구조 처리는 반영되었으나, AI 빌드 컨텍스트 전송 중 에러가 발생했습니다.");
+        alert(
+          "⚠️ 프로젝트 메타 구조 처리는 반영되었으나, AI 빌드 컨텍스트 전송 중 에러가 발생했습니다.",
+        );
       }
     },
     onError: (error) => {
       console.error("❌ 처리 실패:", error);
       alert("⚠️ 서버 통신 중 오류가 발생했습니다.");
-    }
->>>>>>> origin/develop
+    },
   });
 
   const filteredDeps = allDependencies.filter((dep) => {
@@ -297,7 +282,9 @@ const Main = () => {
         <Main_section>
           <Title_box>
             <Sec_title>프로젝트 세부 라이브러리 및 의존성 구성</Sec_title>
-            <Sec_text>선택한 프레임워크 스택과 호환되는 유용한 라이브러리 꾸러미입니다.</Sec_text>
+            <Sec_text>
+              선택한 프레임워크 스택과 호환되는 유용한 라이브러리 꾸러미입니다.
+            </Sec_text>
           </Title_box>
 
           <Search_container>
@@ -417,10 +404,6 @@ const Main = () => {
   );
 };
 
-<<<<<<< HEAD
-=======
-// ─── 스타일 컴포넌트 원본 100% 보존 ───
->>>>>>> origin/develop
 const Body = styled.div`
   width: 100%;
   min-height: calc(100vh - 64px);
@@ -477,7 +460,9 @@ const Before = styled.div`
   font-size: 16px;
   font-weight: 600;
   gap: 10px;
-  img { rotate: calc(180deg); }
+  img {
+    rotate: calc(180deg);
+  }
 `;
 const Title_box = styled.div`
   display: flex;
@@ -568,8 +553,12 @@ const Search_input = styled.input`
   border: none;
   color: #fff;
   background-color: ${Colors.background.overlay};
-  &:focus { outline: none; }
-  &:placeholder-shown { color: ${Colors.text.disabled}; }
+  &:focus {
+    outline: none;
+  }
+  &:placeholder-shown {
+    color: ${Colors.text.disabled};
+  }
 `;
 const Search_bar = styled.div`
   display: flex;
