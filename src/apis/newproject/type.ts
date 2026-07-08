@@ -1,7 +1,8 @@
 export interface FileTreeNode {
   name: string;
+  path: string;
   type: "FILE" | "DIRECTORY";
-  children: FileTreeNode[];
+  children?: FileTreeNode[];
 }
 
 export interface GetProjectStatusResponse {
