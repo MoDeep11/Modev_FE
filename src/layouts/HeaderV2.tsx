@@ -16,6 +16,9 @@ export default function HeaderV2({ text, page }: HeaderProps) {
   const Button = text === "로그인" ? LoginButton : LogoutButton;
 
   const handleProjectBuilderClick = () => {
+    sessionStorage.removeItem("projectForm");
+    sessionStorage.removeItem("createdProject");
+    sessionStorage.removeItem("currentProjectId");
     navigate("/main");
   };
 
