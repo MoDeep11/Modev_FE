@@ -13,6 +13,8 @@ import { useProjectForm } from "../../hooks/useProjectForm";
 import { useQuery } from "@tanstack/react-query";
 import { getDevStacks, getProjectDetail } from "../../apis/project/index";
 import type { ServerStack } from "../../apis/project/type";
+import ExitModal from "../../components/modal/ExitModal";
+import { useWizardExitGuard } from "../../hooks/Wizardpaths";
 
 const categoryTitleMap: Record<string, string> = {
   domain_fe: "Frontend",
@@ -26,6 +28,7 @@ const Main = () => {
   const location = useLocation();
   const { projectId } = useParams<{ projectId: string }>();
   const { saveStepData } = useProjectForm();
+  const { isExitModalOpen, guardedNavigate, confirmExit, cancelExit } = useWizardExitGuard();
 
   const isModify = !!projectId && location.pathname.startsWith("/main-md-3/");
 
@@ -286,7 +289,7 @@ const Main = () => {
         <Btn_box>
           <Before
             onClick={() =>
-              navigate(isModify ? `/main-md-2/${projectId}` : "/main-2")
+              guardedNavigate(isModify ? `/main-md-2/${projectId}` : "/main-2")
             }
           >
             <img src={Arrow} alt="" />
@@ -298,9 +301,28 @@ const Main = () => {
           </Next>
         </Btn_box>
       </Body>
+
+      {isExitModalOpen && (
+        <ModalOverlay>
+          <ExitModal onCancel={cancelExit} onConfirm={confirmExit} />
+        </ModalOverlay>
+      )}
     </>
   );
 };
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
 
 const Body = styled.div`
   width: 100%;

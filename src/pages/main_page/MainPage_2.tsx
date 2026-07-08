@@ -11,12 +11,15 @@ import { useProjectForm } from "../../hooks/useProjectForm";
 import { useQuery } from "@tanstack/react-query";
 import { getDevFields, getProjectDetail } from "../../apis/project/index";
 import type { ServerField } from "../../apis/project/type";
+import ExitModal from "../../components/modal/ExitModal";
+import { useWizardExitGuard } from "../../hooks/Wizardpaths";
 
 const Main = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { projectId } = useParams<{ projectId: string }>();
   const { saveStepData } = useProjectForm();
+  const { isExitModalOpen, guardedNavigate, confirmExit, cancelExit } = useWizardExitGuard();
 
   const isModify = !!projectId && location.pathname.startsWith("/main-md-2/");
   const [selectedFields, setSelectedFields] = useState<ServerField[]>([]);
@@ -160,7 +163,7 @@ const Main = () => {
 
         <Btn_box style={isModify ? { justifyContent: "flex-end" } : undefined}>
           {!isModify && (
-            <Before onClick={() => navigate("/main-1")}>
+            <Before onClick={() => guardedNavigate("/")}>
               <img src={Arrow} alt="" /> 이전
             </Before>
           )}
@@ -169,9 +172,28 @@ const Main = () => {
           </Next>
         </Btn_box>
       </Body>
+
+      {isExitModalOpen && (
+        <ModalOverlay>
+          <ExitModal onCancel={cancelExit} onConfirm={confirmExit} />
+        </ModalOverlay>
+      )}
     </>
   );
 };
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
 
 const Body = styled.div`
   width: 100%;

@@ -24,6 +24,8 @@ import type {
   UpdateStacksPayload,
   ServerDependency,
 } from "../../apis/project/type";
+import ExitModal from "../../components/modal/ExitModal";
+import { useWizardExitGuard } from "../../hooks/Wizardpaths";
 
 const stackTitleMap: Record<string, string> = {
   stack_spring: "Spring Boot 관련 라이브러리",
@@ -36,6 +38,7 @@ const Main = () => {
   const location = useLocation();
   const { projectId } = useParams<{ projectId: string }>();
   const { saveStepData } = useProjectForm();
+  const { isExitModalOpen, guardedNavigate, confirmExit, cancelExit } = useWizardExitGuard();
 
   const isModify = !!projectId && location.pathname.startsWith("/main-md-4/");
 
@@ -417,7 +420,7 @@ const Main = () => {
         <Btn_box>
           <Before
             onClick={() =>
-              navigate(isModify ? `/main-md-3/${projectId}` : "/main-3")
+              guardedNavigate(isModify ? `/main-md-3/${projectId}` : "/main-3")
             }
           >
             <img src={Arrow} alt="" />
@@ -429,9 +432,28 @@ const Main = () => {
           </Next>
         </Btn_box>
       </Body>
+
+      {isExitModalOpen && (
+        <ModalOverlay>
+          <ExitModal onCancel={cancelExit} onConfirm={confirmExit} />
+        </ModalOverlay>
+      )}
     </>
   );
 };
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
 
 // ─── 스타일 컴포넌트 원본 100% 보존 ───
 const Body = styled.div`

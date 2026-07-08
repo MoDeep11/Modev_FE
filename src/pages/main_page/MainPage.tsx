@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import HeaderV2 from "../../layouts/HeaderV2";
 import styled from "@emotion/styled";
 import { Colors } from "../../styles/color";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import Arrow from "../../assets/Arrow.svg";
 import Process from "../../components/main_com/TopProcess";
 import { useProjectForm } from "../../hooks/useProjectForm";
@@ -11,16 +11,31 @@ import {
   getProjectDetail,
   updateProjectMetadata,
 } from "../../apis/project/index";
+import ExitModal from "../../components/modal/ExitModal";
+import { useWizardExitGuard } from "../../hooks/Wizardpaths";
 
 const Main = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { projectId } = useParams<{ projectId: string }>();
 
   const { saveStepData } = useProjectForm();
   const isModify = !!projectId && location.pathname.startsWith("/main-modify/");
+  const { isExitModalOpen, guardedNavigate, confirmExit, cancelExit } = useWizardExitGuard();
 
   const [projectName, setProjectName] = useState("");
   const [projectDesc, setProjectDesc] = useState("");
+
+  // 생성 모드에서 2페이지 등으로 갔다 돌아왔을 때, 이미 입력했던 이름/설명을 복원
+  useEffect(() => {
+    if (isModify) return;
+    const savedForm = sessionStorage.getItem("projectForm");
+    if (savedForm) {
+      const { projectName: savedName, description: savedDesc } = JSON.parse(savedForm);
+      if (savedName) setProjectName(savedName);
+      if (savedDesc) setProjectDesc(savedDesc);
+    }
+  }, [isModify]);
 
   const {
     data: projectResponse,
@@ -172,7 +187,7 @@ const Main = () => {
         </Main_section>
 
         {isModify && (
-          <Before onClick={() => navigate("/myproject")}>취소</Before>
+          <Before onClick={() => guardedNavigate("/myproject")}>취소</Before>
         )}
 
         <Next onClick={handleNextStep}>
@@ -180,9 +195,28 @@ const Main = () => {
           {!isModify && <img src={Arrow} alt="" />}
         </Next>
       </Body>
+
+      {isExitModalOpen && (
+        <ModalOverlay>
+          <ExitModal onCancel={cancelExit} onConfirm={confirmExit} />
+        </ModalOverlay>
+      )}
     </>
   );
 };
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
 
 const Body = styled.div`
   width: 100%;
