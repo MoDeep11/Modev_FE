@@ -2,9 +2,8 @@ import styled from "styled-components";
 import HeaderV2 from "../layouts/HeaderV2";
 import { Colors } from "../styles/color";
 import ProgressBar from "../components/Build/progressBar";
-import under from "../assets/under.svg";
 import FileTree from "../components/common/FileTree";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useProjectStatus } from "../hooks/newproject";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -24,6 +23,8 @@ export default function BuildProgress() {
   const { projectId } = useParams<{ projectId: string }>();
   const [selectedFile, setSelectedFile] = useState("");
   const [projectForm, setProjectForm] = useState<any>({});
+
+  const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState<"field" | "stack" | "dependency">(
     "field",
@@ -278,7 +279,7 @@ export default function BuildProgress() {
             </BottomWrapper>
 
             <Bottom>
-              <ResetButton>처음으로</ResetButton>
+              <ResetButton onClick={() => navigate("/")}>처음으로</ResetButton>
               <DownloadZipButton />
             </Bottom>
           </Wrapper>
@@ -287,8 +288,6 @@ export default function BuildProgress() {
     </>
   );
 }
-
-// ...styled-components 부분은 기존과 동일하게 유지...
 
 const Wrapper = styled.div`
   position: absolute;

@@ -300,10 +300,5 @@ const Dev_box = styled.div`
   flex-wrap: wrap;
   gap: 24px 20px;
 `;
-const Choice_text = styled.div`
-  color: ${Colors.text.disabled};
-  font-size: 14px;
-  margin-top: auto;
-`;
 
 export default Main;
