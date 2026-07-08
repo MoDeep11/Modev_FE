@@ -22,11 +22,8 @@ export default function NewProjectDatail() {
     } catch {}
   };
 
-  const { data: projectData } = useProjectStatus(Number(id));
-  const { data: fileData, isLoading } = useFileContent(
-    Number(id),
-    selectedFile,
-  );
+  const { data: projectData } = useProjectStatus(id ?? "");
+  const { data: fileData, isLoading } = useFileContent(id ?? "", selectedFile);
 
   const fileTree = projectData?.result?.fileTree ?? [];
 

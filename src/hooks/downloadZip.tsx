@@ -6,6 +6,22 @@ import { AxiosError } from "axios";
 export const useNewDownloadZip = () => {
   return useMutation({
     mutationFn: newDownloadZip,
+    
+
+    onSuccess: (res) => {
+      const url = res.data?.downloadUrl;
+      const fileName = res.data?.fileName ?? "project.zip";
+      if (!url) {
+        toast.error("다운로드 URL을 가져오지 못했습니다.");
+        return;
+      }
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    },
 
     onError: () => {
       toast.error("다운로드에 실패했습니다.");
@@ -16,6 +32,21 @@ export const useNewDownloadZip = () => {
 export const useDownloadZip = () => {
   return useMutation({
     mutationFn: DownloadZip,
+
+    onSuccess: (res) => {
+      const url = res.data?.downloadUrl;
+      const fileName = res.data?.fileName ?? "project.zip";
+      if (!url) {
+        toast.error("다운로드 URL을 가져오지 못했습니다.");
+        return;
+      }
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    },
 
     onError: (error: AxiosError<any>) => {
       const code = error.response?.data?.error?.code;
