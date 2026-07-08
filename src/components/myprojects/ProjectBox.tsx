@@ -25,6 +25,8 @@ export default function ProjectBox({
   const visibleStacks = stacks.slice(0, MAX_VISIBLE_SKILLS);
   const hiddenCount = stacks.length - MAX_VISIBLE_SKILLS;
 
+  const formatDate = (date: string) => date.slice(0, 10);
+
   const handleClick = () => {
     navigate(`/project-detail/${projectId}`);
   };
@@ -41,13 +43,13 @@ export default function ProjectBox({
       <DateWrapper>
         <DateTitle>생성일</DateTitle>
         <ShortBorder />
-        <DetailDate>{createdAt}</DetailDate>
+        <DetailDate>{formatDate(createdAt)}</DetailDate>
       </DateWrapper>
 
       <DateWrapper style={{ marginBottom: "12px" }}>
         <DateTitle>최종 수정일</DateTitle>
         <ShortBorder />
-        <DetailDate>{lastModifiedAt}</DetailDate>
+        <DetailDate>{formatDate(lastModifiedAt)}</DetailDate>{" "}
       </DateWrapper>
 
       <SkillContainer>
@@ -82,17 +84,25 @@ const ShortBorder = styled.div`
 
 const SkillItem = styled.div`
   background-color: ${Colors.background.overlay};
-  width: 76px;
+  min-width: 76px;
+  width: fit-content;
+  max-width: 100%;
+
   height: 24px;
   padding: 4px 12px;
   border-radius: 50px;
+
   color: white;
   font-size: 12px;
+
   display: flex;
   justify-content: center;
   align-items: center;
+
   margin-top: auto;
   margin-right: 6px;
+
+  white-space: nowrap;
 `;
 
 const ProjectName = styled.div`
@@ -135,14 +145,19 @@ const DetailDate = styled.div`
 const Wrapper = styled.div`
   width: 100%;
   max-width: 360px;
-  height: 187px;
+  min-height: 187px;
+  height: fit-content;
+
   border: 1px solid ${Colors.background.overlay};
   background-color: ${Colors.background.base};
   padding: 16px 32px;
   border-radius: 12px;
+
   display: flex;
   flex-direction: column;
+
   cursor: pointer;
+
   transition:
     border-color 0.2s ease,
     transform 0.2s ease;
