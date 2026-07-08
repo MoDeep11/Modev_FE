@@ -10,9 +10,9 @@ import Main_2 from "./pages/main_page/MainPage_2";
 import Main_3 from "./pages/main_page/MainPage_3";
 import Main_4 from "./pages/main_page/MainPage_4";
 import NewProjectDatail from "./pages/newProjectDetail";
+import ProjectDetailCheck from "./pages/ProjectDatail";
 import { Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./layouts/ProtectedRoute";
-import ProjectDetailCheck from "./pages/ProjectDatail";
 
 function App() {
   return (
@@ -22,17 +22,6 @@ function App() {
       <Route path="/emailInput" element={<EmailInput />} />
       <Route path="/checkEmail" element={<CheckYourEmail />} />
       <Route path="/build-progress/:projectId" element={<BuildProgress />} />
-      <Route path="/project-detail/:id" element={<ProjectDetailCheck />} />
-      <Route path="/new-project-detail/:id" element={<NewProjectDatail />} />
-      <Route path="/main" element={<Main />} />
-      <Route path="/main-2" element={<Main_2 />} />
-      <Route path="/main-3" element={<Main_3 />} />
-      <Route path="/main-4" element={<Main_4 />} />
-      <Route path="/main-modify/:id" element={<Main />} />
-      <Route path="/main-md-2" element={<Main_2 />} />
-      <Route path="/main-md-3" element={<Main_3 />} />
-      <Route path="/main-md-4" element={<Main_4 />} />
-
       <Route
         path="/myproject"
         element={
@@ -41,6 +30,16 @@ function App() {
           </ProtectedRoute>
         }
       />
+      <Route path="/new-project-detail/:id" element={<NewProjectDatail />} />
+      <Route path="/project-detail/:id" element={<ProjectDetailCheck />} />
+      <Route path="/main" element={<Main />} />
+      <Route path="/main-2" element={<Main_2 />} />
+      <Route path="/main-3" element={<Main_3 />} />
+      <Route path="/main-4" element={<Main_4 />} />
+      <Route path="/main-modify/:projectId" element={<Main />} />
+      <Route path="/main-md-2/:projectId" element={<Main_2 />} />
+      <Route path="/main-md-3/:projectId" element={<Main_3 />} />
+      <Route path="/main-md-4/:projectId" element={<Main_4 />} />
     </Routes>
   );
 }

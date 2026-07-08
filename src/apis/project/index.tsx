@@ -7,7 +7,7 @@ import type {
   StacksResponse,
   DependenciesResponse,
   ProjectMetadataResponse,
-  ProjectDetail,
+  StructureStatusResponse,
   FileContent,
 } from "./type";
 
@@ -18,12 +18,13 @@ export const createProject = async (
   return response.data;
 };
 
+// ✅ 명세서 기준: body는 fieldIds/stackIds/dependencyIds 3개만, 응답은 {success,data:{projectId,status},error}
 export const updateProject = async ({
   projectId,
   data,
-}: UpdateProjectPayload): Promise<ProjectResponse> => {
-  const response = await api.put<ProjectResponse>(
-    `/projects/${projectId}`,
+}: UpdateProjectPayload): Promise<StructureStatusResponse> => {
+  const response = await api.patch<StructureStatusResponse>(
+    `/projects/${projectId}/stacks`,
     data,
   );
   return response.data;
@@ -54,9 +55,8 @@ export const getProjectDependencies = async (
   const response = await api.get<DependenciesResponse>(
     "/catalog/dependencies",
     {
-      // ✅ /projects/dependencies -> /catalog/dependencies (명세서 기준)
       params: {
-        stackIds: stackIds.join(","), // ✅ 필수 파라미터, 콤마 구분 문자열로 전달 (명세서 기준)
+        stackIds: stackIds.join(","),
         ...(keyword ? { keyword } : {}),
       },
     },
@@ -66,8 +66,10 @@ export const getProjectDependencies = async (
 
 export const getProjectDetail = async (
   projectId: string,
-): Promise<ProjectResponse> => {
-  const response = await api.get<ProjectResponse>(`/projects/${projectId}`);
+): Promise<ProjectMetadataResponse> => {
+  const response = await api.get<ProjectMetadataResponse>(
+    `/projects/${projectId}`,
+  );
   return response.data;
 };
 
@@ -82,32 +84,35 @@ export const updateProjectMetadata = async (
   return response.data;
 };
 
-export const getProject = async (projectId: string): Promise<ProjectDetail> => {
-  const response = await api.get<any>(`/projects/${projectId}`);
-  return response.data?.data ?? response.data;
-};
-
 export const getFileContent = async (
   projectId: string,
   filePath: string,
 ): Promise<FileContent> => {
-  const response = await api.get<{
-    success: boolean;
-    data: FileContent;
-    error: string | null;
-  }>(`/projects/structures/${projectId}/files`, {
-    params: { filePath },
-  });
-  return response.data.data;
+  const response = await api.get<FileContent>(
+    `/projects/structures/${projectId}/files`,
+    {
+      params: { filePath },
+    },
+  );
+
+  return response.data;
 };
 
 export const generateAIStructure = async (
   projectId: string,
-): Promise<{ projectId: string; status: string }> => {
-  const response = await api.post<{
-    success: boolean;
-    data: { projectId: string; status: string };
-    error: string | null;
-  }>("/projects/structures", { projectId });
-  return response.data.data;
+): Promise<StructureStatusResponse> => {
+  const response = await api.post<StructureStatusResponse>(
+    "/projects/structures",
+    { projectId },
+  );
+  return response.data;
+};
+
+export const getStructureStatus = async (
+  projectId: string,
+): Promise<StructureStatusResponse> => {
+  const response = await api.get<StructureStatusResponse>(
+    `/projects/structures/${projectId}`,
+  );
+  return response.data;
 };

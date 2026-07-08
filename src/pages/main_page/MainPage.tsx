@@ -87,7 +87,7 @@ const Main = () => {
 
       alert("🎉 프로젝트 메타데이터 수정 요청 성공!");
 
-      navigate("/project-detail");
+      navigate("/myproject");
     },
     onError: (error) => {
       console.error(

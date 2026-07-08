@@ -9,6 +9,7 @@ import DeleteProject from "../components/Button/DeleteProject";
 import FileTree from "../components/common/FileTree";
 import { useProject, useFileContent } from "../hooks/useProject";
 import { useProjectStatus } from "../hooks/newproject";
+import { Navigate, useNavigate } from "react-router-dom";
 
 type Tab = "fields" | "stacks" | "dependencies";
 
@@ -19,17 +20,26 @@ export default function ProjectDetailCheck() {
 
   const { data: structure } = useProjectStatus(id ?? "");
 
+  const navigation = useNavigate();
+
   const tree = structure?.result?.fileTree ?? [];
+
+  useEffect(() => {
+    console.log("selectedFile:", selectedFile);
+  }, [selectedFile]);
 
   useEffect(() => {
     setSelectedFile("");
   }, [id]);
 
   const {
-    data: project,
+    data: projectResponse,
     isLoading: projectLoading,
     isError: projectError,
   } = useProject(id ?? "");
+
+  const project = projectResponse?.data;
+
   const { data: fileData, isLoading: fileLoading } = useFileContent(
     id ?? "",
     selectedFile,
@@ -51,29 +61,28 @@ export default function ProjectDetailCheck() {
   const visibleDependencies = project.dependencies ?? [];
 
   const renderSummaryItems = () => {
-    if (activeTab === "fields") {
-      return visibleFields.map((field, index) => (
-        <SkillItem key={`${field}-${index}`}>{field}</SkillItem>
-      ));
-    }
+    switch (activeTab) {
+      case "fields":
+        return visibleFields.map((field, index) => (
+          <SkillItem key={`${field}-${index}`}>{field}</SkillItem>
+        ));
 
-    if (activeTab === "stacks") {
-      return visibleStacks.map((stack, index) => (
-        <SkillItem key={`${stack.stackId ?? stack.name}-${index}`}>
-          {stack.name}
-        </SkillItem>
-      ));
-    }
+      case "stacks":
+        return visibleStacks.map((stack, index) => (
+          <SkillItem key={`${stack.stackId}-${index}`}>{stack.name}</SkillItem>
+        ));
 
-    return visibleDependencies.map((dependency, index) => (
-      <SkillItem key={`${dependency.dependencyId ?? dependency.name}-${index}`}>
-        {dependency.name}
-      </SkillItem>
-    ));
+      case "dependencies":
+        return visibleDependencies.map((dependency, index) => (
+          <SkillItem key={`${dependency.dependencyId}-${index}`}>
+            {dependency.name}
+          </SkillItem>
+        ));
+    }
   };
 
-  console.log(project);
-  console.log(project.fileTree);
+  console.log("structure:", structure);
+  console.log("tree:", tree);
 
   return (
     <WrapperAll>
@@ -116,7 +125,13 @@ export default function ProjectDetailCheck() {
           <BottomWrapper>
             <FolderWrapper>
               {tree.length > 0 ? (
-                <FileTree nodes={tree} onFileClick={setSelectedFile} />
+                <FileTree
+                  nodes={tree}
+                  onFileClick={(path) => {
+                    console.log("clicked:", path);
+                    setSelectedFile(path);
+                  }}
+                />
               ) : (
                 <p style={{ color: "white" }}>
                   {project.fileTree?.status === "NOT_CREATED"
@@ -150,7 +165,16 @@ export default function ProjectDetailCheck() {
             <DeleteProject />
             <BottomRight>
               <DownloadFile />
-              <ModifySkillStack>기술 스택 수정</ModifySkillStack>
+
+              <ModifySkillStack
+                onClick={() => {
+                  sessionStorage.setItem("modifyProjectId", id ?? "");
+                  navigation(`/main-md-2/${id}`);
+                }}
+              >
+                기술 스택 수정
+              </ModifySkillStack>
+
               <Check>확인</Check>
             </BottomRight>
           </Bottom>
@@ -254,17 +278,22 @@ const FolderWrapper = styled.div`
 
 const SkillItem = styled.div`
   background-color: ${Colors.background.overlay};
-  width: 76px;
+
+  min-width: 76px;
   height: 24px;
+
   padding: 4px 12px;
   border-radius: 50px;
+
   color: white;
   font-size: 12px;
+
   display: flex;
   justify-content: center;
   align-items: center;
-`;
 
+  white-space: nowrap;
+`;
 const TopRightContainer = styled.div`
   display: flex;
   gap: 12px;

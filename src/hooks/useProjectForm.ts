@@ -27,13 +27,19 @@ export const useProjectForm = (projectId?: string) => {
     mutationFn: createProject,
     onSuccess: (data) => {
       console.log("📡 Create response:", data);
-      const projectId = data?.data?.projectId;
-      console.log("🆔 Extracted projectId:", projectId);
-      toast.success(`프로젝트가 성공적으로 생성되었습니다! ID: ${projectId}`);
+
+      // 💡 서버 응답 구조(data.data.projectId 등)에 맞게 생성된 ID를 추출합니다.
+      const newProjectId = sessionStorage.getItem(currentProjectId);
+      console.log("🆔 Extracted projectId:", newProjectId);
+
+      toast.success(
+        `프로젝트가 성공적으로 생성되었습니다! ID: ${newProjectId}`,
+      );
       sessionStorage.removeItem(SESSION_KEY);
-      // projectId와 함께 BuildProgress로 이동
-      if (projectId) {
-        navigate(`/build-progress/${projectId}`);
+
+      // 💡 생성된 ID를 가지고 생성 과정 페이지로 이동합니다.
+      if (newProjectId) {
+        navigate(`/build-progress/${newProjectId}`);
       }
     },
     onError: (error: AxiosError<ErrorResponse>) => {
@@ -49,7 +55,7 @@ export const useProjectForm = (projectId?: string) => {
     onSuccess: () => {
       toast.success("프로젝트 수정이 완료");
       sessionStorage.removeItem(SESSION_KEY);
-      navigate("/project-detail");
+      navigate(`/project-detail:${id}`);
     },
     onError: (error: AxiosError<ErrorResponse>) => {
       toast.error(

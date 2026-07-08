@@ -11,16 +11,19 @@ import Skill from "../../components/choice/SkillBlock";
 import Search_img from "../../assets/search.svg";
 import { useProjectForm } from "../../hooks/useProjectForm";
 import { useMutation, useQuery } from "@tanstack/react-query";
-
 import {
   createProject,
   updateProject,
   getProjectDetail,
   getProjectDependencies,
   generateAIStructure,
+  getStructureStatus,
 } from "../../apis/project/index";
-
-import type { ProjectPayload, ServerDependency } from "../../apis/project/type";
+import type {
+  ProjectPayload,
+  UpdateStacksPayload,
+  ServerDependency,
+} from "../../apis/project/type";
 
 const stackTitleMap: Record<string, string> = {
   stack_spring: "Spring Boot 관련 라이브러리",
@@ -49,7 +52,7 @@ const Main = () => {
     }
   }, []);
 
-  // ✅ stackIds는 API 필수 파라미터라, 세션에서 selectedStackIds가 복원된 뒤에만 조회 가능
+  // 1. 의존성 목록 가져오기
   const {
     data: serverData,
     isError: isDepsError,
@@ -71,16 +74,6 @@ const Main = () => {
     },
     enabled: selectedStackIds.length > 0,
   });
-
-  useEffect(() => {
-    if (isDepsError) {
-      console.error(
-        "%c❌ [GET] 의존성 목록 요청 실패:",
-        "color: #ff4d4d; font-weight: bold;",
-        depsError,
-      );
-    }
-  }, [isDepsError, depsError]);
 
   // 2. 수정 모드 데이터 로드하기
   const { data: projectResponse } = useQuery({
@@ -132,6 +125,16 @@ const Main = () => {
     }
   }, [allDependencies, isModify]);
 
+  useEffect(() => {
+    if (isDepsError) {
+      console.error(
+        "%c❌ [GET] 의존성 목록 요청 실패:",
+        "color: #ff4d4d; font-weight: bold;",
+        depsError,
+      );
+    }
+  }, [isDepsError, depsError]);
+
   const handleToggleCategory = (categoryId: string) => {
     if (collapsedCategories.includes(categoryId)) {
       setCollapsedCategories(
@@ -147,10 +150,17 @@ const Main = () => {
     mutationFn: async (payload: ProjectPayload) => {
       if (isModify && projectId) {
         console.log(
-          "%c🚀 [PUT] 서버 수정 요청 시작 -> /projects/" + projectId,
+          "%c🚀 [PATCH] 서버 수정 요청 시작 -> /projects/" +
+            projectId +
+            "/stacks",
           "color: #ff007f; font-weight: bold;",
         );
-        return await updateProject({ projectId, data: payload });
+        const stacksOnlyPayload: UpdateStacksPayload = {
+          fieldIds: payload.fieldIds,
+          stackIds: payload.stackIds,
+          dependencyIds: payload.dependencyIds,
+        };
+        return await updateProject({ projectId, data: stacksOnlyPayload });
       } else {
         console.log(
           "%c🚀 [POST] 서버 생성 요청 시작 -> /projects",
@@ -166,7 +176,8 @@ const Main = () => {
         response,
       );
 
-      const activeProjectId = projectId || response?.data?.projectId;
+      const activeProjectId =
+        projectId || response?.data?.projectId || response?.projectId;
 
       if (!activeProjectId) {
         alert("⚠️ 프로젝트 ID를 특정할 수 없습니다.");
@@ -176,10 +187,22 @@ const Main = () => {
       sessionStorage.setItem("currentProjectId", String(activeProjectId));
 
       try {
-        console.log(
-          `📡 AI 구조 빌드 연쇄 요청 시작 (/projects/structures -> id: ${activeProjectId})`,
-        );
-        await generateAIStructure(String(activeProjectId));
+        if (isModify) {
+          console.log(
+            `📡 [GET] 재생성 상태 확인 -> /projects/structures/${activeProjectId} (PATCH가 이미 재생성을 트리거함)`,
+          );
+          const statusRes = await getStructureStatus(String(activeProjectId));
+          console.log(
+            "%c✅ [GET] 재생성 상태 수신:",
+            "color: #00ff87; font-weight: bold;",
+            statusRes,
+          );
+        } else {
+          console.log(
+            `📡 [POST] AI 구조 생성 트리거 -> /projects/structures (id: ${activeProjectId})`,
+          );
+          await generateAIStructure(String(activeProjectId));
+        }
 
         alert(
           isModify
@@ -188,15 +211,17 @@ const Main = () => {
         );
         sessionStorage.removeItem("projectForm");
 
+        const storedProjectId = sessionStorage.getItem("currentProjectId");
+
         navigate(
           isModify
             ? `/project-detail/${activeProjectId}`
-            : `/build-progress/${activeProjectId}`,
+            : `/build-progress/${storedProjectId}`,
         );
       } catch (error) {
-        console.error("❌ AI 구조 생성 API 에러:", error);
+        console.error("❌ AI 구조 생성/상태 확인 API 에러:", error);
         alert(
-          "⚠️ 프로젝트 메타 구조 처리는 반영되었으나, AI 빌드 컨텍스트 전송 중 에러가 발생했습니다.",
+          "⚠️ 프로젝트 메타 구조 처리는 반영되었으나, AI 빌드 컨텍스트 처리 중 에러가 발생했습니다.",
         );
       }
     },
@@ -404,6 +429,7 @@ const Main = () => {
   );
 };
 
+// ─── 스타일 컴포넌트 원본 100% 보존 ───
 const Body = styled.div`
   width: 100%;
   min-height: calc(100vh - 64px);

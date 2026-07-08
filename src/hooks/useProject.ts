@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { getProject, getFileContent } from "../apis/project/index";
+import { getProjectDetail, getFileContent } from "../apis/project/index";
 
 export const useProject = (projectId: string) => {
   return useQuery({
     queryKey: ["project", projectId],
-    queryFn: () => getProject(projectId),
+    queryFn: () => getProjectDetail(projectId),
     enabled: !!projectId,
   });
 };
