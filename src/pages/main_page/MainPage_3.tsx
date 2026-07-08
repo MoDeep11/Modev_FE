@@ -26,7 +26,7 @@ const Main = () => {
   const location = useLocation();
   const { projectId } = useParams<{ projectId: string }>();
   const { saveStepData } = useProjectForm();
-  
+
   const isModify = !!projectId && location.pathname.startsWith("/main-md-3/");
 
   const [allowedFieldIds, setAllowedFieldIds] = useState<string[]>([]);
@@ -43,12 +43,23 @@ const Main = () => {
   }, []);
 
   // 1. 스택 풀 목록 가져오기
-  const { data: serverData, isError: isStacksError, error: stacksError } = useQuery({
+  const {
+    data: serverData,
+    isError: isStacksError,
+    error: stacksError,
+  } = useQuery({
     queryKey: ["devStacks", allowedFieldIds],
     queryFn: async () => {
-      console.log(`%c📡 [GET] 기술 스택 목록 요청 -> /catalog/stacks?fieldIds=${allowedFieldIds.join(",")}`, "color: #00d2ff; font-weight: bold;");
+      console.log(
+        `%c📡 [GET] 기술 스택 목록 요청 -> /catalog/stacks?fieldIds=${allowedFieldIds.join(",")}`,
+        "color: #00d2ff; font-weight: bold;",
+      );
       const res = await getDevStacks(allowedFieldIds);
-      console.log("%c✅ [GET] 기술 스택 목록 수신 성공:", "color: #00ff87; font-weight: bold;", res);
+      console.log(
+        "%c✅ [GET] 기술 스택 목록 수신 성공:",
+        "color: #00ff87; font-weight: bold;",
+        res,
+      );
       return res;
     },
     enabled: allowedFieldIds.length > 0,
@@ -70,11 +81,17 @@ const Main = () => {
   useEffect(() => {
     if (isModify && projectResponse?.data?.stacks && allStacks.length > 0) {
       const savedStacks = projectResponse.data.stacks;
-      const restored = allStacks.filter((s) => 
-        savedStacks.some((ss: any) => ss.stackId === s.stackId || ss.name === s.name)
+      const restored = allStacks.filter((s) =>
+        savedStacks.some(
+          (ss: any) => ss.stackId === s.stackId || ss.name === s.name,
+        ),
       );
       setSelectedStacks(restored);
-      console.log("%c🔄 [수정 모드] 기존 선택 스택 복원 완료:", "color: #ff9f43; font-weight: bold;", restored);
+      console.log(
+        "%c🔄 [수정 모드] 기존 선택 스택 복원 완료:",
+        "color: #ff9f43; font-weight: bold;",
+        restored,
+      );
     }
   }, [isModify, projectResponse, allStacks]);
 
@@ -85,7 +102,9 @@ const Main = () => {
       const parsed = JSON.parse(savedForm);
       const stackIdsFromSession: string[] = parsed.stackIds || [];
       if (stackIdsFromSession.length > 0) {
-        const restored = allStacks.filter((s) => stackIdsFromSession.includes(s.stackId));
+        const restored = allStacks.filter((s) =>
+          stackIdsFromSession.includes(s.stackId),
+        );
         setSelectedStacks(restored);
       }
     }
@@ -93,13 +112,19 @@ const Main = () => {
 
   useEffect(() => {
     if (isStacksError) {
-      console.error("%c❌ [GET] 기술 스택 목록 요청 실패:", "color: #ff4d4d; font-weight: bold;", stacksError);
+      console.error(
+        "%c❌ [GET] 기술 스택 목록 요청 실패:",
+        "color: #ff4d4d; font-weight: bold;",
+        stacksError,
+      );
     }
   }, [isStacksError, stacksError]);
 
   const handleToggleCategory = (fieldId: string) => {
     if (collapsedCategories.includes(fieldId)) {
-      setCollapsedCategories(collapsedCategories.filter((id) => id !== fieldId));
+      setCollapsedCategories(
+        collapsedCategories.filter((id) => id !== fieldId),
+      );
     } else {
       setCollapsedCategories([...collapsedCategories, fieldId]);
     }
@@ -109,13 +134,15 @@ const Main = () => {
     return stack.name.toLowerCase().includes(searchKeyword.toLowerCase());
   });
 
-  const groupedCategories = allowedFieldIds.map((fieldId) => {
-    return {
-      fieldId,
-      categoryName: categoryTitleMap[fieldId] || `${fieldId} 관련 스택`,
-      stacks: filteredStacks.filter((stack) => stack.fieldId === fieldId),
-    };
-  }).filter(group => group.stacks.length > 0);
+  const groupedCategories = allowedFieldIds
+    .map((fieldId) => {
+      return {
+        fieldId,
+        categoryName: categoryTitleMap[fieldId] || `${fieldId} 관련 스택`,
+        stacks: filteredStacks.filter((stack) => stack.fieldId === fieldId),
+      };
+    })
+    .filter((group) => group.stacks.length > 0);
 
   const handleSelectStack = (stack: ServerStack) => {
     if (selectedStacks.some((item) => item.stackId === stack.stackId)) {
@@ -126,7 +153,9 @@ const Main = () => {
   };
 
   const handleRemoveStack = (stackId: string) => {
-    setSelectedStacks(selectedStacks.filter((item) => item.stackId !== stackId));
+    setSelectedStacks(
+      selectedStacks.filter((item) => item.stackId !== stackId),
+    );
   };
 
   const handleNextStep = () => {
@@ -160,32 +189,34 @@ const Main = () => {
           <img src={Arrow} width={16} height={16} alt="" />
           <Process num={isModify ? 3 : 4} text="의존성 선택" use={false} />
         </Main_top>
-        
+
         <Main_section>
           <Title_box>
             <Sec_title>프로젝트의 주요 기술 스택을 구성해주세요.</Sec_title>
-            <Sec_text>2단계에서 선택한 분야를 바탕으로 필터링 된 기술 마켓입니다.</Sec_text>
+            <Sec_text>
+              2단계에서 선택한 분야를 바탕으로 필터링 된 기술 마켓입니다.
+            </Sec_text>
           </Title_box>
 
           <Search_container>
             <Search_bar>
-              <Search_input 
+              <Search_input
                 placeholder="스택명을 찾아보세요!"
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
               />
               <img src={Search_img} alt="" />
             </Search_bar>
-            
+
             <Choice_tag>
               <Choice_num>{selectedStacks.length}개 선택됨</Choice_num>
               {selectedStacks.length > 0 && <Line />}
               {selectedStacks.map((stack) => (
                 <Choice_option key={stack.stackId}>
                   {stack.name}
-                  <img 
-                    src={Cancel} 
-                    alt="삭제" 
+                  <img
+                    src={Cancel}
+                    alt="삭제"
                     onClick={() => handleRemoveStack(stack.stackId)}
                     style={{ cursor: "pointer" }}
                   />
@@ -197,31 +228,50 @@ const Main = () => {
           <Choice_box>
             {groupedCategories.length > 0 ? (
               groupedCategories.map((category) => {
-                const isCollapsed = collapsedCategories.includes(category.fieldId);
+                const isCollapsed = collapsedCategories.includes(
+                  category.fieldId,
+                );
 
                 return (
                   <Skill_container key={category.fieldId}>
-                    <Skill_category onClick={() => handleToggleCategory(category.fieldId)} style={{ cursor: "pointer" }}>
+                    <Skill_category
+                      onClick={() => handleToggleCategory(category.fieldId)}
+                      style={{ cursor: "pointer" }}
+                    >
                       {category.categoryName}
-                      <FoldIcon src={Fold} width={16} height={16} alt="토글" isCollapsed={isCollapsed} />
+                      <FoldIcon
+                        src={Fold}
+                        width={16}
+                        height={16}
+                        alt="토글"
+                        isCollapsed={isCollapsed}
+                      />
                     </Skill_category>
-                    
+
                     {!isCollapsed && (
                       <Skill_box>
                         {category.stacks.map((stack) => {
-                          const isSelected = selectedStacks.some(item => item.stackId === stack.stackId);
+                          const isSelected = selectedStacks.some(
+                            (item) => item.stackId === stack.stackId,
+                          );
                           return (
-                            <div 
-                              key={stack.stackId} 
+                            <div
+                              key={stack.stackId}
                               onClick={() => handleSelectStack(stack)}
-                              style={{ 
+                              style={{
                                 cursor: "pointer",
                                 borderRadius: "12px",
-                                outline: isSelected ? `2px solid ${Colors.brand.default}` : "none",
-                                transition: "all 0.1s ease"
+                                outline: isSelected
+                                  ? `2px solid ${Colors.brand.default}`
+                                  : "none",
+                                transition: "all 0.1s ease",
                               }}
                             >
-                              <Skill title={stack.name} text={stack.description} isSelected={isSelected} />
+                              <Skill
+                                title={stack.name}
+                                text={stack.description}
+                                isSelected={isSelected}
+                              />
                             </div>
                           );
                         })}
@@ -231,17 +281,23 @@ const Main = () => {
                 );
               })
             ) : (
-              <NoDataText>2단계에서 선택한 분야가 없거나 조건에 맞는 데이터가 없습니다.</NoDataText>
+              <NoDataText>
+                2단계에서 선택한 분야가 없거나 조건에 맞는 데이터가 없습니다.
+              </NoDataText>
             )}
-            <Choice_text>선택 목록에 없는 스택은 인프라 구성 시 기본 템플릿으로 연동됩니다.</Choice_text>
+            <Choice_text>
+              선택 목록에 없는 스택은 인프라 구성 시 기본 템플릿으로 연동됩니다.
+            </Choice_text>
           </Choice_box>
         </Main_section>
-        
-        <Btn_box>
-          <Before onClick={() => navigate(isModify ? `/main-md-2/${projectId}` : "/main-2")}>
-            <img src={Arrow} alt="" />
-            이전
-          </Before>
+
+        <Btn_box style={isModify ? { justifyContent: "flex-end" } : undefined}>
+          {!isModify && (
+            <Before onClick={() => navigate("/main-2")}>
+              <img src={Arrow} alt="" />
+              이전
+            </Before>
+          )}
           <Next onClick={handleNextStep} style={{ cursor: "pointer" }}>
             다음 단계
             <img src={Arrow} alt="" />
@@ -309,7 +365,9 @@ const Before = styled.div`
   font-size: 16px;
   font-weight: 600;
   gap: 10px;
-  img { rotate: calc(180deg); }
+  img {
+    rotate: calc(180deg);
+  }
 `;
 const Title_box = styled.div`
   display: flex;
@@ -400,8 +458,12 @@ const Search_input = styled.input`
   border: none;
   color: #fff;
   background-color: ${Colors.background.overlay};
-  &:focus { outline: none; }
-  &:placeholder-shown { color: ${Colors.text.disabled}; }
+  &:focus {
+    outline: none;
+  }
+  &:placeholder-shown {
+    color: ${Colors.text.disabled};
+  }
 `;
 const Search_bar = styled.div`
   display: flex;
@@ -431,7 +493,8 @@ const NoDataText = styled.div`
 `;
 const FoldIcon = styled.img<{ isCollapsed: boolean }>`
   transition: transform 0.2s ease;
-  transform: ${({ isCollapsed }) => (isCollapsed ? "rotate(-90deg)" : "rotate(0deg)")};
+  transform: ${({ isCollapsed }) =>
+    isCollapsed ? "rotate(-90deg)" : "rotate(0deg)"};
 `;
 
 export default Main;

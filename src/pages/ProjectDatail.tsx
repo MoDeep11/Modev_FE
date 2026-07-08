@@ -92,7 +92,12 @@ export default function ProjectDetailCheck() {
         <Wrapper>
           <TopContainer>
             <Project>
-              <ProjectTitle>{project.projectName}</ProjectTitle>
+              <ProjectTitleRow>
+                <ProjectTitle>{project.projectName}</ProjectTitle>
+                <EditButton onClick={() => navigation(`/main-modify/${id}`)}>
+                  수정하기
+                </EditButton>
+              </ProjectTitleRow>
               <ProjectDetail>{project.description}</ProjectDetail>
             </Project>
 
@@ -175,7 +180,13 @@ export default function ProjectDetailCheck() {
                 기술 스택 수정
               </ModifySkillStack>
 
-              <Check>확인</Check>
+              <Check
+                onClick={() => {
+                  navigation(`/myproject`);
+                }}
+              >
+                확인
+              </Check>
             </BottomRight>
           </Bottom>
         </Wrapper>
@@ -223,6 +234,27 @@ const Wrapper = styled.div`
 `;
 
 const Project = styled.div``;
+
+const ProjectTitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+const EditButton = styled.button`
+  padding: 4px 14px;
+  border: 1px solid ${Colors.border.strong};
+  background-color: transparent;
+  color: ${Colors.text.secondary};
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+
+  &:hover {
+    color: white;
+    border-color: ${Colors.brand.default};
+  }
+`;
 
 const Bottom = styled.div`
   width: 900px;

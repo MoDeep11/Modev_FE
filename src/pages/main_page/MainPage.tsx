@@ -10,7 +10,6 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   getProjectDetail,
   updateProjectMetadata,
-  generateAIStructure,
 } from "../../apis/project/index";
 
 const Main = () => {
@@ -80,35 +79,17 @@ const Main = () => {
       return await updateProjectMetadata(projectId!, payload);
     },
 
-    onSuccess: async (res) => {
+    onSuccess: (res) => {
       console.log(
         "%c🎉 [PATCH] RESPONSE 성공 데이터 수신 완료:",
         "color: #00ff87; font-weight: bold;",
         res,
       );
 
-      
+      alert("🎉 프로젝트 메타데이터 수정 요청 성공!");
 
-      try {
-        // ✅ 수정된 메타데이터 기준으로 AI 트리 구조 재생성 트리거
-        await generateAIStructure(projectId!);
-        console.log(
-          "%c✅ [POST] 메타데이터 기반 재생성 트리거 성공",
-          "color: #00ff87; font-weight: bold;",
-        );
-
-        // ✅ BuildProgress 페이지에서 바로 실시간 진행 상황을 볼 수 있도록 이동
-        navigate(`/build-progress/${projectId}`);
-      } catch (error) {
-        console.error(
-          "%c❌ [POST] AI 구조 재생성 트리거 실패:",
-          "color: #ff4d4d; font-weight: bold;",
-          error,
-        );
-        alert(
-          "⚠️ 메타데이터는 수정되었으나, 트리 재생성 요청 중 오류가 발생했습니다.",
-        );
-      }
+      // ✅ 이름/설명은 트리 구조와 무관하므로 재생성 없이 바로 상세 페이지로 이동
+      navigate(`/project-detail/${projectId}`);
     },
     onError: (error) => {
       console.error(
@@ -191,7 +172,7 @@ const Main = () => {
         </Main_section>
 
         {isModify && (
-          <Before onClick={() => navigate("/project-detail")}>취소</Before>
+          <Before onClick={() => navigate("/myproject")}>취소</Before>
         )}
 
         <Next onClick={handleNextStep}>
