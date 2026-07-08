@@ -218,11 +218,7 @@ const Main = () => {
         );
         sessionStorage.removeItem("projectForm");
 
-        navigate(
-          isModify
-            ? `/project-detail/${newProjectId}`
-            : `/build-progress/${newProjectId}`,
-        );
+        navigate(`/build-progress/${newProjectId}`);
       } catch (error) {
         console.error("❌ AI 구조 생성/상태 확인 에러:", error);
         alert(
