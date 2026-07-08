@@ -288,6 +288,10 @@ const FolderWrapper = styled.div`
   height: 343px;
   border-radius: 12px;
   padding: 10px;
+
+  overflow-y: auto;
+
+  overflow-x: hidden;
 `;
 
 const Progress = styled.div`
