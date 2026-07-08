@@ -14,16 +14,6 @@ export default function FileTree({
   depth = 0,
   onFileClick,
 }: Props) {
-  // ⭐ 백엔드 파일 조회 API용 path 변환
-  const normalizeFilePath = (path: string) => {
-    if (path.startsWith("frontend/")) {
-      return path.replace("frontend/", "");
-    }
-
-    console.log(node.path);
-    return path;
-  };
-
   return (
     <>
       {nodes.map((node) => {

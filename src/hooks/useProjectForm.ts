@@ -28,7 +28,6 @@ export const useProjectForm = (projectId?: string) => {
     onSuccess: (data) => {
       console.log("📡 Create response:", data);
 
-      // 💡 서버 응답 구조(data.data.projectId 등)에 맞게 생성된 ID를 추출합니다.
       const newProjectId = sessionStorage.getItem(currentProjectId);
       console.log("🆔 Extracted projectId:", newProjectId);
 
@@ -37,7 +36,6 @@ export const useProjectForm = (projectId?: string) => {
       );
       sessionStorage.removeItem(SESSION_KEY);
 
-      // 💡 생성된 ID를 가지고 생성 과정 페이지로 이동합니다.
       if (newProjectId) {
         navigate(`/build-progress/${newProjectId}`);
       }

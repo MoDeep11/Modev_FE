@@ -60,7 +60,7 @@ const FileName = styled.div`
   font-size: 14px;
 `;
 
-const CopyButton = styled.div`
+const CopyButton = styled.button`
   color: white;
   font-size: 14px;
   cursor: pointer;
