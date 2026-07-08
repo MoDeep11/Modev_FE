@@ -47,7 +47,7 @@ export default function ProjectDetailCheck() {
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(fileData?.content ?? "");
+      await navigator.clipboard.writeText(fileData?.data.content ?? "");
     } catch {}
   };
 
@@ -143,7 +143,7 @@ export default function ProjectDetailCheck() {
 
             <CodeWrapper>
               <CodeTextsWrapper>
-                <FileName>{fileData?.filePath ?? "파일명"}</FileName>
+                <FileName>{fileData?.data.filePath ?? "파일명"}</FileName>
                 <CopyButton onClick={handleCopy}>복사하기</CopyButton>
               </CodeTextsWrapper>
               <pre
@@ -156,7 +156,7 @@ export default function ProjectDetailCheck() {
               >
                 {fileLoading
                   ? "로딩 중..."
-                  : (fileData?.content ?? "파일을 선택해주세요.")}
+                  : (fileData?.data.content ?? "파일을 선택해주세요.")}
               </pre>
             </CodeWrapper>
           </BottomWrapper>
