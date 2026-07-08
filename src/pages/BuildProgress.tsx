@@ -34,9 +34,21 @@ export default function BuildProgress() {
 
   useEffect(() => {
     setSelectedFile("");
-    const savedForm = sessionStorage.getItem("projectForm");
-    if (savedForm) {
-      setProjectForm(JSON.parse(savedForm));
+
+    const savedProject = sessionStorage.getItem("createdProject");
+    if (savedProject) {
+      try {
+        const data = JSON.parse(savedProject);
+        setProjectForm({
+          projectName: data.projectName,
+          description: data.description,
+          fieldIds: data.fieldIds ?? [],
+          stackIds: data.stackIds ?? [],
+          dependencyIds: data.dependencyIds ?? [],
+        });
+      } catch (e) {
+        console.error("createdProject 파싱 실패:", e);
+      }
     }
   }, [projectId]);
 
@@ -110,7 +122,10 @@ export default function BuildProgress() {
   return (
     <>
       <WrapperAll>
-        <HeaderV2 text="로그아웃" page="프로젝트 빌더" />
+        <HeaderV2
+          text={localStorage.getItem("accessToken") ? "로그아웃" : "로그인"}
+          page="프로젝트 빌더"
+        />
 
         <WrapperContainer>
           <Wrapper>

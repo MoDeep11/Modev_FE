@@ -169,39 +169,46 @@ const Main = () => {
         return await createProject(payload);
       }
     },
+
     onSuccess: async (response) => {
-      console.log(
-        "%c🎉 성공 데이터 수신 완료:",
-        "color: #00ff87; font-weight: bold;",
-        response,
-      );
+      const newProjectId = isModify
+        ? projectId
+        : response?.data?.projectId || response?.projectId;
 
-      const activeProjectId =
-        projectId || response?.data?.projectId || response?.projectId;
-
-      if (!activeProjectId) {
-        alert("⚠️ 프로젝트 ID를 특정할 수 없습니다.");
+      if (!newProjectId) {
+        alert("⚠️ 프로젝트 처리 응답에 ID가 없습니다.");
         return;
       }
 
-      sessionStorage.setItem("currentProjectId", String(activeProjectId));
+      // 🔧 BuildProgress 페이지 표시용 데이터 구성 (createProject 응답엔 projectName만 있으므로
+      // 사용자가 입력한 원본 폼 데이터와 합쳐서 저장)
+      const savedFormRaw = sessionStorage.getItem("projectForm");
+      const parsedForm = savedFormRaw ? JSON.parse(savedFormRaw) : {};
+
+      const mergedProject = {
+        projectId: newProjectId,
+        projectName: response?.data?.projectName ?? parsedForm.projectName,
+        description: parsedForm.description,
+        fieldIds: parsedForm.fieldIds,
+        stackIds: parsedForm.stackIds,
+        dependencyIds: parsedForm.dependencyIds,
+      };
+
+      sessionStorage.setItem("createdProject", JSON.stringify(mergedProject));
+      sessionStorage.setItem("currentProjectId", String(newProjectId));
 
       try {
         if (isModify) {
-          console.log(
-            `📡 [GET] 재생성 상태 확인 -> /projects/structures/${activeProjectId} (PATCH가 이미 재생성을 트리거함)`,
-          );
-          const statusRes = await getStructureStatus(String(activeProjectId));
+          // PATCH /projects/{id}/stacks 요청 자체가 이미 재생성(status: PENDING)을 트리거하므로
+          // generateAIStructure를 또 호출하면 안 되고, 상태만 조회
+          const statusRes = await getStructureStatus(String(newProjectId));
           console.log(
             "%c✅ [GET] 재생성 상태 수신:",
             "color: #00ff87; font-weight: bold;",
             statusRes,
           );
         } else {
-          console.log(
-            `📡 [POST] AI 구조 생성 트리거 -> /projects/structures (id: ${activeProjectId})`,
-          );
-          await generateAIStructure(String(activeProjectId));
+          await generateAIStructure(String(newProjectId));
         }
 
         alert(
@@ -211,17 +218,15 @@ const Main = () => {
         );
         sessionStorage.removeItem("projectForm");
 
-        const storedProjectId = sessionStorage.getItem("currentProjectId");
-
         navigate(
           isModify
-            ? `/project-detail/${activeProjectId}`
-            : `/build-progress/${storedProjectId}`,
+            ? `/project-detail/${newProjectId}`
+            : `/build-progress/${newProjectId}`,
         );
       } catch (error) {
-        console.error("❌ AI 구조 생성/상태 확인 API 에러:", error);
+        console.error("❌ AI 구조 생성/상태 확인 에러:", error);
         alert(
-          "⚠️ 프로젝트 메타 구조 처리는 반영되었으나, AI 빌드 컨텍스트 처리 중 에러가 발생했습니다.",
+          "⚠️ 프로젝트 처리는 반영되었으나, AI 빌드 컨텍스트 처리 중 에러가 발생했습니다.",
         );
       }
     },
