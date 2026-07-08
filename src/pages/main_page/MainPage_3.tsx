@@ -42,7 +42,6 @@ const Main = () => {
     }
   }, []);
 
-  // 1. 스택 풀 목록 가져오기
   const {
     data: serverData,
     isError: isStacksError,
@@ -65,7 +64,6 @@ const Main = () => {
     enabled: allowedFieldIds.length > 0,
   });
 
-  // 2. 수정 모드 데이터 로드하기
   const { data: projectResponse } = useQuery({
     queryKey: ["projectDetail", projectId],
     queryFn: async () => {
@@ -77,28 +75,11 @@ const Main = () => {
 
   const allStacks: ServerStack[] = serverData?.data?.stacks ?? [];
 
-  // 3. 기존 기술 스택 복원 처리
   useEffect(() => {
-    if (isModify && projectResponse?.data?.stacks && allStacks.length > 0) {
-      const savedStacks = projectResponse.data.stacks;
-      const restored = allStacks.filter((s) =>
-        savedStacks.some(
-          (ss: any) => ss.stackId === s.stackId || ss.name === s.name,
-        ),
-      );
-      setSelectedStacks(restored);
-      console.log(
-        "%c🔄 [수정 모드] 기존 선택 스택 복원 완료:",
-        "color: #ff9f43; font-weight: bold;",
-        restored,
-      );
-    }
-  }, [isModify, projectResponse, allStacks]);
+    if (allStacks.length === 0) return;
 
-  useEffect(() => {
-    if (isModify) return;
     const savedForm = sessionStorage.getItem("projectForm");
-    if (savedForm && allStacks.length > 0) {
+    if (savedForm) {
       const parsed = JSON.parse(savedForm);
       const stackIdsFromSession: string[] = parsed.stackIds || [];
       if (stackIdsFromSession.length > 0) {
@@ -106,9 +87,20 @@ const Main = () => {
           stackIdsFromSession.includes(s.stackId),
         );
         setSelectedStacks(restored);
+        return;
       }
     }
-  }, [allStacks, isModify]);
+
+    if (isModify && projectResponse?.data?.stacks) {
+      const savedStacks = projectResponse.data.stacks;
+      const restored = allStacks.filter((s) =>
+        savedStacks.some(
+          (ss: any) => ss.stackId === s.stackId || ss.name === s.name,
+        ),
+      );
+      setSelectedStacks(restored);
+    }
+  }, [allStacks, isModify, projectResponse]);
 
   useEffect(() => {
     if (isStacksError) {
@@ -291,13 +283,15 @@ const Main = () => {
           </Choice_box>
         </Main_section>
 
-        <Btn_box style={isModify ? { justifyContent: "flex-end" } : undefined}>
-          {!isModify && (
-            <Before onClick={() => navigate("/main-2")}>
-              <img src={Arrow} alt="" />
-              이전
-            </Before>
-          )}
+        <Btn_box>
+          <Before
+            onClick={() =>
+              navigate(isModify ? `/main-md-2/${projectId}` : "/main-2")
+            }
+          >
+            <img src={Arrow} alt="" />
+            이전
+          </Before>
           <Next onClick={handleNextStep} style={{ cursor: "pointer" }}>
             다음 단계
             <img src={Arrow} alt="" />
@@ -308,7 +302,6 @@ const Main = () => {
   );
 };
 
-// ─── 스타일 컴포넌트 원본 100% 보존 ───
 const Body = styled.div`
   width: 100%;
   min-height: calc(100vh - 64px);

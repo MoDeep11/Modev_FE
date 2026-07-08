@@ -21,13 +21,11 @@ const Main = () => {
   const isModify = !!projectId && location.pathname.startsWith("/main-md-2/");
   const [selectedFields, setSelectedFields] = useState<ServerField[]>([]);
 
-  // 1. 전체 개발 분야 리스트 가져오기
   const { data: serverData } = useQuery({
     queryKey: ["devFields"],
     queryFn: getDevFields,
   });
 
-  // 2. 수정 모드일 때 기존 프로젝트 상세 정보 불러오기
   const { data: projectResponse } = useQuery({
     queryKey: ["projectDetail", projectId],
     queryFn: () => getProjectDetail(projectId!),
@@ -36,34 +34,33 @@ const Main = () => {
 
   const allFields: ServerField[] = serverData?.data?.fields ?? [];
 
-  // 3. [수정 모드] 서버에 저장되어 있던 기존 분야 데이터를selectedFields에 바인딩
   useEffect(() => {
-    if (isModify && projectResponse?.data?.fields && allFields.length > 0) {
-      const savedFields = projectResponse.data.fields; // ['Backend', 'Frontend' 등] 또는 객체 배열
+    if (allFields.length === 0) return;
 
+    const savedForm = sessionStorage.getItem("projectForm");
+    if (savedForm) {
+      const parsed = JSON.parse(savedForm);
+      const fieldIdsFromSession: string[] = parsed.fieldIds || [];
+      if (fieldIdsFromSession.length > 0) {
+        const restored = allFields.filter((f) =>
+          fieldIdsFromSession.includes(f.fieldId),
+        );
+        setSelectedFields(restored);
+        return;
+      }
+    }
+
+    if (isModify && projectResponse?.data?.fields) {
+      const savedFields = projectResponse.data.fields;
       const restored = allFields.filter((f) =>
         savedFields.some((sf: any) => {
-          // 서버에서 fieldId로 줄 수도 있고, 단순 string 이름으로 줄 수도 있으므로 둘 다 대응
           const savedId = typeof sf === "string" ? sf : sf.fieldId || sf.name;
           return savedId === f.fieldId || savedId === f.name;
         }),
       );
       setSelectedFields(restored);
     }
-  }, [isModify, projectResponse, allFields]);
-
-  useEffect(() => {
-    if (isModify) return;
-    const savedForm = sessionStorage.getItem("projectForm");
-    if (savedForm && allFields.length > 0) {
-      const parsed = JSON.parse(savedForm);
-      const fieldIdsFromSession: string[] = parsed.fieldIds || [];
-      const restored = allFields.filter((f) =>
-        fieldIdsFromSession.includes(f.fieldId),
-      );
-      setSelectedFields(restored);
-    }
-  }, [allFields, isModify]);
+  }, [allFields, isModify, projectResponse]);
 
   const handleSelectField = (field: ServerField) => {
     if (selectedFields.some((item) => item.fieldId === field.fieldId)) {
@@ -99,7 +96,7 @@ const Main = () => {
               <img src={Arrow} width={16} height={16} alt="" />
             </>
           )}
-          <Process num={isModify ? 1 : 2} text="개발 분야 선택" use={true} />
+          <Process num={isModify ? 1 : 2} text="開發 분야 선택" use={true} />
           <img src={Arrow} width={16} height={16} alt="" />
           <Process num={isModify ? 2 : 3} text="기술 스택 선택" use={false} />
           <img src={Arrow} width={16} height={16} alt="" />
@@ -140,7 +137,6 @@ const Main = () => {
 
             <Dev_box>
               {allFields.map((field) => {
-                // 💡 핵심: selectedFields에 현재 field가 들어있는지 검사하여 활성화 상태 주입!
                 const isSelected = selectedFields.some(
                   (item) => item.fieldId === field.fieldId,
                 );
@@ -153,7 +149,7 @@ const Main = () => {
                       title={field.name}
                       text={field.description}
                       img={field.iconUrl}
-                      isSelected={isSelected} // 👈 이 속성으로 인해 기존 데이터가 있다면 true로 켜집니다!
+                      isSelected={isSelected}
                     />
                   </div>
                 );
@@ -162,14 +158,7 @@ const Main = () => {
           </Choice_box>
         </Main_section>
 
-        <Btn_box>
-          <Before
-            onClick={() =>
-              navigate(isModify ? `/main-modify/${projectId}` : "/")
-            }
-          >
-            <img src={Arrow} alt="" /> 이전
-          </Before>
+        <Btn_box style={{ justifyContent: "flex-end" }}>
           <Next onClick={handleNextStep}>
             다음 단계 <img src={Arrow} alt="" />
           </Next>
@@ -179,7 +168,6 @@ const Main = () => {
   );
 };
 
-// ─── 스타일 컴포넌트 원본 100% 보존 ───
 const Body = styled.div`
   width: 100%;
   min-height: calc(100vh - 64px);
@@ -222,23 +210,7 @@ const Next = styled.div`
   font-size: 16px;
   font-weight: 600;
   gap: 10px;
-`;
-const Before = styled.div`
-  width: 118px;
-  height: 40px;
-  color: #fff;
-  background-color: #000;
-  border: 1px solid #4a4a6a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  gap: 10px;
-  img {
-    rotate: calc(180deg);
-  }
+  cursor: pointer;
 `;
 const Title_box = styled.div`
   display: flex;
