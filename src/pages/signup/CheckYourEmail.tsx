@@ -4,9 +4,12 @@ import { Colors } from "../../styles/color";
 import { useCheckEmail, useSendEmail } from "../../hooks/auth";
 import { useLocation } from "react-router-dom";
 import CodeInput from "../../components/auth/CodeInput";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+
+const RESEND_COOLDOWN_SEC = 60;
+const CODE_EXPIRE_MS = 60 * 1000;
 
 export default function CheckYourEmail() {
   const location = useLocation();
@@ -18,6 +21,9 @@ export default function CheckYourEmail() {
 
   const getCodeRef = useRef<() => string>(() => "");
 
+  const [sentAt, setSentAt] = useState<number>(Date.now());
+  const [cooldown, setCooldown] = useState(0);
+
   useEffect(() => {
     if (!email) {
       toast.error("이메일을 먼저 입력해주세요");
@@ -25,19 +31,42 @@ export default function CheckYourEmail() {
     }
   }, []);
 
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => {
+      setCooldown((prev) => (prev <= 1 ? 0 : prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
+
   const handleConfirm = () => {
     const code = getCodeRef.current();
     if (code.length < 6) {
       toast.error("6자리 코드를 모두 입력해주세요.");
       return;
     }
+
+    if (Date.now() - sentAt > CODE_EXPIRE_MS) {
+      toast.error("시간초과되었습니다. 다시 시도해주세요.");
+      return;
+    }
+
     checkEmail({ email: email, code: code });
   };
 
   const codeReSend = () => {
-    if (!email || isSending) return;
-    sendEmail({ email });
+    if (!email || isSending || cooldown > 0) return;
+    sendEmail(
+      { email },
+      {
+        onSuccess: () => {
+          setSentAt(Date.now());
+          setCooldown(RESEND_COOLDOWN_SEC);
+        },
+      },
+    );
   };
+
   return (
     <>
       <WrapperAll>
@@ -58,8 +87,15 @@ export default function CheckYourEmail() {
 
             <BottomWrapper>
               <CheckButton onClick={handleConfirm}>확인</CheckButton>
-              <VerifyButton $isSending={isSending} onClick={codeReSend}>
-                {isSending ? "발송 중..." : "코드 재발송"}
+              <VerifyButton
+                $isSending={isSending || cooldown > 0}
+                onClick={codeReSend}
+              >
+                {isSending
+                  ? "발송 중..."
+                  : cooldown > 0
+                    ? `코드 재발송 (${cooldown}초 후 가능)`
+                    : "코드 재발송"}
               </VerifyButton>
             </BottomWrapper>
           </Wrapper>
