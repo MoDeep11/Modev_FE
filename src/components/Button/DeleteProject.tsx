@@ -31,7 +31,7 @@ const Delete = styled.div`
   color: ${Colors.status.error};
   background-color: ${Colors.background.base};
   border-radius: 10px;
-  width: 92px;
+  width: 100px;
   height: 39px;
   cursor: pointer;
   display: flex;

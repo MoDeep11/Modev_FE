@@ -195,7 +195,8 @@ const ModifySkillStack = styled.div`
   color: white;
   background-color: ${Colors.background.base};
   border-radius: 10px;
-  width: 160px;
+  width: 170px;
+  justify-content: center;
   display: flex;
   align-items: center;
   height: 39px;
