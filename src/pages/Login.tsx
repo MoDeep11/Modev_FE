@@ -33,7 +33,7 @@ export default function Login() {
   return (
     <>
       <WrapperAll>
-        <Header text="로그인" />
+        <Header text="메인으로" />
         <WrapperContainer>
           <Wrapper>
             <Title>로그인</Title>
