@@ -67,9 +67,7 @@ export const getProjectDependencies = async (
 export const getProjectDetail = async (
   projectId: string,
 ): Promise<ProjectResponse> => {
-  const response = await api.get<ProjectResponse>(
-    `/projects/${projectId}`,
-  );
+  const response = await api.get<ProjectResponse>(`/projects/${projectId}`);
   return response.data;
 };
 
@@ -93,10 +91,14 @@ export const getFileContent = async (
   projectId: string,
   filePath: string,
 ): Promise<FileContent> => {
-  const response = await api.get<any>(`/projects/${projectId}/files`, {
+  const response = await api.get<{
+    success: boolean;
+    data: FileContent;
+    error: string | null;
+  }>(`/projects/structures/${projectId}/files`, {
     params: { filePath },
   });
-  return response.data?.data ?? response.data;
+  return response.data.data;
 };
 
 export const generateAIStructure = async (
