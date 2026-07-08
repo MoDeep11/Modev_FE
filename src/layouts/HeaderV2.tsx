@@ -4,6 +4,7 @@ import { Colors } from "../styles/color";
 import LoginButton from "../components/header/LoginButton";
 import LogoutButton from "../components/header/LogoutButton";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 interface HeaderProps {
   text: "로그아웃" | "로그인";
@@ -19,19 +20,33 @@ export default function HeaderV2({ text, page }: HeaderProps) {
   };
 
   const handleMyProjectClick = () => {
+    const isLogin = !!localStorage.getItem("accessToken");
+
+    if (!isLogin) {
+      toast.error("로그인 후 이용하세요!");
+      return;
+    }
+
     navigate("/myproject");
   };
 
   return (
     <Wrapper>
       <Left>
-        <Img src={MoDevLogo} alt="MoDev로고" />
+        <Img
+          src={MoDevLogo}
+          alt="MoDev로고"
+          style={{ cursor: "pointer" }}
+          onClick={handleProjectBuilderClick}
+        />
+
         <ProjectBuilder
           $isActive={page === "프로젝트 빌더"}
           onClick={handleProjectBuilderClick}
         >
           프로젝트 빌더
         </ProjectBuilder>
+
         <MyProject
           $isActive={page === "내 프로젝트"}
           onClick={handleMyProjectClick}
@@ -39,6 +54,7 @@ export default function HeaderV2({ text, page }: HeaderProps) {
           내 프로젝트
         </MyProject>
       </Left>
+
       <Button />
     </Wrapper>
   );
