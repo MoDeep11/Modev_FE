@@ -25,7 +25,7 @@ export default function Header({ text, onClick }: HeaderProps) {
             if (onClick) {
               onClick();
             } else {
-              navigate("/main");
+              navigate("/");
             }
           }}
         >

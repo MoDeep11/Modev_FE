@@ -17,7 +17,7 @@ import ProtectedRoute from "./layouts/ProtectedRoute";
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
+      <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/emailInput" element={<EmailInput />} />
       <Route path="/checkEmail" element={<CheckYourEmail />} />
@@ -32,7 +32,7 @@ function App() {
       />
       <Route path="/new-project-detail/:id" element={<NewProjectDatail />} />
       <Route path="/project-detail/:id" element={<ProjectDetailCheck />} />
-      <Route path="/main" element={<Main />} />
+      <Route path="/" element={<Main />} />
       <Route path="/main-2" element={<Main_2 />} />
       <Route path="/main-3" element={<Main_3 />} />
       <Route path="/main-4" element={<Main_4 />} />

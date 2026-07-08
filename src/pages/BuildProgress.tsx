@@ -226,14 +226,7 @@ export default function BuildProgress() {
                           : "생성 실패")}
                 </StatusDescription>
 
-                <Detail>
-                  과정 보기{" "}
-                  <img
-                    style={{ marginLeft: "7px", marginTop: "1px" }}
-                    src={under}
-                    alt=""
-                  />
-                </Detail>
+                <Detail>과정 보기 </Detail>
               </ProgressBarBottom>
             </Progress>
 

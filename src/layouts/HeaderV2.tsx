@@ -19,7 +19,7 @@ export default function HeaderV2({ text, page }: HeaderProps) {
     sessionStorage.removeItem("projectForm");
     sessionStorage.removeItem("createdProject");
     sessionStorage.removeItem("currentProjectId");
-    navigate("/main");
+    navigate("/");
   };
 
   const handleMyProjectClick = () => {

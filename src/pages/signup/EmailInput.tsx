@@ -56,7 +56,7 @@ export default function EmailInput() {
 
               <LoginContainer>
                 <SignInQuestion>계정이 있으신가요?</SignInQuestion>
-                <LoginBtn onClick={() => navigate("/")}>로그인</LoginBtn>
+                <LoginBtn onClick={() => navigate("/login")}>로그인</LoginBtn>
               </LoginContainer>
             </BottomWrapper>
           </Wrapper>

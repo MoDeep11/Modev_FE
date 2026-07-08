@@ -103,7 +103,7 @@ api.interceptors.response.use(
         }
 
         localStorage.removeItem("accessToken");
-        window.location.href = "/";
+        window.location.href = "/login";
         return Promise.reject(refreshError);
       }
     }

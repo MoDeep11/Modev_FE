@@ -73,7 +73,7 @@ export const useSignup = () => {
 
     onSuccess: (_, variables) => {
       toast.success("회원가입이 완료되었습니다!");
-      navigate("/", { state: { email: variables.email } });
+      navigate("/login", { state: { email: variables.email } });
     },
 
     onError: (error: AxiosError<ErrorResponse>) => {
@@ -105,7 +105,7 @@ export const useLogin = () => {
         queryKey: ["me"],
       });
       toast.success("로그인 성공!");
-      navigate("/main");
+      navigate("/");
     },
     onError: (error: AxiosError<ErrorResponse>) => {
       const errorCode = getErrorCode(error);

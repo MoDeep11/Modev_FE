@@ -8,7 +8,7 @@ export default function LoginButton() {
   return (
     <Wrapper>
       <Img src={Login}></Img>
-      <Text onClick={() => navigate("/")}>로그인</Text>
+      <Text onClick={() => navigate("/login")}>로그인</Text>
     </Wrapper>
   );
 }

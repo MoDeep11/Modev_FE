@@ -165,7 +165,7 @@ const Main = () => {
         <Btn_box>
           <Before
             onClick={() =>
-              navigate(isModify ? `/main-modify/${projectId}` : "/main")
+              navigate(isModify ? `/main-modify/${projectId}` : "/")
             }
           >
             <img src={Arrow} alt="" /> 이전
