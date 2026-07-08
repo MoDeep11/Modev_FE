@@ -2,14 +2,13 @@ import axios from "axios";
 
 const BaseURL: string = import.meta.env.VITE_BASE_URL;
 
-// 🔧 request/response 인터셉터에서 공통으로 쓰도록 바깥으로 분리
 const skipUrls = [
   "/auth/login",
   "/auth/signup",
   "/auth/email/verify",
   "/auth/email/send",
   "/auth/token/refresh",
-  "/projects/structures", // 프로젝트 생성/조회/스트림 관련 API (토큰 불필요)
+  "/projects/structures",
   "/projects/status",
   "/projects/detail",
   "/projects/file",
@@ -28,7 +27,6 @@ export const api = axios.create({
 let currentRefreshPromise: Promise<string> | null = null;
 
 api.interceptors.request.use((config) => {
-  // 토큰이 필요 없는 API는 Authorization을 붙이지 않음
   if (isSkipUrl(config.url)) return config;
 
   const accessToken = localStorage.getItem("accessToken");
@@ -39,15 +37,25 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    console.log("❌ 401 URL:", error.config?.url);
+    console.log("❌ Status:", error.response?.status);
+
     const config = error.config;
 
-    // 🔧 핵심 수정: 토큰이 필요 없는 공개 API는 401이 떠도
-    // refresh-token 로직(로그인 페이지 강제 이동)을 타지 않고 그대로 에러를 반환
     if (isSkipUrl(config?.url)) {
       return Promise.reject(error);
     }
 
     if (error.response?.status === 401 && !config._retry) {
+      // 🔧 [FIX] 애초에 accessToken이 없던 비회원(게스트)이라면
+      // 리프레시 시도 자체가 무의미함(리프레시 토큰도 없을 가능성이 높음).
+      // 이 경우 alert나 로그인 페이지 강제 이동 없이 에러만 조용히 반환.
+      const hadToken = !!localStorage.getItem("accessToken");
+      if (!hadToken) {
+        console.log("ℹ️ 토큰 없는 게스트 요청 → 리프레시 시도 없이 에러 반환");
+        return Promise.reject(error);
+      }
+
       config._retry = true;
 
       try {

@@ -34,21 +34,22 @@ export default function BuildProgress() {
 
   useEffect(() => {
     setSelectedFile("");
-    // sessionStorage에서 프로젝트 폼 데이터 가져오기
     const savedForm = sessionStorage.getItem("projectForm");
     if (savedForm) {
       setProjectForm(JSON.parse(savedForm));
     }
   }, [projectId]);
 
+  // ✅ 게스트도 접근 가능: authorization: none
   const { data: projectData, refetch } = useProjectStatus(projectId || "");
 
-  // 🔧 sessionStorage의 projectForm은 생성 성공 시 이미 삭제되므로,
-  // 화면 상단 정보는 서버에서 실제 저장된 프로젝트 상세를 조회해서 표시
+  // ✅ 토큰이 있을 때만 시도 → 게스트는 이 요청 자체를 절대 보내지 않음 → 401 안 남
+  const hasToken = !!localStorage.getItem("accessToken");
+
   const { data: projectDetailRes } = useQuery({
     queryKey: ["projectDetail", projectId],
     queryFn: () => getProjectDetail(projectId as string),
-    enabled: !!projectId,
+    enabled: !!projectId && hasToken,
   });
 
   const projectDetail: ProjectDetail | undefined = projectDetailRes?.data;
@@ -57,11 +58,9 @@ export default function BuildProgress() {
 
   useEffect(() => {
     if (!completed) return;
-
     refetch();
   }, [completed, refetch]);
 
-  // 🔧 파일 클릭 시 해당 파일 내용 조회
   useEffect(() => {
     if (!selectedFile || !projectId) {
       setFileContent(null);
@@ -73,6 +72,7 @@ export default function BuildProgress() {
     setIsFileLoading(true);
     setFileError(false);
 
+    // ✅ 게스트도 접근 가능: authorization: none
     getFileContent({ projectId, filePath: selectedFile })
       .then((res: any) => {
         if (ignore) return;
@@ -106,6 +106,7 @@ export default function BuildProgress() {
 
   const fileTree = projectData?.result?.fileTree ?? [];
   const status = projectData?.status ?? "PENDING";
+
   return (
     <>
       <WrapperAll>
@@ -277,6 +278,8 @@ export default function BuildProgress() {
     </>
   );
 }
+
+// ...styled-components 부분은 기존과 동일하게 유지...
 
 const Wrapper = styled.div`
   position: absolute;
