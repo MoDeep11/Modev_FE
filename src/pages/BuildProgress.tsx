@@ -12,6 +12,7 @@ import { useProjectStream } from "../hooks/useProjectStream";
 import { getFileContent } from "../apis/newproject";
 import { getProjectDetail } from "../apis/project/index";
 import type { ProjectDetail } from "../apis/project/type";
+import DownloadZipButton from "../components/newproject/DownloadFile";
 
 interface FileContentState {
   filePath: string;
@@ -285,7 +286,7 @@ export default function BuildProgress() {
 
             <Bottom>
               <ResetButton>처음으로</ResetButton>
-              <DownloadFile>.zip 파일 다운로드</DownloadFile>
+              <DownloadZipButton />
             </Bottom>
           </Wrapper>
         </WrapperContainer>

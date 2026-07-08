@@ -6,7 +6,6 @@ import { AxiosError } from "axios";
 export const useNewDownloadZip = () => {
   return useMutation({
     mutationFn: newDownloadZip,
-    
 
     onSuccess: (res) => {
       const url = res.data?.downloadUrl;
