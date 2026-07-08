@@ -7,26 +7,30 @@ import FileTree from "../components/common/FileTree";
 import { useParams } from "react-router-dom";
 import { useProjectStatus } from "../hooks/newproject";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useProjectStream } from "../hooks/useProjectStream";
+import { getFileContent } from "../apis/newproject";
+import { getProjectDetail } from "../apis/project/index";
+import type { ProjectDetail } from "../apis/project/type";
+
+interface FileContentState {
+  filePath: string;
+  content: string;
+  language?: string;
+}
 
 export default function BuildProgress() {
   const { projectId } = useParams<{ projectId: string }>();
   const [selectedFile, setSelectedFile] = useState("");
   const [projectForm, setProjectForm] = useState<any>({});
 
-  const [selectedTab, setSelectedTab] = useState<
-    "field" | "stack" | "dependency"
-  >("field");
-
   const [activeTab, setActiveTab] = useState<"field" | "stack" | "dependency">(
     "field",
   );
 
-  console.log("🔍 BuildProgress projectId:", projectId);
-
-  console.log(
-    `${import.meta.env.VITE_BASE_URL}/projects/structures/${projectId}/stream`,
-  );
+  const [fileContent, setFileContent] = useState<FileContentState | null>(null);
+  const [isFileLoading, setIsFileLoading] = useState(false);
+  const [fileError, setFileError] = useState(false);
 
   useEffect(() => {
     setSelectedFile("");
@@ -39,6 +43,16 @@ export default function BuildProgress() {
 
   const { data: projectData, refetch } = useProjectStatus(projectId || "");
 
+  // 🔧 sessionStorage의 projectForm은 생성 성공 시 이미 삭제되므로,
+  // 화면 상단 정보는 서버에서 실제 저장된 프로젝트 상세를 조회해서 표시
+  const { data: projectDetailRes } = useQuery({
+    queryKey: ["projectDetail", projectId],
+    queryFn: () => getProjectDetail(projectId as string),
+    enabled: !!projectId,
+  });
+
+  const projectDetail: ProjectDetail | undefined = projectDetailRes?.data;
+
   const { progress, message, completed } = useProjectStream(projectId || "");
 
   useEffect(() => {
@@ -46,6 +60,49 @@ export default function BuildProgress() {
 
     refetch();
   }, [completed, refetch]);
+
+  // 🔧 파일 클릭 시 해당 파일 내용 조회
+  useEffect(() => {
+    if (!selectedFile || !projectId) {
+      setFileContent(null);
+      setFileError(false);
+      return;
+    }
+
+    let ignore = false;
+    setIsFileLoading(true);
+    setFileError(false);
+
+    getFileContent({ projectId, filePath: selectedFile })
+      .then((res: any) => {
+        if (ignore) return;
+        setFileContent(res);
+      })
+      .catch((err) => {
+        if (ignore) return;
+        console.error("❌ 파일 내용 조회 실패:", err);
+        setFileError(true);
+        setFileContent(null);
+      })
+      .finally(() => {
+        if (!ignore) setIsFileLoading(false);
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, [selectedFile, projectId]);
+
+  const handleCopy = async () => {
+    if (!fileContent?.content) return;
+    try {
+      await navigator.clipboard.writeText(fileContent.content);
+      alert("복사되었습니다.");
+    } catch (err) {
+      console.error("❌ 복사 실패:", err);
+      alert("복사에 실패했습니다.");
+    }
+  };
 
   const fileTree = projectData?.result?.fileTree ?? [];
   const status = projectData?.status ?? "PENDING";
@@ -59,10 +116,14 @@ export default function BuildProgress() {
             <TopContainer>
               <Project>
                 <ProjectTitle>
-                  {projectForm.projectName || "프로젝트명"}
+                  {projectDetail?.projectName ||
+                    projectForm.projectName ||
+                    "프로젝트명"}
                 </ProjectTitle>
                 <ProjectDetail>
-                  {projectForm.description || "프로젝트 설명이 들어가~입니다"}
+                  {projectDetail?.description ||
+                    projectForm.description ||
+                    "프로젝트 설명이 들어가~입니다"}
                 </ProjectDetail>
                 <ProjectIdDisplay>ID: {projectId}</ProjectIdDisplay>
               </Project>
@@ -93,7 +154,11 @@ export default function BuildProgress() {
 
                 <SkillItemContainer>
                   {activeTab === "field" &&
-                    (projectForm.fieldIds?.length ? (
+                    (projectDetail?.fields?.length ? (
+                      projectDetail.fields.map((field) => (
+                        <SkillItem key={field}>{field}</SkillItem>
+                      ))
+                    ) : projectForm.fieldIds?.length ? (
                       projectForm.fieldIds.map((field: string) => (
                         <SkillItem key={field}>{field}</SkillItem>
                       ))
@@ -102,7 +167,11 @@ export default function BuildProgress() {
                     ))}
 
                   {activeTab === "stack" &&
-                    (projectForm.stackIds?.length ? (
+                    (projectDetail?.stacks?.length ? (
+                      projectDetail.stacks.map((stack) => (
+                        <SkillItem key={stack.stackId}>{stack.name}</SkillItem>
+                      ))
+                    ) : projectForm.stackIds?.length ? (
                       projectForm.stackIds.map((stack: string) => (
                         <SkillItem key={stack}>{stack}</SkillItem>
                       ))
@@ -111,7 +180,11 @@ export default function BuildProgress() {
                     ))}
 
                   {activeTab === "dependency" &&
-                    (projectForm.dependencyIds?.length ? (
+                    (projectDetail?.dependencies?.length ? (
+                      projectDetail.dependencies.map((dep) => (
+                        <SkillItem key={dep.dependencyId}>{dep.name}</SkillItem>
+                      ))
+                    ) : projectForm.dependencyIds?.length ? (
                       projectForm.dependencyIds.map((dep: string) => (
                         <SkillItem key={dep}>{dep}</SkillItem>
                       ))
@@ -164,9 +237,33 @@ export default function BuildProgress() {
 
               <CodeWrapper>
                 <CodeTextsWrapper>
-                  <FileName>파일명</FileName>
-                  <CopyButton>복사하기</CopyButton>
+                  <FileName>{selectedFile || "파일명"}</FileName>
+                  <CopyButton
+                    onClick={handleCopy}
+                    style={{
+                      cursor: fileContent ? "pointer" : "default",
+                      opacity: fileContent ? 1 : 0.4,
+                    }}
+                  >
+                    복사하기
+                  </CopyButton>
                 </CodeTextsWrapper>
+
+                <CodeContent>
+                  {!selectedFile ? (
+                    <EmptyText>왼쪽 트리에서 파일을 선택해주세요.</EmptyText>
+                  ) : isFileLoading ? (
+                    <EmptyText>파일을 불러오는 중...</EmptyText>
+                  ) : fileError ? (
+                    <EmptyText>파일을 불러오지 못했습니다.</EmptyText>
+                  ) : fileContent ? (
+                    <Pre>
+                      <code>{fileContent.content}</code>
+                    </Pre>
+                  ) : (
+                    <EmptyText>파일을 불러오지 못했습니다.</EmptyText>
+                  )}
+                </CodeContent>
               </CodeWrapper>
             </BottomWrapper>
 
@@ -198,12 +295,6 @@ const ProjectIdDisplay = styled.p`
   font-weight: 400;
   line-height: 16px;
   margin-top: 4px;
-`;
-
-const TabItemText = styled.p`
-  font-size: 12px;
-  color: ${Colors.text.disabled};
-  margin: 0;
 `;
 
 const ProgressBarBottom = styled.div`
@@ -279,6 +370,32 @@ const CodeWrapper = styled.div`
   border-radius: 12px;
   gap: 15px;
   padding: 11px 15px;
+  display: flex;
+  flex-direction: column;
+`;
+
+const CodeContent = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  padding-top: 12px;
+`;
+
+const Pre = styled.pre`
+  margin: 0;
+  color: ${Colors.text.primary};
+  font-family: "Fira Code", Menlo, Consolas, monospace;
+  font-size: 13px;
+  line-height: 20px;
+  white-space: pre-wrap;
+  word-break: break-word;
+`;
+
+const EmptyText = styled.div`
+  color: ${Colors.text.disabled};
+  font-size: 14px;
+  text-align: center;
+  padding-top: 120px;
 `;
 
 const FolderWrapper = styled.div`
@@ -303,12 +420,13 @@ const Progress = styled.div`
 
 const SkillItem = styled.div`
   background-color: ${Colors.background.overlay};
-  width: 76px;
+  width: fit-content;
   height: 24px;
   padding: 4px 12px;
   border-radius: 50px;
   color: white;
   font-size: 12px;
+  white-space: nowrap;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -331,9 +449,11 @@ const TopRightContainer = styled.div`
 const SkillItemContainer = styled.div`
   display: flex;
   flex-direction: row;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
   width: 444px;
-  height: 24px;
+  max-height: 48px;
+  overflow-y: auto;
 `;
 
 const TopContainer = styled.div`
